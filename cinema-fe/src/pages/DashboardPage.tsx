@@ -8,56 +8,27 @@ export default function DashboardPage() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-    navigate("/login");
+    navigate("/");
   };
 
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#0f0f1a",
-        color: "#fff",
-        fontFamily: "'Inter', sans-serif",
-        gap: "1rem",
-      }}
-    >
-      <span style={{ fontSize: "3rem" }}>🎬</span>
-      <h1 style={{ fontSize: "2rem", margin: 0 }}>Welcome, {user?.name ?? "Guest"}!</h1>
-      <p style={{ color: "#a0a0b0" }}>{user?.email}</p>
-      <p
-        style={{
-          background: "rgba(139,92,246,0.15)",
-          border: "1px solid rgba(139,92,246,0.4)",
-          borderRadius: "999px",
-          padding: "0.25rem 1rem",
-          fontSize: "0.85rem",
-          color: "#c4b5fd",
-          textTransform: "uppercase",
-          letterSpacing: "0.1em",
-        }}
-      >
+    <div className="min-h-screen bg-[#0d0d14] flex flex-col items-center justify-center font-inter gap-4">
+      <div className="w-16 h-16 bg-[#e8173a] flex items-center justify-center rounded-2xl mb-2">
+        <span className="text-white font-extrabold text-2xl">N</span>
+      </div>
+      <h1 className="text-3xl font-extrabold text-white">
+        Chao mung, {user?.name ?? "Guest"}!
+      </h1>
+      <p className="text-[#a0a0b0] text-sm">{user?.email}</p>
+      <span className="px-4 py-1 bg-[#e8173a]/15 border border-[#e8173a]/40 rounded-full text-xs font-semibold text-[#f87083] uppercase tracking-widest">
         {user?.role}
-      </p>
+      </span>
       <button
         id="logout-btn"
         onClick={handleLogout}
-        style={{
-          marginTop: "1.5rem",
-          padding: "0.65rem 2rem",
-          background: "linear-gradient(135deg, #7c3aed, #4f46e5)",
-          border: "none",
-          borderRadius: "12px",
-          color: "#fff",
-          fontSize: "0.95rem",
-          fontWeight: 600,
-          cursor: "pointer",
-        }}
+        className="mt-6 px-8 py-2.5 bg-[#e8173a] hover:bg-[#c91131] border-0 text-white text-sm font-semibold rounded-lg cursor-pointer transition-colors"
       >
-        Logout
+        Dang xuat
       </button>
     </div>
   );

@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const httpErrors = require("http-errors");
+const cors = require("cors");
 require("dotenv").config();
 
 const connectDb = require ("./config/db");
@@ -9,6 +10,7 @@ const db = require("./models");
 const ApiRouter = require("./routes/api.route");
 
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 app.use(morgan("dev"));
 
@@ -33,11 +35,10 @@ app.use(async (err, req, res, next) => {
         });
 })
 
-const HOSTNAME = process.env.HOSTNAME || "localhost";
 const PORT = process.env.PORT || 9999;
 
-app.listen(PORT, HOSTNAME, () => {
-    console.log(`Server running at: http://${HOSTNAME}:${PORT}`);
+app.listen(PORT, () => {
+    console.log(`Server running at: http://localhost:${PORT}`);
     //Connect database 
     connectDb();
 });
