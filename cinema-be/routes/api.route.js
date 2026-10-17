@@ -1,7 +1,5 @@
 const express = require("express");
-const db = require("../models");
-const jwt = require("jsonwebtoken");
-const bcryptjs = require("bcryptjs");
+const { register, login } = require("../controllers/auth.controller");
 const verifyToken = require("../middlewares/verifyToken");
 const {
   verifyAccessKey,
@@ -11,62 +9,17 @@ const {
 
 const ApiRouter = express.Router();
 
-//register
-ApiRouter.post("/register", async (req, res) => {
-  try {
-    const { email, password, name } = req.body;
-    console.log(req.body);
-    const user = await db.User.findOne({ email });
-    if (user) {
-      return res.status(400).send({ message: "User already exists" });
-    }
+// ─── Auth Routes ─────────────────────────────────────────────────────────────
 
-    const hashedPassword = await bcryptjs.hash(password, 10);
-    const newUser = new db.User({
-      email,
-      password: hashedPassword,
-      name,
-    });
+// POST /register  – { email, password, name, phone }
+ApiRouter.post("/register", register);
 
-    await newUser.save();
-    res.status(201).send({
-      message: "User created successfully",
-      user: newUser,
-    });
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-});
+// POST /login     – { email, password }
+ApiRouter.post("/login", login);
 
-ApiRouter.post("/login", async (req, res) => {
-  try {
-    const { email, password } = req.body;
+// ─── Protected Routes ─────────────────────────────────────────────────────────
 
-    const user = await db.User.findOne({ email });
-    if (!user) {
-      return res.status(404).send({ message: "User not found" });
-    }
-
-    const isPasswordValid = await bcryptjs.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return res.status(401).send({ message: "Invalid password" });
-    }
-
-    const token = jwt.sign(
-      { userId: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "1h",
-      },
-    );
-
-    res.status(200).send({ token });
-  } catch (error) {
-    res.status(500).send({ message: error.message });
-  }
-});
-
+// GET /protected  – requires Authorization: Bearer <token>
 ApiRouter.get("/protected", verifyToken, async (req, res) => {
   res.status(200).json({
     message: "This is a protected route",
@@ -77,8 +30,7 @@ ApiRouter.get("/protected", verifyToken, async (req, res) => {
   });
 });
 
-// Example: protected by access_key header (access_key: 123456abcdef) 
-// This API for User Only
+// GET /protected-key  – requires access_key header (user role only)
 ApiRouter.get("/protected-key", verifyAccessKey, userOnly, async (req, res) => {
   res.status(200).json({
     message: "This is a protected route (access_key)",
