@@ -42,6 +42,80 @@ export default function DashboardPage() {
       >
         {user?.role}
       </p>
+
+      {/* Menu Điều hướng */}
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "1rem",
+          justifyContent: "center",
+          marginTop: "1.5rem",
+          maxWidth: "600px",
+        }}
+      >
+        <button
+          onClick={() => navigate("/profile")}
+          style={{
+            padding: "0.8rem 1.4rem",
+            background: "#161626",
+            border: "1px solid rgba(255,255,255,0.12)",
+            borderRadius: "12px",
+            color: "#fff",
+            fontSize: "0.95rem",
+            fontWeight: 600,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.5rem",
+          }}
+        >
+          <span>👤</span> Hồ sơ cá nhân
+        </button>
+
+        {user?.role === "admin" && (
+          <>
+            <button
+              onClick={() => navigate("/admin/users")}
+              style={{
+                padding: "0.8rem 1.4rem",
+                background: "#161626",
+                border: "1px solid rgba(99,102,241,0.4)",
+                borderRadius: "12px",
+                color: "#a5b4fc",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+              }}
+            >
+              <span>👥</span> Quản lý tài khoản
+            </button>
+
+            <button
+              onClick={() => navigate("/admin/rooms")}
+              style={{
+                padding: "0.8rem 1.4rem",
+                background: "#161626",
+                border: "1px solid rgba(236,72,153,0.4)",
+                borderRadius: "12px",
+                color: "#f472b6",
+                fontSize: "0.95rem",
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem",
+              }}
+            >
+              <span>🏢</span> Quản lý phòng chiếu
+            </button>
+          </>
+        )}
+      </div>
+
       <button
         id="logout-btn"
         onClick={handleLogout}

@@ -69,6 +69,13 @@ const login = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
+    // Check if account is active
+    if (user.isActive === false) {
+      return res.status(403).json({
+        message: "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.",
+      });
+    }
+
     // Verify password
     const isPasswordValid = await bcryptjs.compare(password, user.password);
     if (!isPasswordValid) {
@@ -91,6 +98,7 @@ const login = async (req, res) => {
         name: user.name,
         phone: user.phone,
         role: user.role,
+        isActive: user.isActive !== false,
       },
     });
   } catch (error) {
