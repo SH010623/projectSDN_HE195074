@@ -24,10 +24,45 @@ const verifyToken = async (req, res, next) => {
             req.role = decoded.role;
             
             next();
-        })
+        });
     } catch (error) {
         next(httpErrors.Unauthorized());
     }
 };
 
+const adminOnly = (req, res, next) => {
+    if (req.role !== 'admin') {
+        return res.status(403).json({
+            message: "Access denied! Only admins are allowed.",
+            status: 403,
+        });
+    }
+    next();
+};
+
+const optionalVerifyToken = (req, res, next) => {
+    try {
+        const authHeader = req.headers['authorization'];
+        if (authHeader) {
+            const bearer = authHeader.split(' ');
+            const token = bearer[1];
+            if (token) {
+                const decoded = jwt.verify(token, process.env.JWT_SECRET);
+                req.userId = decoded.userId;
+                req.role = decoded.role;
+            }
+        }
+    } catch (error) {
+        // Token invalid or expired, proceed as guest
+    }
+    next();
+};
+
+verifyToken.verifyToken = verifyToken;
+verifyToken.adminOnly = adminOnly;
+verifyToken.optionalVerifyToken = optionalVerifyToken;
+
 module.exports = verifyToken;
+module.exports.verifyToken = verifyToken;
+module.exports.adminOnly = adminOnly;
+module.exports.optionalVerifyToken = optionalVerifyToken;

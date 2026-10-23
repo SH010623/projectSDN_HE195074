@@ -1,11 +1,11 @@
 const express = require("express");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const morgan = require("morgan");
 const httpErrors = require("http-errors");
-const cors = require("cors");
 require("dotenv").config();
 
-const connectDb = require ("./config/db");
+const connectDb = require("./config/db");
 const db = require("./models");
 const ApiRouter = require("./routes/api.route");
 
