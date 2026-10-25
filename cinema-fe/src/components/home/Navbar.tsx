@@ -1,4 +1,3 @@
-import React from "react";
 
 interface NavbarProps {
   currentUser: { name?: string; role?: string } | null;

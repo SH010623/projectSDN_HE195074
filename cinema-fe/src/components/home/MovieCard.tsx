@@ -1,4 +1,3 @@
-import React from "react";
 import type { UiMovie } from "./types";
 
 interface MovieCardProps {
