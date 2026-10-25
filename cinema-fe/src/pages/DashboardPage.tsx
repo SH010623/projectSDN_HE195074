@@ -43,6 +43,13 @@ export default function DashboardPage() {
             </button>
 
             <button
+              onClick={() => navigate("/admin/showtimes")}
+              className="px-5 py-3 bg-[#161626] border border-amber-500/40 hover:border-amber-500/70 rounded-xl text-amber-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+            >
+              <span>🕒</span> Quản lý lịch chiếu
+            </button>
+
+            <button
               onClick={() => navigate("/admin/rooms")}
               className="px-5 py-3 bg-[#161626] border border-pink-500/40 hover:border-pink-500/70 rounded-xl text-pink-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
             >

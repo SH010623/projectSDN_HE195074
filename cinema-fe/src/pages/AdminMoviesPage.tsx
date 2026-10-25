@@ -25,7 +25,7 @@ export default function AdminMoviesPage() {
   const [genreFilter, setGenreFilter] = useState("all");
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // Modal thêm / sửa phim
+  // Modal Add / Edit movie
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMovieId, setEditingMovieId] = useState<string | null>(null);
   const [formData, setFormData] = useState<MoviePayload>({
@@ -48,7 +48,8 @@ export default function AdminMoviesPage() {
   const [castInput, setCastInput] = useState("");
   const [saving, setSaving] = useState(false);
 
-  // Modal Trailer
+  // Modal Trailer preview
+
   const [activeTrailerUrl, setActiveTrailerUrl] = useState<string | null>(null);
 
   useEffect(() => {

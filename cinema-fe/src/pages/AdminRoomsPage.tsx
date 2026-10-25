@@ -11,7 +11,7 @@ export default function AdminRoomsPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
-  // Modal thêm / sửa phòng
+  // Modal Add / Edit room
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRoomId, setEditingRoomId] = useState<string | null>(null);
   const [formData, setFormData] = useState<RoomPayload>({
