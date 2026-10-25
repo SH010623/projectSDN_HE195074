@@ -36,10 +36,10 @@ export default function DashboardPage() {
         {user?.role === "admin" && (
           <>
             <button
-              onClick={() => navigate("/admin/users")}
-              className="px-5 py-3 bg-[#161626] border border-indigo-500/40 hover:border-indigo-500/70 rounded-xl text-indigo-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+              onClick={() => navigate("/admin/movies")}
+              className="px-5 py-3 bg-[#161626] border border-rose-500/40 hover:border-rose-500/70 rounded-xl text-rose-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
             >
-              <span>👥</span> Quản lý tài khoản
+              <span>🎬</span> Quản lý phim
             </button>
 
             <button
@@ -47,6 +47,13 @@ export default function DashboardPage() {
               className="px-5 py-3 bg-[#161626] border border-pink-500/40 hover:border-pink-500/70 rounded-xl text-pink-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
             >
               <span>🏢</span> Quản lý phòng chiếu
+            </button>
+
+            <button
+              onClick={() => navigate("/admin/users")}
+              className="px-5 py-3 bg-[#161626] border border-indigo-500/40 hover:border-indigo-500/70 rounded-xl text-indigo-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+            >
+              <span>👥</span> Quản lý tài khoản
             </button>
           </>
         )}

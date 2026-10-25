@@ -1,26 +1,87 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { movies } from "../data/movies";
+import { movies as initialMockMovies } from "../data/movies";
+import { movieService } from "../services/movieService";
+import type { Movie as ApiMovie } from "../services/movieService";
 import LoginModal from "../components/LoginModal";
 import RegisterModal from "../components/RegisterModal";
 
 type ModalState = "none" | "login" | "register";
+
+export interface UiMovie {
+  id: string | number;
+  title: string;
+  titleEn: string;
+  genre: string[];
+  rating: string;
+  duration: string;
+  releaseDate: string;
+  director: string;
+  cast: string[];
+  description: string;
+  poster?: string;
+  banner?: string;
+  posterColor: string;
+  bannerColor: string;
+  badge?: "now-showing" | "coming-soon";
+  trailerUrl?: string;
+}
 
 export default function HomePage() {
   const navigate = useNavigate();
   const [modal, setModal] = useState<ModalState>("none");
   const [activeSlide, setActiveSlide] = useState(0);
   const [activeTab, setActiveTab] = useState<"now-showing" | "coming-soon">("now-showing");
+  const [movieList, setMovieList] = useState<UiMovie[]>(initialMockMovies);
 
-  const nowShowing = movies.filter((m) => m.badge === "now-showing");
-  const comingSoon = movies.filter((m) => m.badge === "coming-soon");
+  const rawUser = localStorage.getItem("user");
+  const currentUser = rawUser ? JSON.parse(rawUser) : null;
+
+  useEffect(() => {
+    fetchMoviesFromBackend();
+  }, []);
+
+  const fetchMoviesFromBackend = async () => {
+    try {
+      const res = await movieService.getMovies({ status: "all" });
+      if (res.movies && res.movies.length > 0) {
+        const mapped: UiMovie[] = res.movies.map((m: ApiMovie) => ({
+          id: m._id,
+          title: m.title,
+          titleEn: m.titleEn || "",
+          genre: m.genres && m.genres.length > 0 ? m.genres : ["Điện Ảnh"],
+          rating: m.rating || "P",
+          duration: `${m.duration} phút`,
+          releaseDate: m.releaseDate
+            ? new Date(m.releaseDate).toLocaleDateString("vi-VN")
+            : "Sắp chiếu",
+          director: m.director || "",
+          cast: m.cast || [],
+          description: m.description || "",
+          poster: m.poster,
+          banner: m.banner,
+          posterColor: m.posterColor || "linear-gradient(145deg, #1a0a2e 0%, #3d1155 50%, #6b21a8 100%)",
+          bannerColor: m.bannerColor || "linear-gradient(135deg, #0d0720 0%, #1e0a3c 40%, #4c1d95 100%)",
+          badge: m.status === "coming_soon" ? "coming-soon" : "now-showing",
+          trailerUrl: m.trailerUrl,
+        }));
+        setMovieList(mapped);
+      }
+    } catch (err) {
+      // Fallback silently to initialMockMovies
+    }
+  };
+
+  const nowShowing = movieList.filter((m) => m.badge === "now-showing");
+  const comingSoon = movieList.filter((m) => m.badge === "coming-soon");
   const displayMovies = activeTab === "now-showing" ? nowShowing : comingSoon;
-  const heroMovie = movies[activeSlide];
+  const heroMovie = movieList[activeSlide] || movieList[0] || initialMockMovies[0];
 
   const handleLoginSuccess = () => {
     setModal("none");
     navigate("/dashboard");
   };
+
 
   const promos = [
     {
@@ -87,22 +148,36 @@ export default function HomePage() {
           </nav>
 
           {/* Auth */}
-          <div className="flex items-center gap-2.5 shrink-0">
-            <button
-              id="nav-register-btn"
-              onClick={() => setModal("register")}
-              className="px-4 py-1.5 bg-transparent border border-white/25 rounded-md text-[#d0d0e0] text-sm font-medium hover:border-white/50 hover:text-white transition-colors cursor-pointer"
-            >
-              Dang ky
-            </button>
-            <button
-              id="nav-login-btn"
-              onClick={() => setModal("login")}
-              className="px-4 py-1.5 bg-[#e8173a] rounded-md text-white text-sm font-semibold hover:bg-[#c91131] transition-colors cursor-pointer border-0"
-            >
-              Dang nhap
-            </button>
-          </div>
+          {currentUser ? (
+            <div className="flex items-center gap-3 shrink-0">
+              <span className="text-sm text-[#a0a0c0] hidden sm:inline">
+                Xin chào, <strong className="text-white">{currentUser.name}</strong>
+              </span>
+              <button
+                onClick={() => navigate("/dashboard")}
+                className="px-4 py-1.5 bg-[#e8173a] rounded-md text-white text-sm font-semibold hover:bg-[#c91131] transition-colors cursor-pointer border-0 flex items-center gap-1.5"
+              >
+                <span>🎬</span> Bảng điều khiển
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2.5 shrink-0">
+              <button
+                id="nav-register-btn"
+                onClick={() => setModal("register")}
+                className="px-4 py-1.5 bg-transparent border border-white/25 rounded-md text-[#d0d0e0] text-sm font-medium hover:border-white/50 hover:text-white transition-colors cursor-pointer"
+              >
+                Dang ky
+              </button>
+              <button
+                id="nav-login-btn"
+                onClick={() => setModal("login")}
+                className="px-4 py-1.5 bg-[#e8173a] rounded-md text-white text-sm font-semibold hover:bg-[#c91131] transition-colors cursor-pointer border-0"
+              >
+                Dang nhap
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -156,6 +231,13 @@ export default function HomePage() {
             </button>
             <button
               id="hero-trailer-btn"
+              onClick={() => {
+                if (heroMovie.trailerUrl) {
+                  window.open(heroMovie.trailerUrl, "_blank");
+                } else {
+                  alert("Chưa có link trailer cho phim này!");
+                }
+              }}
               className="px-7 py-3 bg-white/8 hover:bg-white/14 border border-white/15 text-[#d0d0e0] text-sm font-medium rounded-lg transition-colors cursor-pointer"
             >
               Xem trailer
@@ -167,7 +249,7 @@ export default function HomePage() {
         <button
           id="hero-prev"
           aria-label="Truoc"
-          onClick={() => setActiveSlide((s) => (s - 1 + movies.length) % movies.length)}
+          onClick={() => setActiveSlide((s) => (s - 1 + movieList.length) % movieList.length)}
           className="absolute left-5 top-1/2 -translate-y-1/2 z-30 w-11 h-11 flex items-center justify-center rounded-full bg-white/8 border border-white/15 text-white text-3xl hover:bg-white/16 transition-colors cursor-pointer"
         >
           &#8249;
@@ -175,7 +257,7 @@ export default function HomePage() {
         <button
           id="hero-next"
           aria-label="Sau"
-          onClick={() => setActiveSlide((s) => (s + 1) % movies.length)}
+          onClick={() => setActiveSlide((s) => (s + 1) % movieList.length)}
           className="absolute right-5 top-1/2 -translate-y-1/2 z-30 w-11 h-11 flex items-center justify-center rounded-full bg-white/8 border border-white/15 text-white text-3xl hover:bg-white/16 transition-colors cursor-pointer"
         >
           &#8250;
@@ -183,7 +265,7 @@ export default function HomePage() {
 
         {/* Dots */}
         <div className="absolute bottom-9 left-12 z-30 flex gap-2">
-          {movies.map((_, i) => (
+          {movieList.map((_, i) => (
             <button
               key={i}
               id={`hero-dot-${i}`}
@@ -242,6 +324,18 @@ export default function HomePage() {
                   className="relative h-[200px] flex items-end overflow-hidden"
                   style={{ background: movie.posterColor }}
                 >
+                  {movie.poster && (
+                    <img
+                      src={movie.poster}
+                      alt={movie.title}
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                      onError={(e) => {
+                        // Hide image if broken link
+                        (e.target as HTMLElement).style.display = "none";
+                      }}
+                    />
+                  )}
+
                   {/* Rating badge */}
                   <span className="absolute top-2 left-2 z-20 bg-[#e8173a]/85 text-white text-[0.62rem] font-bold px-1.5 py-0.5 rounded tracking-wider">
                     {movie.rating}

@@ -4,6 +4,7 @@ import DashboardPage from "./pages/DashboardPage";
 import ProfilePage from "./pages/ProfilePage";
 import AdminUsersPage from "./pages/AdminUsersPage";
 import AdminRoomsPage from "./pages/AdminRoomsPage";
+import AdminMoviesPage from "./pages/AdminMoviesPage";
 
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -50,9 +51,18 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/admin/movies"
+          element={
+            <ProtectedRoute>
+              <AdminMoviesPage />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
 }
+
 
 export default App;
