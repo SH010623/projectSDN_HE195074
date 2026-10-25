@@ -87,8 +87,11 @@ const movieSchema = new Schema(
   }
 );
 
-// Tự động gán status theo ngày nếu không được đặt thủ công
-movieSchema.index({ title: "text", director: "text", genres: "text" });
+movieSchema.index(
+  { title: "text", director: "text", genres: "text" },
+  { default_language: "none", language_override: "none" }
+);
+
 
 const Movie = mongoose.model("Movie", movieSchema);
 

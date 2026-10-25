@@ -197,19 +197,7 @@ export default function AdminMoviesPage() {
     }
   };
 
-  const handleSeedData = async () => {
-    if (!window.confirm("Bạn có muốn nạp dữ liệu phim mẫu vào hệ thống?")) return;
-    try {
-      setLoading(true);
-      const res = await movieService.seedSampleMovies();
-      setMessage({ type: "success", text: res.message });
-      fetchMovies();
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Lỗi khi nạp dữ liệu mẫu");
-    } finally {
-      setLoading(false);
-    }
-  };
+
 
   const getRatingBadge = (rating: string) => {
     switch (rating) {
@@ -273,22 +261,7 @@ export default function AdminMoviesPage() {
             >
               + Thêm phim mới
             </button>
-            <button
-              onClick={handleSeedData}
-              style={{
-                padding: "0.65rem 1rem",
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                color: "#e2e8f0",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontWeight: 500,
-                fontSize: "0.85rem",
-              }}
-              title="Tự động thêm danh sách phim mẫu chuẩn rạp"
-            >
-              ✨ Nạp dữ liệu mẫu
-            </button>
+
             <button
               onClick={() => navigate("/dashboard")}
               style={{
@@ -446,10 +419,10 @@ export default function AdminMoviesPage() {
             <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🎞️</div>
             <h3 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0 }}>Chưa có phim nào</h3>
             <p style={{ color: "#8e8ea8", margin: "0.5rem 0 1.5rem" }}>
-              Hãy thêm phim đầu tiên hoặc bấm nút nạp dữ liệu mẫu để thử nghiệm.
+              Hãy thêm bộ phim đầu tiên vào hệ thống rạp chiếu.
             </p>
             <button
-              onClick={handleSeedData}
+              onClick={handleOpenAdd}
               style={{
                 padding: "0.7rem 1.5rem",
                 background: "linear-gradient(135deg, #e8173a, #c0102f)",
@@ -460,7 +433,7 @@ export default function AdminMoviesPage() {
                 cursor: "pointer",
               }}
             >
-              ✨ Nạp 6 phim mẫu ngay
+              + Thêm phim mới ngay
             </button>
           </div>
         ) : (

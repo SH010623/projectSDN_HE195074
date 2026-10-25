@@ -6,7 +6,6 @@ const {
   updateMovie,
   deleteMovie,
   updateMovieStatus,
-  seedSampleMovies,
 } = require("../controllers/movie.controller");
 const {
   verifyToken,
@@ -22,8 +21,6 @@ router.get("/", optionalVerifyToken, getAllMovies);
 // GET /movies/:id – Chi tiết 1 phim
 router.get("/:id", getMovieById);
 
-// POST /movies/seed – Nạp dữ liệu phim mẫu (Admin only)
-router.post("/seed", verifyToken, adminOnly, seedSampleMovies);
 
 // POST /movies – Thêm phim mới (Admin only)
 router.post("/", verifyToken, adminOnly, createMovie);

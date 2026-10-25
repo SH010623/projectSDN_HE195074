@@ -102,13 +102,5 @@ export const movieService = {
     );
     return res.data;
   },
-
-  seedSampleMovies: async (force?: boolean) => {
-    const res = await apiClient.post<{
-      message: string;
-      count: number;
-      movies: Movie[];
-    }>("/movies/seed", null, { params: { force: force ? "true" : undefined } });
-    return res.data;
-  },
 };
+

@@ -1,6 +1,8 @@
-require("dotenv").config();
+const path = require("path");
+require("dotenv").config({ path: path.join(__dirname, ".env") });
 const mongoose = require("mongoose");
 const Movie = require("./models/movie.model");
+
 
 const sampleMovies = [
   {
@@ -126,11 +128,19 @@ async function seed() {
     console.log("Connected successfully!");
 
     // Xoá các phim cũ nếu cần hoặc kiểm tra
+    try {
+      await Movie.collection.dropIndexes();
+      console.log("Dropped old indexes successfully");
+    } catch (e) {
+      // ignore if collection didn't exist
+    }
+
     const existing = await Movie.countDocuments();
     if (existing > 0) {
       console.log(`Đã có ${existing} phim trong DB. Đang làm mới dữ liệu...`);
       await Movie.deleteMany({});
     }
+
 
     const inserted = await Movie.insertMany(sampleMovies);
     console.log(`✅ Seed thành công ${inserted.length} phim vào MongoDB!`);
