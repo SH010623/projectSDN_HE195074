@@ -4,6 +4,7 @@ const profileRoute = require("./profile.route");
 const userRoute = require("./user.route");
 const roomRoute = require("./room.route");
 const movieRoute = require("./movie.route");
+const showtimeRoute = require("./showtime.route");
 const { verifyToken } = require("../middlewares/verifyToken");
 const { verifyAccessKey, userOnly } = require("../middlewares/verifyAccessKey");
 
@@ -15,6 +16,8 @@ router.use("/profile", profileRoute);    // /profile, /profile/change-password
 router.use("/admin/users", userRoute);   // /admin/users, /admin/users/:id, /admin/users/:id/toggle-status
 router.use("/rooms", roomRoute);         // /rooms, /rooms/:id, /rooms/:id/status
 router.use("/movies", movieRoute);       // /movies, /movies/:id
+router.use("/showtimes", showtimeRoute); // /showtimes, /showtimes/:id
+
 
 // ─── Route Test / Legacy ────────────────────────────────────────────────────
 router.get("/protected", verifyToken, async (req, res) => {

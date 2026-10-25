@@ -6,7 +6,8 @@
   "scripts": {
     "start": "nodemon server",
     "dev": "nodemon server",
-    "seed:movies": "node seedMovies.js"
+    "seed:movies": "node seedMovies.js",
+    "seed:showtimes": "node seedShowtimes.js"
   },
   "keywords": [
     "nodejs",
