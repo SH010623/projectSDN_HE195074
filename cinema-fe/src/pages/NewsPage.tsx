@@ -2,6 +2,11 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { newsService } from "../services/newsService";
 import type { NewsItem } from "../services/newsService";
+import Navbar from "../components/home/Navbar";
+import LoginModal from "../components/LoginModal";
+import RegisterModal from "../components/RegisterModal";
+
+type ModalState = "none" | "login" | "register";
 
 export default function NewsPage() {
   const navigate = useNavigate();
@@ -10,6 +15,11 @@ export default function NewsPage() {
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
   const [search, setSearch] = useState("");
   const [readingArticle, setReadingArticle] = useState<NewsItem | null>(null);
+
+  // Authentication modals
+  const [modal, setModal] = useState<ModalState>("none");
+  const rawUser = localStorage.getItem("user");
+  const currentUser = rawUser ? JSON.parse(rawUser) : null;
 
   const categories = ["Tất cả", "Tin điện ảnh", "Khuyến mãi", "Sự kiện", "Thông báo"];
 
@@ -41,7 +51,6 @@ export default function NewsPage() {
   const handleReadArticle = async (item: NewsItem) => {
     setReadingArticle(item);
     try {
-      // Fetch full details and increment views on server
       const res = await newsService.getNewsById(item._id);
       setReadingArticle(res.news);
     } catch (err) {
@@ -64,45 +73,23 @@ export default function NewsPage() {
 
   return (
     <div className="min-h-screen bg-[#0d0d14] text-white font-inter">
-      {/* Header bar */}
-      <header className="sticky top-0 z-30 bg-[#0a0a12]/95 backdrop-blur-md border-b border-white/[0.08] px-6 py-4">
-        <div className="max-w-[1240px] mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
-            <div className="w-9 h-9 bg-[#e8173a] flex items-center justify-center rounded-lg">
-              <span className="text-white font-black text-lg">N</span>
-            </div>
-            <div>
-              <span className="text-white font-bold text-sm tracking-wider uppercase block">Tin Tức Điện Ảnh</span>
-              <span className="text-xs text-[#a0a0b0]">Cập nhật phim ảnh, sự kiện & xu hướng</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/vouchers")}
-              className="px-4 py-2 bg-[#161626] border border-white/10 hover:border-white/20 text-sm font-medium rounded-xl text-emerald-300 transition-colors cursor-pointer"
-            >
-              🎟️ Xem Khuyến Mãi
-            </button>
-            <button
-              onClick={() => navigate("/")}
-              className="px-4 py-2 bg-[#161626] border border-white/10 hover:border-white/20 text-sm font-medium rounded-xl text-[#d0d0e0] hover:text-white transition-colors cursor-pointer"
-            >
-              ← Về Trang Chủ
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* ── 1. NAVBAR GỐC ĐẦY ĐỦ ── */}
+      <Navbar
+        currentUser={currentUser}
+        onOpenLogin={() => setModal("login")}
+        onOpenRegister={() => setModal("register")}
+        onGoToDashboard={() => navigate("/dashboard")}
+      />
 
       {/* Main Container */}
-      <main className="max-w-[1240px] mx-auto px-6 py-10">
+      <main className="max-w-[1240px] mx-auto px-6 pt-24 pb-16">
         {/* Hero Section */}
         <div className="text-center max-w-2xl mx-auto mb-10">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
-            Tin Tức & <span className="text-[#e8173a]">Sự Kiện Nổi Bật</span>
+            Tin Tức & <span className="text-[#e8173a]">Sự Kiện Điện Ảnh</span>
           </h1>
           <p className="text-sm sm:text-base text-[#a0a0b0]">
-            Cập nhật những chuyển động mới nhất của thế giới điện ảnh, các tuần lễ phim đặc sắc và ưu đãi từ cụm rạp.
+            Cập nhật những chuyển động mới nhất của thế giới điện ảnh, các tuần lễ phim đặc sắc và thông báo từ cụm rạp.
           </p>
         </div>
 
@@ -174,8 +161,8 @@ export default function NewsPage() {
                 {/* Body */}
                 <div className="p-5 flex flex-col flex-1">
                   <div className="flex items-center justify-between text-[0.75rem] text-[#8888a0] mb-2">
+                    <span>{new Date(item.createdAt || Date.now()).toLocaleDateString("vi-VN")}</span>
                     <span>Tác giả: {item.author || "Ban Quản Trị"}</span>
-                    <span>👁️ {item.views || 0} lượt xem</span>
                   </div>
 
                   <h2 className="text-lg font-bold text-white mb-2 leading-snug line-clamp-2 group-hover:text-[#f87083] transition-colors">
@@ -187,8 +174,8 @@ export default function NewsPage() {
                   </p>
 
                   <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between">
-                    <span className="text-[0.72rem] text-[#8888a0]">
-                      {new Date(item.createdAt || Date.now()).toLocaleDateString("vi-VN")}
+                    <span className="text-[0.72rem] text-[#6b7280]">
+                      {item.category}
                     </span>
                     <button
                       onClick={() => handleReadArticle(item)}
@@ -238,8 +225,6 @@ export default function NewsPage() {
                 <span>Tác giả: <strong className="text-white">{readingArticle.author || "Ban Quản Trị"}</strong></span>
                 <span>•</span>
                 <span>Ngày đăng: {new Date(readingArticle.createdAt || Date.now()).toLocaleDateString("vi-VN")}</span>
-                <span>•</span>
-                <span>👁️ {readingArticle.views || 0} lượt xem</span>
               </div>
 
               {readingArticle.summary && (
@@ -263,6 +248,24 @@ export default function NewsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Auth Modals */}
+      {modal === "login" && (
+        <LoginModal
+          onClose={() => setModal("none")}
+          onSuccess={() => {
+            setModal("none");
+            navigate("/dashboard");
+          }}
+          onSwitchToRegister={() => setModal("register")}
+        />
+      )}
+      {modal === "register" && (
+        <RegisterModal
+          onClose={() => setModal("none")}
+          onSwitchToLogin={() => setModal("login")}
+        />
       )}
     </div>
   );

@@ -109,7 +109,7 @@ export default function NewsSection({ id = "news" }: NewsSectionProps) {
                 <div className="p-4 flex flex-col flex-1">
                   <div className="flex items-center justify-between text-[0.72rem] text-[#808098] mb-2">
                     <span>{new Date(item.createdAt || Date.now()).toLocaleDateString("vi-VN")}</span>
-                    <span>👁️ {item.views || 0} lượt xem</span>
+                    <span>{item.author || "Ban Quản Trị"}</span>
                   </div>
 
                   <h3 className="font-bold text-white text-sm line-clamp-2 leading-snug mb-2 group-hover:text-[#f87083] transition-colors">
@@ -167,8 +167,6 @@ export default function NewsSection({ id = "news" }: NewsSectionProps) {
                 <span>Tác giả: <strong className="text-white">{readingArticle.author || "Ban Quản Trị"}</strong></span>
                 <span>•</span>
                 <span>Ngày đăng: {new Date(readingArticle.createdAt || Date.now()).toLocaleDateString("vi-VN")}</span>
-                <span>•</span>
-                <span>👁️ {readingArticle.views || 0} lượt xem</span>
               </div>
 
               {readingArticle.summary && (

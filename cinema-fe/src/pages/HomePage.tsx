@@ -7,7 +7,7 @@ import { showtimeService } from "../services/showtimeService";
 import type { Showtime } from "../services/showtimeService";
 
 // Sub-components
-import type { UiMovie, PromoItem } from "../components/home/types";
+import type { UiMovie } from "../components/home/types";
 import Navbar from "../components/home/Navbar";
 import HeroBanner from "../components/home/HeroBanner";
 import MovieSection from "../components/home/MovieSection";
@@ -19,28 +19,6 @@ import LoginModal from "../components/LoginModal";
 import RegisterModal from "../components/RegisterModal";
 
 type ModalState = "none" | "login" | "register";
-
-// Sample promotions list
-const PROMOTIONS: PromoItem[] = [
-  {
-    id: "promo-1",
-    label: "Thứ 4 vui vẻ",
-    desc: "Giảm 30% tất cả các loại ghế thường vào mỗi thứ 4 hàng tuần.",
-    bg: "from-[#1e1040] to-[#4c1d95]",
-  },
-  {
-    id: "promo-2",
-    label: "Combo Gia Đình",
-    desc: "2 vé người lớn + 2 vé trẻ em + 2 nước + 1 bắp lớn chỉ từ 350.000đ.",
-    bg: "from-[#1a0a14] to-[#7c1040]",
-  },
-  {
-    id: "promo-3",
-    label: "Thẻ Thành Viên V.I.P",
-    desc: "Tích điểm mỗi lần mua vé, đổi quà tặng hấp dẫn và ưu đãi lên đến 15%.",
-    bg: "from-[#0a1a30] to-[#1d4ed8]",
-  },
-];
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -187,7 +165,7 @@ export default function HomePage() {
       <NewsSection id="news" />
 
       {/* ── 5. PROMOTIONS SECTION ── */}
-      <PromotionsSection promos={PROMOTIONS} id="promotions" />
+      <PromotionsSection id="promotions" />
 
       {/* ── 6. FOOTER ── */}
       <Footer />

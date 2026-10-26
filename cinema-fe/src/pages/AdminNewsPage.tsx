@@ -217,7 +217,6 @@ export default function AdminNewsPage() {
                   <th className="py-4 px-6">Bài viết</th>
                   <th className="py-4 px-4">Danh mục</th>
                   <th className="py-4 px-4">Tác giả</th>
-                  <th className="py-4 px-4">Lượt xem</th>
                   <th className="py-4 px-4">Trạng thái</th>
                   <th className="py-4 px-6 text-right">Thao tác</th>
                 </tr>
@@ -225,13 +224,13 @@ export default function AdminNewsPage() {
               <tbody className="divide-y divide-white/[0.04]">
                 {loading ? (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-[#a0a0b0]">
+                    <td colSpan={5} className="py-12 text-center text-[#a0a0b0]">
                       Đang tải danh sách bài viết...
                     </td>
                   </tr>
                 ) : newsList.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="py-12 text-center text-[#a0a0b0]">
+                    <td colSpan={5} className="py-12 text-center text-[#a0a0b0]">
                       Chưa có bài viết nào. Bấm "+ Thêm Bài Viết" để tạo bài viết đầu tiên.
                     </td>
                   </tr>
@@ -262,12 +261,6 @@ export default function AdminNewsPage() {
                       </td>
 
                       <td className="py-4 px-4 text-[#d1d5db] font-medium">{item.author || "Ban Quản Trị"}</td>
-
-                      <td className="py-4 px-4 text-[#a0a0b0]">
-                        <span className="flex items-center gap-1.5 font-medium">
-                          <span>👁️</span> {item.views || 0}
-                        </span>
-                      </td>
 
                       <td className="py-4 px-4">
                         <span

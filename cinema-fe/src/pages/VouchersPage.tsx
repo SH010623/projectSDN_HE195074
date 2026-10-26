@@ -2,12 +2,23 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { voucherService } from "../services/voucherService";
 import type { VoucherItem } from "../services/voucherService";
+import Navbar from "../components/home/Navbar";
+import LoginModal from "../components/LoginModal";
+import RegisterModal from "../components/RegisterModal";
+
+type ModalState = "none" | "login" | "register";
 
 export default function VouchersPage() {
   const navigate = useNavigate();
   const [vouchers, setVouchers] = useState<VoucherItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
+  const [selectedVoucher, setSelectedVoucher] = useState<VoucherItem | null>(null);
+
+  // Authentication modals
+  const [modal, setModal] = useState<ModalState>("none");
+  const rawUser = localStorage.getItem("user");
+  const currentUser = rawUser ? JSON.parse(rawUser) : null;
 
   // Quick Calculator
   const [checkCode, setCheckCode] = useState("");
@@ -26,7 +37,6 @@ export default function VouchersPage() {
   const fetchVouchers = async () => {
     try {
       setLoading(true);
-      // Public view only gets active vouchers
       const res = await voucherService.getVouchers();
       setVouchers(res.vouchers);
     } catch (err) {
@@ -72,38 +82,16 @@ export default function VouchersPage() {
 
   return (
     <div className="min-h-screen bg-[#0d0d14] text-white font-inter">
-      {/* Header bar */}
-      <header className="sticky top-0 z-30 bg-[#0a0a12]/95 backdrop-blur-md border-b border-white/[0.08] px-6 py-4">
-        <div className="max-w-[1240px] mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate("/")}>
-            <div className="w-9 h-9 bg-[#e8173a] flex items-center justify-center rounded-lg">
-              <span className="text-white font-black text-lg">N</span>
-            </div>
-            <div>
-              <span className="text-white font-bold text-sm tracking-wider uppercase block">Kho Mã Giảm Giá</span>
-              <span className="text-xs text-[#a0a0b0]">Voucher ưu đãi & Tiết kiệm chi phí vé</span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/news")}
-              className="px-4 py-2 bg-[#161626] border border-white/10 hover:border-white/20 text-sm font-medium rounded-xl text-cyan-300 transition-colors cursor-pointer"
-            >
-              📰 Tin Tức Điện Ảnh
-            </button>
-            <button
-              onClick={() => navigate("/")}
-              className="px-4 py-2 bg-[#161626] border border-white/10 hover:border-white/20 text-sm font-medium rounded-xl text-[#d0d0e0] hover:text-white transition-colors cursor-pointer"
-            >
-              ← Về Trang Chủ
-            </button>
-          </div>
-        </div>
-      </header>
+      {/* ── 1. NAVBAR GỐC ĐẦY ĐỦ ── */}
+      <Navbar
+        currentUser={currentUser}
+        onOpenLogin={() => setModal("login")}
+        onOpenRegister={() => setModal("register")}
+        onGoToDashboard={() => navigate("/dashboard")}
+      />
 
       {/* Main Content */}
-      <main className="max-w-[1240px] mx-auto px-6 py-10">
+      <main className="max-w-[1240px] mx-auto px-6 pt-24 pb-16">
         {/* Hero Section */}
         <div className="text-center max-w-2xl mx-auto mb-10">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
@@ -195,7 +183,6 @@ export default function VouchersPage() {
                 >
                   {/* Top discount banner */}
                   <div className="p-6 border-b border-dashed border-white/10 bg-gradient-to-br from-white/[0.02] to-white/[0.00] relative">
-                    {/* Circle cutouts for ticket voucher look */}
                     <div className="w-5 h-5 bg-[#0d0d14] rounded-full absolute -left-2.5 -bottom-2.5 border-r border-white/10" />
                     <div className="w-5 h-5 bg-[#0d0d14] rounded-full absolute -right-2.5 -bottom-2.5 border-l border-white/10" />
 
@@ -237,20 +224,29 @@ export default function VouchersPage() {
                       </div>
                     </div>
 
-                    {/* Code Copy Box */}
-                    <div className="flex items-center justify-between gap-2 p-2 bg-[#0d0d14] border border-white/10 rounded-xl">
-                      <span className="font-mono font-bold text-sm text-[#f87083] pl-2 tracking-wider">
-                        {item.code}
-                      </span>
+                    {/* Code Copy & Details Actions */}
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between gap-2 p-2 bg-[#0d0d14] border border-white/10 rounded-xl">
+                        <span className="font-mono font-bold text-sm text-[#f87083] pl-2 tracking-wider">
+                          {item.code}
+                        </span>
+                        <button
+                          onClick={() => handleCopyCode(item.code)}
+                          className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border-0 ${
+                            isCopied
+                              ? "bg-emerald-600 text-white"
+                              : "bg-[#e8173a] hover:bg-[#c91131] text-white"
+                          }`}
+                        >
+                          {isCopied ? "✓ Đã copy!" : "Copy mã"}
+                        </button>
+                      </div>
+
                       <button
-                        onClick={() => handleCopyCode(item.code)}
-                        className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer border-0 ${
-                          isCopied
-                            ? "bg-emerald-600 text-white"
-                            : "bg-[#e8173a] hover:bg-[#c91131] text-white"
-                        }`}
+                        onClick={() => setSelectedVoucher(item)}
+                        className="w-full py-1.5 text-xs text-[#a0a0c0] hover:text-white transition-colors cursor-pointer bg-transparent border-0 text-center"
                       >
-                        {isCopied ? "✓ Đã copy!" : "Copy mã"}
+                        Xem chi tiết điều kiện áp dụng &rsaquo;
                       </button>
                     </div>
                   </div>
@@ -260,6 +256,107 @@ export default function VouchersPage() {
           </div>
         )}
       </main>
+
+      {/* Voucher Detail Modal */}
+      {selectedVoucher && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-[#161626] border border-white/15 rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
+            <button
+              onClick={() => setSelectedVoucher(null)}
+              className="absolute top-4 right-4 w-8 h-8 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center cursor-pointer border-0 text-sm"
+            >
+              ✕
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <span className="text-3xl">🎟️</span>
+              <div>
+                <span className="text-xs uppercase tracking-wider text-rose-400 font-semibold block">Chi tiết ưu đãi</span>
+                <h3 className="text-xl font-bold text-white">{selectedVoucher.title}</h3>
+              </div>
+            </div>
+
+            <div className="p-4 bg-[#0d0d14] rounded-xl border border-white/10 mb-5">
+              <div className="text-xs text-[#a0a0b0] mb-1">Mã ưu đãi:</div>
+              <div className="flex items-center justify-between">
+                <span className="font-mono font-extrabold text-xl text-[#86efac] tracking-wider">
+                  {selectedVoucher.code}
+                </span>
+                <button
+                  onClick={() => handleCopyCode(selectedVoucher.code)}
+                  className="px-4 py-1.5 bg-[#e8173a] hover:bg-[#c91131] text-white text-xs font-semibold rounded-lg cursor-pointer border-0"
+                >
+                  {copiedCode === selectedVoucher.code ? "✓ Đã copy!" : "Sao chép mã"}
+                </button>
+              </div>
+            </div>
+
+            <div className="space-y-3 text-sm text-[#d1d5db] border-t border-b border-white/[0.08] py-4 mb-6">
+              <div className="flex justify-between">
+                <span className="text-[#a0a0b0]">Mức giảm giá:</span>
+                <strong className="text-white">
+                  {selectedVoucher.discountType === "percentage"
+                    ? `Giảm ${selectedVoucher.discountValue}%`
+                    : `Giảm ${selectedVoucher.discountValue.toLocaleString()} VNĐ`}
+                </strong>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-[#a0a0b0]">Đơn tối thiểu:</span>
+                <strong className="text-white">
+                  {selectedVoucher.minOrderValue > 0
+                    ? `${selectedVoucher.minOrderValue.toLocaleString()} VNĐ`
+                    : "Không yêu cầu"}
+                </strong>
+              </div>
+              {selectedVoucher.discountType === "percentage" && selectedVoucher.maxDiscount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-[#a0a0b0]">Mức giảm tối đa:</span>
+                  <strong className="text-white">{selectedVoucher.maxDiscount.toLocaleString()} VNĐ</strong>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="text-[#a0a0b0]">Thời hạn áp dụng:</span>
+                <strong className="text-amber-300">
+                  {new Date(selectedVoucher.endDate).toLocaleDateString("vi-VN")}
+                </strong>
+              </div>
+              <div className="pt-2">
+                <span className="text-[#a0a0b0] block text-xs mb-1">Mô tả / Điều kiện chi tiết:</span>
+                <p className="text-xs leading-relaxed text-[#c4b5fd]">
+                  {selectedVoucher.description || "Áp dụng cho mọi khách hàng đặt vé xem phim trực tuyến tại hệ thống rạp."}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                onClick={() => setSelectedVoucher(null)}
+                className="px-6 py-2.5 bg-[#e8173a] hover:bg-[#c91131] text-white rounded-xl text-sm font-semibold transition-colors cursor-pointer border-0"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Auth Modals */}
+      {modal === "login" && (
+        <LoginModal
+          onClose={() => setModal("none")}
+          onSuccess={() => {
+            setModal("none");
+            navigate("/dashboard");
+          }}
+          onSwitchToRegister={() => setModal("register")}
+        />
+      )}
+      {modal === "register" && (
+        <RegisterModal
+          onClose={() => setModal("none")}
+          onSwitchToLogin={() => setModal("login")}
+        />
+      )}
     </div>
   );
 }
