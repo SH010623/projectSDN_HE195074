@@ -12,6 +12,7 @@ import Navbar from "../components/home/Navbar";
 import HeroBanner from "../components/home/HeroBanner";
 import MovieSection from "../components/home/MovieSection";
 import ShowtimeModal from "../components/home/ShowtimeModal";
+import NewsSection from "../components/home/NewsSection";
 import PromotionsSection from "../components/home/PromotionsSection";
 import Footer from "../components/home/Footer";
 import LoginModal from "../components/LoginModal";
@@ -182,10 +183,13 @@ export default function HomePage() {
         onSelectMovie={handleOpenShowtimes}
       />
 
-      {/* ── 4. PROMOTIONS SECTION ── */}
-      <PromotionsSection promos={PROMOTIONS} />
+      {/* ── 4. NEWS SECTION ── */}
+      <NewsSection id="news" />
 
-      {/* ── 5. FOOTER ── */}
+      {/* ── 5. PROMOTIONS SECTION ── */}
+      <PromotionsSection promos={PROMOTIONS} id="promotions" />
+
+      {/* ── 6. FOOTER ── */}
       <Footer />
 
       {/* ── 6. SHOWTIME BOOKING MODAL ── */}

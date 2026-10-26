@@ -6,15 +6,14 @@ interface NavbarProps {
   onGoToDashboard: () => void;
 }
 
-// Navigation links list
 const NAV_LINKS: { id: string; label: string; href: string; active?: boolean }[] = [
   { id: "nav-home", label: "Trang chủ", href: "/", active: true },
-  { id: "nav-schedule", label: "Lịch chiếu", href: "/#schedule" },
-  { id: "nav-news", label: "Tin tức", href: "/news" },
-  { id: "nav-promotions", label: "Khuyến mãi & Voucher", href: "/vouchers" },
-  { id: "nav-tickets", label: "Giá vé", href: "/#tickets" },
-  { id: "nav-festival", label: "Liên hoan phim", href: "/#festival" },
-  { id: "nav-about", label: "Giới thiệu", href: "/#about" },
+  { id: "nav-schedule", label: "Lịch chiếu", href: "#schedule" },
+  { id: "nav-news", label: "Tin tức", href: "#news" },
+  { id: "nav-promotions", label: "Khuyến mãi", href: "#promotions" },
+  { id: "nav-tickets", label: "Giá vé", href: "#tickets" },
+  { id: "nav-festival", label: "Liên hoan phim", href: "#festival" },
+  { id: "nav-about", label: "Giới thiệu", href: "#about" },
 ];
 
 export default function Navbar({

@@ -6,7 +6,7 @@ export interface NewsItem {
   summary?: string;
   content: string;
   image?: string;
-  category: "Movies" | "Promotions" | "Events" | "Announcements";
+  category: "Tin điện ảnh" | "Khuyến mãi" | "Sự kiện" | "Thông báo" | string;
   author?: string;
   views: number;
   isActive: boolean;
@@ -19,7 +19,7 @@ export interface NewsPayload {
   summary?: string;
   content: string;
   image?: string;
-  category?: "Movies" | "Promotions" | "Events" | "Announcements";
+  category?: "Tin điện ảnh" | "Khuyến mãi" | "Sự kiện" | "Thông báo" | string;
   author?: string;
   isActive?: boolean;
 }

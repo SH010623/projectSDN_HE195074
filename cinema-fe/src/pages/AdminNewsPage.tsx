@@ -8,7 +8,7 @@ export default function AdminNewsPage() {
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
-  const [categoryFilter, setCategoryFilter] = useState("All");
+  const [categoryFilter, setCategoryFilter] = useState("Tất cả");
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   // Modal State
@@ -16,11 +16,11 @@ export default function AdminNewsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState<NewsPayload>({
     title: "",
-    category: "Movies",
+    category: "Tin điện ảnh",
     summary: "",
     content: "",
     image: "",
-    author: "Admin",
+    author: "Ban Quản Trị",
   });
   const [saving, setSaving] = useState(false);
 
@@ -32,7 +32,7 @@ export default function AdminNewsPage() {
     try {
       setLoading(true);
       const params: any = { all: "true" };
-      if (categoryFilter !== "All") params.category = categoryFilter;
+      if (categoryFilter !== "Tất cả") params.category = categoryFilter;
       if (search.trim()) params.search = search.trim();
 
       const res = await newsService.getNews(params);
@@ -40,7 +40,7 @@ export default function AdminNewsPage() {
     } catch (err: any) {
       setMessage({
         type: "error",
-        text: err.response?.data?.message || "Failed to load news articles",
+        text: err.response?.data?.message || "Không thể tải danh sách bài viết",
       });
     } finally {
       setLoading(false);
@@ -56,11 +56,11 @@ export default function AdminNewsPage() {
     setEditingId(null);
     setFormData({
       title: "",
-      category: "Movies",
+      category: "Tin điện ảnh",
       summary: "",
       content: "",
       image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800",
-      author: "Admin",
+      author: "Ban Quản Trị",
     });
     setIsModalOpen(true);
   };
@@ -73,7 +73,7 @@ export default function AdminNewsPage() {
       summary: item.summary || "",
       content: item.content,
       image: item.image || "",
-      author: item.author || "Admin",
+      author: item.author || "Ban Quản Trị",
     });
     setIsModalOpen(true);
   };
@@ -84,15 +84,15 @@ export default function AdminNewsPage() {
       setSaving(true);
       if (editingId) {
         await newsService.updateNews(editingId, formData);
-        setMessage({ type: "success", text: "Article updated successfully" });
+        setMessage({ type: "success", text: "Cập nhật bài viết thành công" });
       } else {
         await newsService.createNews(formData);
-        setMessage({ type: "success", text: "New article published successfully" });
+        setMessage({ type: "success", text: "Thêm bài viết mới thành công" });
       }
       setIsModalOpen(false);
       fetchNews();
     } catch (err: any) {
-      alert(err.response?.data?.message || "Error saving article");
+      alert(err.response?.data?.message || "Lỗi khi lưu bài viết");
     } finally {
       setSaving(false);
     }
@@ -104,28 +104,28 @@ export default function AdminNewsPage() {
       setMessage({ type: "success", text: res.message });
       fetchNews();
     } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to toggle status");
+      alert(err.response?.data?.message || "Không thể thay đổi trạng thái bài viết");
     }
   };
 
   const handleDelete = async (id: string, title: string) => {
-    if (!window.confirm(`Are you sure you want to delete "${title}"?`)) return;
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa bài viết "${title}"?`)) return;
     try {
       await newsService.deleteNews(id);
-      setMessage({ type: "success", text: "Article deleted successfully" });
+      setMessage({ type: "success", text: "Đã xóa bài viết thành công" });
       fetchNews();
     } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to delete article");
+      alert(err.response?.data?.message || "Không thể xóa bài viết");
     }
   };
 
   const getCategoryBadgeClass = (category: string) => {
     switch (category) {
-      case "Movies":
+      case "Tin điện ảnh":
         return "bg-rose-500/15 text-rose-300 border-rose-500/30";
-      case "Promotions":
+      case "Khuyến mãi":
         return "bg-amber-500/15 text-amber-300 border-amber-500/30";
-      case "Events":
+      case "Sự kiện":
         return "bg-purple-500/15 text-purple-300 border-purple-500/30";
       default:
         return "bg-blue-500/15 text-blue-300 border-blue-500/30";
@@ -140,9 +140,9 @@ export default function AdminNewsPage() {
           <div>
             <div className="flex items-center gap-3">
               <span className="text-2xl">📰</span>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">News & Articles</h1>
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Quản Lý Tin Tức & Bài Viết</h1>
             </div>
-            <p className="text-[#a0a0b0] text-sm mt-1">Manage cinema news, promotional posts, and announcements</p>
+            <p className="text-[#a0a0b0] text-sm mt-1">Đăng tải bài viết tin tức điện ảnh, sự kiện và thông báo của rạp</p>
           </div>
 
           <div className="flex items-center gap-3">
@@ -150,13 +150,13 @@ export default function AdminNewsPage() {
               onClick={handleOpenCreate}
               className="px-5 py-2.5 bg-[#e8173a] hover:bg-[#c91131] text-white text-sm font-semibold rounded-xl transition-colors cursor-pointer border-0 shadow-lg shadow-red-950/40"
             >
-              + Add Article
+              + Thêm Bài Viết
             </button>
             <button
               onClick={() => navigate("/dashboard")}
               className="px-4 py-2.5 bg-[#161626] border border-white/10 hover:border-white/20 text-[#a0a0b0] hover:text-white text-sm font-medium rounded-xl transition-colors cursor-pointer"
             >
-              ← Dashboard
+              ← Bảng điều khiển
             </button>
           </div>
         </div>
@@ -179,7 +179,7 @@ export default function AdminNewsPage() {
           <form onSubmit={handleSearchSubmit} className="flex gap-2 flex-1 min-w-[280px]">
             <input
               type="text"
-              placeholder="Search by title or summary..."
+              placeholder="Tìm kiếm theo tiêu đề hoặc tóm tắt..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="flex-1 px-4 py-2 bg-[#0d0d14] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-[#e8173a]/60"
@@ -188,22 +188,22 @@ export default function AdminNewsPage() {
               type="submit"
               className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white text-sm font-medium rounded-xl transition-colors cursor-pointer border-0"
             >
-              Search
+              Tìm kiếm
             </button>
           </form>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs text-[#a0a0b0] uppercase tracking-wider">Category:</span>
+            <span className="text-xs text-[#a0a0b0] uppercase tracking-wider">Danh mục:</span>
             <select
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
               className="px-3 py-2 bg-[#0d0d14] border border-white/10 rounded-xl text-white text-sm focus:outline-none"
             >
-              <option value="All">All Categories</option>
-              <option value="Movies">Movies</option>
-              <option value="Promotions">Promotions</option>
-              <option value="Events">Events</option>
-              <option value="Announcements">Announcements</option>
+              <option value="Tất cả">Tất cả danh mục</option>
+              <option value="Tin điện ảnh">Tin điện ảnh</option>
+              <option value="Khuyến mãi">Khuyến mãi</option>
+              <option value="Sự kiện">Sự kiện</option>
+              <option value="Thông báo">Thông báo</option>
             </select>
           </div>
         </div>
@@ -214,25 +214,25 @@ export default function AdminNewsPage() {
             <table className="w-full text-left text-sm border-collapse">
               <thead>
                 <tr className="border-b border-white/[0.08] bg-white/[0.02] text-[#a0a0b0] font-medium text-xs uppercase tracking-wider">
-                  <th className="py-4 px-6">Article</th>
-                  <th className="py-4 px-4">Category</th>
-                  <th className="py-4 px-4">Author</th>
-                  <th className="py-4 px-4">Views</th>
-                  <th className="py-4 px-4">Status</th>
-                  <th className="py-4 px-6 text-right">Actions</th>
+                  <th className="py-4 px-6">Bài viết</th>
+                  <th className="py-4 px-4">Danh mục</th>
+                  <th className="py-4 px-4">Tác giả</th>
+                  <th className="py-4 px-4">Lượt xem</th>
+                  <th className="py-4 px-4">Trạng thái</th>
+                  <th className="py-4 px-6 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
                 {loading ? (
                   <tr>
                     <td colSpan={6} className="py-12 text-center text-[#a0a0b0]">
-                      Loading articles...
+                      Đang tải danh sách bài viết...
                     </td>
                   </tr>
                 ) : newsList.length === 0 ? (
                   <tr>
                     <td colSpan={6} className="py-12 text-center text-[#a0a0b0]">
-                      No articles found. Click "+ Add Article" to publish one.
+                      Chưa có bài viết nào. Bấm "+ Thêm Bài Viết" để tạo bài viết đầu tiên.
                     </td>
                   </tr>
                 ) : (
@@ -247,13 +247,9 @@ export default function AdminNewsPage() {
                           />
                           <div className="max-w-[360px]">
                             <h3 className="font-semibold text-white leading-snug line-clamp-1">{item.title}</h3>
-                            <p className="text-xs text-[#a0a0b0] line-clamp-1 mt-0.5">{item.summary || "No summary provided"}</p>
+                            <p className="text-xs text-[#a0a0b0] line-clamp-1 mt-0.5">{item.summary || "Không có tóm tắt"}</p>
                             <span className="text-[0.7rem] text-[#6b7280] block mt-1">
-                              {new Date(item.createdAt || Date.now()).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "short",
-                                day: "numeric",
-                              })}
+                              {new Date(item.createdAt || Date.now()).toLocaleDateString("vi-VN")}
                             </span>
                           </div>
                         </div>
@@ -265,7 +261,7 @@ export default function AdminNewsPage() {
                         </span>
                       </td>
 
-                      <td className="py-4 px-4 text-[#d1d5db] font-medium">{item.author || "Admin"}</td>
+                      <td className="py-4 px-4 text-[#d1d5db] font-medium">{item.author || "Ban Quản Trị"}</td>
 
                       <td className="py-4 px-4 text-[#a0a0b0]">
                         <span className="flex items-center gap-1.5 font-medium">
@@ -281,7 +277,7 @@ export default function AdminNewsPage() {
                               : "bg-zinc-500/15 text-zinc-400 border-zinc-500/30"
                           }`}
                         >
-                          {item.isActive ? "● Published" : "○ Hidden"}
+                          {item.isActive ? "● Đang hiển thị" : "○ Đang ẩn"}
                         </span>
                       </td>
 
@@ -291,7 +287,7 @@ export default function AdminNewsPage() {
                             onClick={() => handleOpenEdit(item)}
                             className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-medium text-[#c4b5fd] transition-colors cursor-pointer"
                           >
-                            Edit
+                            Sửa
                           </button>
                           <button
                             onClick={() => handleToggleStatus(item)}
@@ -301,13 +297,13 @@ export default function AdminNewsPage() {
                                 : "bg-emerald-500/10 border-emerald-500/20 text-emerald-300 hover:bg-emerald-500/20"
                             }`}
                           >
-                            {item.isActive ? "Hide" : "Show"}
+                            {item.isActive ? "Ẩn" : "Hiện"}
                           </button>
                           <button
                             onClick={() => handleDelete(item._id, item.title)}
                             className="px-3 py-1.5 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 text-rose-400 rounded-lg text-xs font-medium transition-colors cursor-pointer"
                           >
-                            Delete
+                            Xóa
                           </button>
                         </div>
                       </td>
@@ -324,16 +320,16 @@ export default function AdminNewsPage() {
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-[#161626] border border-white/15 rounded-2xl p-6 sm:p-8 max-w-[620px] w-full max-h-[90vh] overflow-y-auto shadow-2xl">
               <h2 className="text-xl font-bold mb-5 flex items-center gap-2">
-                <span>{editingId ? "✏️ Edit Article" : "✨ Create New Article"}</span>
+                <span>{editingId ? "✏️ Chỉnh Sửa Bài Viết" : "✨ Tạo Bài Viết Mới"}</span>
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-[#a0a0b0] mb-1">Title (*)</label>
+                  <label className="block text-xs font-medium text-[#a0a0b0] mb-1">Tiêu đề bài viết (*)</label>
                   <input
                     type="text"
                     required
-                    placeholder="Enter article title..."
+                    placeholder="Nhập tiêu đề tin tức..."
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     className="w-full px-4 py-2.5 bg-[#0d0d14] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-[#e8173a]/60"
@@ -342,24 +338,24 @@ export default function AdminNewsPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-[#a0a0b0] mb-1">Category</label>
+                    <label className="block text-xs font-medium text-[#a0a0b0] mb-1">Danh mục</label>
                     <select
                       value={formData.category}
                       onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
                       className="w-full px-3 py-2.5 bg-[#0d0d14] border border-white/10 rounded-xl text-white text-sm focus:outline-none"
                     >
-                      <option value="Movies">Movies</option>
-                      <option value="Promotions">Promotions</option>
-                      <option value="Events">Events</option>
-                      <option value="Announcements">Announcements</option>
+                      <option value="Tin điện ảnh">Tin điện ảnh</option>
+                      <option value="Khuyến mãi">Khuyến mãi</option>
+                      <option value="Sự kiện">Sự kiện</option>
+                      <option value="Thông báo">Thông báo</option>
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-[#a0a0b0] mb-1">Author</label>
+                    <label className="block text-xs font-medium text-[#a0a0b0] mb-1">Tác giả</label>
                     <input
                       type="text"
-                      placeholder="e.g. Cinema Newsroom"
+                      placeholder="VD: Ban Biên Tập Rạp"
                       value={formData.author}
                       onChange={(e) => setFormData({ ...formData, author: e.target.value })}
                       className="w-full px-4 py-2.5 bg-[#0d0d14] border border-white/10 rounded-xl text-white text-sm focus:outline-none"
@@ -368,7 +364,7 @@ export default function AdminNewsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-[#a0a0b0] mb-1">Cover Image URL</label>
+                  <label className="block text-xs font-medium text-[#a0a0b0] mb-1">Ảnh bìa (Đường dẫn URL)</label>
                   <input
                     type="url"
                     placeholder="https://..."
@@ -379,10 +375,10 @@ export default function AdminNewsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-[#a0a0b0] mb-1">Short Summary</label>
+                  <label className="block text-xs font-medium text-[#a0a0b0] mb-1">Tóm tắt ngắn</label>
                   <textarea
                     rows={2}
-                    placeholder="A brief summary for previews..."
+                    placeholder="Mô tả tóm tắt nội dung để hiển thị trên danh sách..."
                     value={formData.summary}
                     onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
                     className="w-full px-4 py-2 bg-[#0d0d14] border border-white/10 rounded-xl text-white text-sm focus:outline-none"
@@ -390,11 +386,11 @@ export default function AdminNewsPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-[#a0a0b0] mb-1">Article Content (*)</label>
+                  <label className="block text-xs font-medium text-[#a0a0b0] mb-1">Nội dung chi tiết (*)</label>
                   <textarea
                     rows={6}
                     required
-                    placeholder="Full article content in text or markdown..."
+                    placeholder="Nhập toàn bộ nội dung bài viết..."
                     value={formData.content}
                     onChange={(e) => setFormData({ ...formData, content: e.target.value })}
                     className="w-full px-4 py-2.5 bg-[#0d0d14] border border-white/10 rounded-xl text-white text-sm focus:outline-none"
@@ -407,14 +403,14 @@ export default function AdminNewsPage() {
                     onClick={() => setIsModalOpen(false)}
                     className="px-5 py-2.5 bg-transparent border border-white/20 hover:border-white/40 text-[#a0a0b0] hover:text-white rounded-xl text-sm font-medium transition-colors cursor-pointer"
                   >
-                    Cancel
+                    Hủy bỏ
                   </button>
                   <button
                     type="submit"
                     disabled={saving}
                     className="px-6 py-2.5 bg-[#e8173a] hover:bg-[#c91131] text-white rounded-xl text-sm font-semibold transition-colors cursor-pointer border-0"
                   >
-                    {saving ? "Saving..." : editingId ? "Save Changes" : "Publish Article"}
+                    {saving ? "Đang lưu..." : editingId ? "Lưu thay đổi" : "Xuất bản bài viết"}
                   </button>
                 </div>
               </form>

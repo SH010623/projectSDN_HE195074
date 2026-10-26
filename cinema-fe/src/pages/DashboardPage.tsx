@@ -17,11 +17,11 @@ export default function DashboardPage() {
         <span className="text-white font-extrabold text-2xl">N</span>
       </div>
       <h1 className="text-3xl font-extrabold text-white">
-        Chao mung, {user?.name ?? "Guest"}!
+        Chào mừng, {user?.name ?? "Khách"}!
       </h1>
       <p className="text-[#a0a0b0] text-sm">{user?.email}</p>
       <span className="px-4 py-1 bg-[#e8173a]/15 border border-[#e8173a]/40 rounded-full text-xs font-semibold text-[#f87083] uppercase tracking-widest">
-        {user?.role}
+        {user?.role === "admin" ? "Quản trị viên" : "Thành viên"}
       </span>
 
       {/* Menu Điều hướng */}
@@ -98,7 +98,7 @@ export default function DashboardPage() {
         onClick={handleLogout}
         className="mt-6 px-8 py-2.5 bg-[#e8173a] hover:bg-[#c91131] border-0 text-white text-sm font-semibold rounded-lg cursor-pointer transition-colors"
       >
-        Dang xuat
+        Đăng xuất
       </button>
     </div>
   );

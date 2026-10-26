@@ -1,6 +1,6 @@
 const db = require("../models");
 
-// GET /vouchers - List vouchers
+// GET /vouchers - Danh sách voucher
 const getAllVouchers = async (req, res) => {
   try {
     const { all, search } = req.query;
@@ -21,7 +21,7 @@ const getAllVouchers = async (req, res) => {
     const vouchers = await db.Voucher.find(query).sort({ createdAt: -1 });
 
     return res.status(200).json({
-      message: "Vouchers fetched successfully",
+      message: "Lấy danh sách voucher thành công",
       total: vouchers.length,
       vouchers,
     });
@@ -30,16 +30,16 @@ const getAllVouchers = async (req, res) => {
   }
 };
 
-// GET /vouchers/:id - Get single voucher
+// GET /vouchers/:id - Xem chi tiết voucher
 const getVoucherById = async (req, res) => {
   try {
     const voucher = await db.Voucher.findById(req.params.id);
     if (!voucher) {
-      return res.status(404).json({ message: "Voucher not found" });
+      return res.status(404).json({ message: "Không tìm thấy voucher" });
     }
 
     return res.status(200).json({
-      message: "Voucher details fetched successfully",
+      message: "Lấy chi tiết voucher thành công",
       voucher,
     });
   } catch (error) {
@@ -47,7 +47,7 @@ const getVoucherById = async (req, res) => {
   }
 };
 
-// POST /vouchers - Create voucher (Admin only)
+// POST /vouchers - Tạo voucher mới (Chỉ Admin)
 const createVoucher = async (req, res) => {
   try {
     const {
@@ -65,14 +65,14 @@ const createVoucher = async (req, res) => {
 
     if (!code || !title || !discountValue || !endDate) {
       return res.status(400).json({
-        message: "Code, title, discount value, and expiration date are required",
+        message: "Vui lòng nhập đủ: Mã code, tiêu đề, mức giảm giá và ngày hết hạn",
       });
     }
 
     const upperCode = code.trim().toUpperCase();
     const existing = await db.Voucher.findOne({ code: upperCode });
     if (existing) {
-      return res.status(409).json({ message: "Voucher code already exists" });
+      return res.status(409).json({ message: "Mã voucher này đã tồn tại" });
     }
 
     const newVoucher = new db.Voucher({
@@ -92,7 +92,7 @@ const createVoucher = async (req, res) => {
     await newVoucher.save();
 
     return res.status(201).json({
-      message: "Voucher created successfully",
+      message: "Tạo voucher mới thành công",
       voucher: newVoucher,
     });
   } catch (error) {
@@ -100,7 +100,7 @@ const createVoucher = async (req, res) => {
   }
 };
 
-// PUT /vouchers/:id - Update voucher (Admin only)
+// PUT /vouchers/:id - Cập nhật voucher (Chỉ Admin)
 const updateVoucher = async (req, res) => {
   try {
     const {
@@ -119,7 +119,7 @@ const updateVoucher = async (req, res) => {
 
     const voucher = await db.Voucher.findById(req.params.id);
     if (!voucher) {
-      return res.status(404).json({ message: "Voucher not found" });
+      return res.status(404).json({ message: "Không tìm thấy voucher" });
     }
 
     if (code) {
@@ -127,7 +127,7 @@ const updateVoucher = async (req, res) => {
       if (upperCode !== voucher.code) {
         const existing = await db.Voucher.findOne({ code: upperCode });
         if (existing) {
-          return res.status(409).json({ message: "Voucher code already exists" });
+          return res.status(409).json({ message: "Mã voucher này đã tồn tại" });
         }
         voucher.code = upperCode;
       }
@@ -147,7 +147,7 @@ const updateVoucher = async (req, res) => {
     await voucher.save();
 
     return res.status(200).json({
-      message: "Voucher updated successfully",
+      message: "Cập nhật voucher thành công",
       voucher,
     });
   } catch (error) {
@@ -155,19 +155,19 @@ const updateVoucher = async (req, res) => {
   }
 };
 
-// PATCH /vouchers/:id/toggle-status - Toggle active status (Admin only)
+// PATCH /vouchers/:id/toggle-status - Bật / Tắt voucher (Chỉ Admin)
 const toggleVoucherStatus = async (req, res) => {
   try {
     const voucher = await db.Voucher.findById(req.params.id);
     if (!voucher) {
-      return res.status(404).json({ message: "Voucher not found" });
+      return res.status(404).json({ message: "Không tìm thấy voucher" });
     }
 
     voucher.isActive = !voucher.isActive;
     await voucher.save();
 
     return res.status(200).json({
-      message: `Voucher is now ${voucher.isActive ? "Active" : "Inactive"}`,
+      message: `Voucher hiện đang ở trạng thái: ${voucher.isActive ? "Kích hoạt" : "Đã tắt"}`,
       voucher,
     });
   } catch (error) {
@@ -175,29 +175,29 @@ const toggleVoucherStatus = async (req, res) => {
   }
 };
 
-// DELETE /vouchers/:id - Delete voucher (Admin only)
+// DELETE /vouchers/:id - Xóa voucher (Chỉ Admin)
 const deleteVoucher = async (req, res) => {
   try {
     const voucher = await db.Voucher.findByIdAndDelete(req.params.id);
     if (!voucher) {
-      return res.status(404).json({ message: "Voucher not found" });
+      return res.status(404).json({ message: "Không tìm thấy voucher" });
     }
 
     return res.status(200).json({
-      message: "Voucher deleted successfully",
+      message: "Xóa voucher thành công",
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
 
-// POST /vouchers/check - Check voucher applicability for booking/checkout
+// POST /vouchers/check - Kiểm tra áp dụng mã voucher cho đơn đặt vé
 const checkVoucher = async (req, res) => {
   try {
     const { code, orderTotal = 0 } = req.body;
 
     if (!code) {
-      return res.status(400).json({ message: "Voucher code is required" });
+      return res.status(400).json({ message: "Vui lòng nhập mã voucher" });
     }
 
     const voucher = await db.Voucher.findOne({
@@ -206,25 +206,25 @@ const checkVoucher = async (req, res) => {
     });
 
     if (!voucher) {
-      return res.status(404).json({ message: "Invalid or inactive voucher code" });
+      return res.status(404).json({ message: "Mã voucher không tồn tại hoặc đã bị khóa" });
     }
 
     const now = new Date();
     if (now < voucher.startDate || now > voucher.endDate) {
-      return res.status(400).json({ message: "Voucher is expired or not yet active" });
+      return res.status(400).json({ message: "Mã voucher đã hết hạn sử dụng" });
     }
 
     if (voucher.usageLimit > 0 && voucher.usedCount >= voucher.usageLimit) {
-      return res.status(400).json({ message: "Voucher usage limit has been reached" });
+      return res.status(400).json({ message: "Mã voucher đã hết lượt sử dụng" });
     }
 
     if (orderTotal < voucher.minOrderValue) {
       return res.status(400).json({
-        message: `Minimum order value for this voucher is ${voucher.minOrderValue.toLocaleString()} VND`,
+        message: `Đơn hàng tối thiểu để áp dụng mã này là ${voucher.minOrderValue.toLocaleString()} VNĐ`,
       });
     }
 
-    // Calculate discount amount
+    // Tính toán số tiền được giảm
     let discountAmount = 0;
     if (voucher.discountType === "percentage") {
       discountAmount = (orderTotal * voucher.discountValue) / 100;
@@ -235,7 +235,6 @@ const checkVoucher = async (req, res) => {
       discountAmount = voucher.discountValue;
     }
 
-    // Discount cannot exceed order total
     if (discountAmount > orderTotal) {
       discountAmount = orderTotal;
     }
@@ -243,7 +242,7 @@ const checkVoucher = async (req, res) => {
     const finalTotal = Math.max(0, orderTotal - discountAmount);
 
     return res.status(200).json({
-      message: "Voucher applied successfully",
+      message: "Áp dụng mã giảm giá thành công",
       voucher: {
         code: voucher.code,
         title: voucher.title,

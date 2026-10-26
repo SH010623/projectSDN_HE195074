@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { newsService } from "../services/newsService";
 import type { NewsItem } from "../services/newsService";
@@ -7,11 +7,11 @@ export default function NewsPage() {
   const navigate = useNavigate();
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedCategory, setSelectedCategory] = useState("Tất cả");
   const [search, setSearch] = useState("");
   const [readingArticle, setReadingArticle] = useState<NewsItem | null>(null);
 
-  const categories = ["All", "Movies", "Promotions", "Events", "Announcements"];
+  const categories = ["Tất cả", "Tin điện ảnh", "Khuyến mãi", "Sự kiện", "Thông báo"];
 
   useEffect(() => {
     fetchNews();
@@ -21,7 +21,7 @@ export default function NewsPage() {
     try {
       setLoading(true);
       const params: any = {};
-      if (selectedCategory !== "All") params.category = selectedCategory;
+      if (selectedCategory !== "Tất cả") params.category = selectedCategory;
       if (search.trim()) params.search = search.trim();
 
       const res = await newsService.getNews(params);
@@ -51,14 +51,14 @@ export default function NewsPage() {
 
   const getCategoryBadgeClass = (category: string) => {
     switch (category) {
-      case "Movies":
-        return "bg-rose-500/15 text-rose-300 border-rose-500/30";
-      case "Promotions":
-        return "bg-amber-500/15 text-amber-300 border-amber-500/30";
-      case "Events":
-        return "bg-purple-500/15 text-purple-300 border-purple-500/30";
+      case "Tin điện ảnh":
+        return "bg-rose-500/20 text-rose-300 border-rose-500/30";
+      case "Khuyến mãi":
+        return "bg-amber-500/20 text-amber-300 border-amber-500/30";
+      case "Sự kiện":
+        return "bg-purple-500/20 text-purple-300 border-purple-500/30";
       default:
-        return "bg-blue-500/15 text-blue-300 border-blue-500/30";
+        return "bg-blue-500/20 text-blue-300 border-blue-500/30";
     }
   };
 
@@ -72,8 +72,8 @@ export default function NewsPage() {
               <span className="text-white font-black text-lg">N</span>
             </div>
             <div>
-              <span className="text-white font-bold text-sm tracking-wider uppercase block">Cinema News</span>
-              <span className="text-xs text-[#a0a0b0]">Updates, trends, and stories</span>
+              <span className="text-white font-bold text-sm tracking-wider uppercase block">Tin Tức Điện Ảnh</span>
+              <span className="text-xs text-[#a0a0b0]">Cập nhật phim ảnh, sự kiện & xu hướng</span>
             </div>
           </div>
 
@@ -82,13 +82,13 @@ export default function NewsPage() {
               onClick={() => navigate("/vouchers")}
               className="px-4 py-2 bg-[#161626] border border-white/10 hover:border-white/20 text-sm font-medium rounded-xl text-emerald-300 transition-colors cursor-pointer"
             >
-              🎟️ View Vouchers
+              🎟️ Xem Khuyến Mãi
             </button>
             <button
               onClick={() => navigate("/")}
               className="px-4 py-2 bg-[#161626] border border-white/10 hover:border-white/20 text-sm font-medium rounded-xl text-[#d0d0e0] hover:text-white transition-colors cursor-pointer"
             >
-              ← Back to Home
+              ← Về Trang Chủ
             </button>
           </div>
         </div>
@@ -99,10 +99,10 @@ export default function NewsPage() {
         {/* Hero Section */}
         <div className="text-center max-w-2xl mx-auto mb-10">
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
-            Latest <span className="text-[#e8173a]">Cinema News</span> & Updates
+            Tin Tức & <span className="text-[#e8173a]">Sự Kiện Nổi Bật</span>
           </h1>
           <p className="text-sm sm:text-base text-[#a0a0b0]">
-            Stay updated with current blockbuster releases, special event screenings, and theater promotions.
+            Cập nhật những chuyển động mới nhất của thế giới điện ảnh, các tuần lễ phim đặc sắc và ưu đãi từ cụm rạp.
           </p>
         </div>
 
@@ -129,7 +129,7 @@ export default function NewsPage() {
           <form onSubmit={handleSearchSubmit} className="flex gap-2 w-full md:w-auto">
             <input
               type="text"
-              placeholder="Search news..."
+              placeholder="Tìm kiếm bài viết..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               className="px-4 py-2 bg-[#161626] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-[#e8173a]/60 w-full md:w-64"
@@ -138,24 +138,24 @@ export default function NewsPage() {
               type="submit"
               className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white text-sm font-medium rounded-xl transition-colors cursor-pointer border-0"
             >
-              Search
+              Tìm kiếm
             </button>
           </form>
         </div>
 
         {/* News Grid */}
         {loading ? (
-          <div className="py-20 text-center text-[#a0a0b0]">Loading news articles...</div>
+          <div className="py-20 text-center text-[#a0a0b0]">Đang tải danh sách bài viết...</div>
         ) : newsList.length === 0 ? (
           <div className="py-20 text-center text-[#a0a0b0]">
-            No articles found for category "{selectedCategory}".
+            Không tìm thấy bài viết nào trong danh mục "{selectedCategory}".
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {newsList.map((item) => (
               <article
                 key={item._id}
-                className="bg-[#161626] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col group shadow-lg"
+                className="bg-[#161626] border border-white/[0.06] rounded-2xl overflow-hidden hover:border-white/20 transition-all flex flex-col group shadow-lg hover:-translate-y-1"
               >
                 {/* Image */}
                 <div className="relative h-48 overflow-hidden bg-[#0a0a12]">
@@ -174,8 +174,8 @@ export default function NewsPage() {
                 {/* Body */}
                 <div className="p-5 flex flex-col flex-1">
                   <div className="flex items-center justify-between text-[0.75rem] text-[#8888a0] mb-2">
-                    <span>By {item.author || "Cinema News"}</span>
-                    <span>👁️ {item.views || 0} views</span>
+                    <span>Tác giả: {item.author || "Ban Quản Trị"}</span>
+                    <span>👁️ {item.views || 0} lượt xem</span>
                   </div>
 
                   <h2 className="text-lg font-bold text-white mb-2 leading-snug line-clamp-2 group-hover:text-[#f87083] transition-colors">
@@ -187,18 +187,14 @@ export default function NewsPage() {
                   </p>
 
                   <div className="pt-3 border-t border-white/[0.06] flex items-center justify-between">
-                    <span className="text-[0.72rem] text-[#6b7280]">
-                      {new Date(item.createdAt || Date.now()).toLocaleDateString("en-US", {
-                        year: "numeric",
-                        month: "short",
-                        day: "numeric",
-                      })}
+                    <span className="text-[0.72rem] text-[#8888a0]">
+                      {new Date(item.createdAt || Date.now()).toLocaleDateString("vi-VN")}
                     </span>
                     <button
                       onClick={() => handleReadArticle(item)}
-                      className="px-3 py-1.5 bg-[#e8173a]/15 hover:bg-[#e8173a] text-[#f87083] hover:text-white border border-[#e8173a]/30 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
+                      className="px-3.5 py-1.5 bg-[#e8173a]/15 hover:bg-[#e8173a] text-[#f87083] hover:text-white border border-[#e8173a]/30 rounded-lg text-xs font-semibold transition-colors cursor-pointer"
                     >
-                      Read More →
+                      Đọc chi tiết →
                     </button>
                   </div>
                 </div>
@@ -239,15 +235,15 @@ export default function NewsPage() {
               </h1>
 
               <div className="flex flex-wrap items-center gap-4 text-xs text-[#8888a0] pb-6 mb-6 border-b border-white/[0.08]">
-                <span>Author: <strong className="text-white">{readingArticle.author || "Editorial"}</strong></span>
+                <span>Tác giả: <strong className="text-white">{readingArticle.author || "Ban Quản Trị"}</strong></span>
                 <span>•</span>
-                <span>Published: {new Date(readingArticle.createdAt || Date.now()).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</span>
+                <span>Ngày đăng: {new Date(readingArticle.createdAt || Date.now()).toLocaleDateString("vi-VN")}</span>
                 <span>•</span>
-                <span>👁️ {readingArticle.views || 0} views</span>
+                <span>👁️ {readingArticle.views || 0} lượt xem</span>
               </div>
 
               {readingArticle.summary && (
-                <div className="p-4 bg-[#0d0d14] border-l-4 border-[#e8173a] rounded-r-xl text-sm italic text-[#c4b5fd] mb-6">
+                <div className="p-4 bg-[#0d0d14] border-l-4 border-[#e8173a] rounded-r-xl text-sm italic text-[#e0d0f0] mb-6">
                   {readingArticle.summary}
                 </div>
               )}
@@ -261,7 +257,7 @@ export default function NewsPage() {
                   onClick={() => setReadingArticle(null)}
                   className="px-6 py-2.5 bg-[#e8173a] hover:bg-[#c91131] text-white rounded-xl text-sm font-semibold transition-colors cursor-pointer border-0"
                 >
-                  Close Article
+                  Đóng bài viết
                 </button>
               </div>
             </div>

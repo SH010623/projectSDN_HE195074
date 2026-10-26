@@ -5,14 +5,14 @@ const voucherSchema = new Schema(
   {
     code: {
       type: String,
-      required: [true, "Voucher code is required"],
+      required: [true, "Mã voucher là bắt buộc"],
       unique: true,
       uppercase: true,
       trim: true,
     },
     title: {
       type: String,
-      required: [true, "Voucher title is required"],
+      required: [true, "Tên voucher là bắt buộc"],
       trim: true,
     },
     description: {
@@ -27,8 +27,8 @@ const voucherSchema = new Schema(
     },
     discountValue: {
       type: Number,
-      required: [true, "Discount value is required"],
-      min: [1, "Discount value must be at least 1"],
+      required: [true, "Giá trị giảm giá là bắt buộc"],
+      min: [1, "Giá trị giảm giá phải lớn hơn 0"],
     },
     minOrderValue: {
       type: Number,
@@ -44,7 +44,7 @@ const voucherSchema = new Schema(
     },
     endDate: {
       type: Date,
-      required: [true, "Expiration date is required"],
+      required: [true, "Ngày hết hạn là bắt buộc"],
     },
     usageLimit: {
       type: Number,

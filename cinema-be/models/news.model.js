@@ -5,7 +5,7 @@ const newsSchema = new Schema(
   {
     title: {
       type: String,
-      required: [true, "News title is required"],
+      required: [true, "Tiêu đề tin tức là bắt buộc"],
       trim: true,
     },
     summary: {
@@ -15,7 +15,7 @@ const newsSchema = new Schema(
     },
     content: {
       type: String,
-      required: [true, "News content is required"],
+      required: [true, "Nội dung bài viết là bắt buộc"],
     },
     image: {
       type: String,
@@ -23,12 +23,12 @@ const newsSchema = new Schema(
     },
     category: {
       type: String,
-      enum: ["Movies", "Promotions", "Events", "Announcements"],
-      default: "Movies",
+      enum: ["Tin điện ảnh", "Khuyến mãi", "Sự kiện", "Thông báo"],
+      default: "Tin điện ảnh",
     },
     author: {
       type: String,
-      default: "Admin",
+      default: "Ban Quản Trị",
     },
     views: {
       type: Number,
