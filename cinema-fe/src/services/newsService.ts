@@ -25,7 +25,13 @@ export interface NewsPayload {
 }
 
 export const newsService = {
-  getNews: async (params?: { category?: string; search?: string; all?: string }) => {
+  getNews: async (params?: {
+    category?: string;
+    search?: string;
+    all?: string;
+    sort?: "newest" | "older" | string;
+    timeRange?: "all" | "this_month" | string;
+  }) => {
     const res = await apiClient.get<{
       message: string;
       total: number;

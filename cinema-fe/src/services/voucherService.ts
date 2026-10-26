@@ -33,7 +33,12 @@ export interface VoucherPayload {
 }
 
 export const voucherService = {
-  getVouchers: async (params?: { all?: string; search?: string }) => {
+  getVouchers: async (params?: {
+    all?: string;
+    search?: string;
+    target?: "all" | "hssv" | "combo" | "vip" | string;
+    sort?: "hot" | "newest" | "expiring_soon" | "min_order_asc" | string;
+  }) => {
     const res = await apiClient.get<{
       message: string;
       total: number;

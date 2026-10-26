@@ -13,6 +13,8 @@ export default function NewsPage() {
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState("Tất cả");
+  const [sortBy, setSortBy] = useState<"newest" | "older">("newest");
+  const [timeRange, setTimeRange] = useState<"all" | "this_month">("all");
   const [search, setSearch] = useState("");
   const [readingArticle, setReadingArticle] = useState<NewsItem | null>(null);
 
@@ -21,21 +23,30 @@ export default function NewsPage() {
   const rawUser = localStorage.getItem("user");
   const currentUser = rawUser ? JSON.parse(rawUser) : null;
 
-  const categories = ["Tất cả", "Tin điện ảnh", "Khuyến mãi", "Sự kiện", "Thông báo"];
+  const categories = [
+    { label: "Tất cả tin tức", value: "Tất cả" },
+    { label: "🎬 Điện ảnh & Bom tấn", value: "Tin điện ảnh" },
+    { label: "🎟️ Ưu đãi & Khuyến mãi", value: "Khuyến mãi" },
+    { label: "🎪 Sự kiện & Suất chiếu", value: "Sự kiện" },
+    { label: "📢 Thông báo từ rạp", value: "Thông báo" },
+  ];
 
   useEffect(() => {
     fetchNews();
-  }, [selectedCategory]);
+  }, [selectedCategory, sortBy, timeRange]);
 
   const fetchNews = async () => {
     try {
       setLoading(true);
-      const params: any = {};
+      const params: any = {
+        sort: sortBy,
+        timeRange: timeRange,
+      };
       if (selectedCategory !== "Tất cả") params.category = selectedCategory;
       if (search.trim()) params.search = search.trim();
 
       const res = await newsService.getNews(params);
-      setNewsList(res.news);
+      setNewsList(res.news || []);
     } catch (err) {
       console.error("Failed to load news", err);
     } finally {
@@ -46,6 +57,13 @@ export default function NewsPage() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     fetchNews();
+  };
+
+  const handleResetFilters = () => {
+    setSelectedCategory("Tất cả");
+    setSortBy("newest");
+    setTimeRange("all");
+    setSearch("");
   };
 
   const handleReadArticle = async (item: NewsItem) => {
@@ -85,47 +103,87 @@ export default function NewsPage() {
       <main className="max-w-[1240px] mx-auto px-6 pt-24 pb-16">
         {/* Hero Section */}
         <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-rose-500/10 border border-rose-500/20 rounded-full text-xs text-rose-400 font-semibold mb-3">
+            <span>📰</span>
+            <span>Bản tin điện ảnh Trung Tâm Chiếu Phim Quốc Gia</span>
+          </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
             Tin Tức & <span className="text-[#e8173a]">Sự Kiện Điện Ảnh</span>
           </h1>
           <p className="text-sm sm:text-base text-[#a0a0b0]">
-            Cập nhật những chuyển động mới nhất của thế giới điện ảnh, các tuần lễ phim đặc sắc và thông báo từ cụm rạp.
+            Cập nhật những chuyển động mới nhất của các phim bom tấn, lịch chiếu sớm và sự kiện điện ảnh nổi bật.
           </p>
         </div>
 
-        {/* Filter & Search Bar */}
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-between mb-8 pb-6 border-b border-white/[0.08]">
-          {/* Category Tabs */}
-          <div className="flex flex-wrap gap-2">
-            {categories.map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-colors cursor-pointer border ${
-                  selectedCategory === cat
-                    ? "bg-[#e8173a] text-white border-[#e8173a]"
-                    : "bg-[#161626] text-[#a0a0b0] border-white/10 hover:border-white/20 hover:text-white"
-                }`}
+        {/* Filter Section: Quick Category Tags */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {categories.map((cat) => (
+            <button
+              key={cat.value}
+              onClick={() => setSelectedCategory(cat.value)}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer border ${
+                selectedCategory === cat.value
+                  ? "bg-[#e8173a] text-white border-[#e8173a] shadow-lg shadow-red-950/40"
+                  : "bg-[#161626] text-[#a0a0b0] border-white/10 hover:border-white/20 hover:text-white"
+              }`}
+            >
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Secondary Filter & Search Toolbar */}
+        <div className="bg-[#161626] border border-white/[0.06] rounded-2xl p-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
+          {/* Sắp xếp & Thời gian */}
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-[#8e8ea0] whitespace-nowrap">Sắp xếp:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="px-3 py-1.5 bg-[#0d0d14] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none"
               >
-                {cat}
+                <option value="newest">⚡ Mới nhất</option>
+                <option value="older">🗂️ Lưu trữ cũ hơn</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-[#8e8ea0] whitespace-nowrap">Thời gian:</span>
+              <select
+                value={timeRange}
+                onChange={(e) => setTimeRange(e.target.value as any)}
+                className="px-3 py-1.5 bg-[#0d0d14] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none"
+              >
+                <option value="all">Toàn bộ thời gian</option>
+                <option value="this_month">📅 Trong tháng này</option>
+              </select>
+            </div>
+
+            {(selectedCategory !== "Tất cả" || search || timeRange !== "all" || sortBy !== "newest") && (
+              <button
+                onClick={handleResetFilters}
+                className="text-xs text-[#f87083] hover:underline cursor-pointer bg-transparent border-0 px-2 py-1"
+              >
+                Đặt lại bộ lọc ✕
               </button>
-            ))}
+            )}
           </div>
 
-          {/* Search Box */}
+          {/* Tìm kiếm */}
           <form onSubmit={handleSearchSubmit} className="flex gap-2 w-full md:w-auto">
             <input
               type="text"
-              placeholder="Tìm kiếm bài viết..."
+              placeholder="Tìm theo tiêu đề phim, sự kiện..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="px-4 py-2 bg-[#161626] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-[#e8173a]/60 w-full md:w-64"
+              className="px-4 py-2 bg-[#0d0d14] border border-white/10 rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-[#e8173a]/60 flex-1 md:w-64"
             />
             <button
               type="submit"
-              className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white text-sm font-medium rounded-xl transition-colors cursor-pointer border-0"
+              className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white text-xs sm:text-sm font-medium rounded-xl transition-colors cursor-pointer border-0"
             >
-              Tìm kiếm
+              Tìm
             </button>
           </form>
         </div>
@@ -134,8 +192,15 @@ export default function NewsPage() {
         {loading ? (
           <div className="py-20 text-center text-[#a0a0b0]">Đang tải danh sách bài viết...</div>
         ) : newsList.length === 0 ? (
-          <div className="py-20 text-center text-[#a0a0b0]">
-            Không tìm thấy bài viết nào trong danh mục "{selectedCategory}".
+          <div className="py-20 text-center text-[#a0a0b0] bg-[#161626] border border-white/[0.06] rounded-2xl p-8">
+            <p className="text-base font-semibold text-white mb-2">Không tìm thấy bài viết phù hợp</p>
+            <p className="text-xs text-[#8e8ea0] mb-4">Vui lòng thử chọn danh mục khác hoặc tìm từ khóa khác.</p>
+            <button
+              onClick={handleResetFilters}
+              className="px-5 py-2 bg-[#e8173a] hover:bg-[#c91131] text-white text-xs font-semibold rounded-xl cursor-pointer border-0"
+            >
+              Xem tất cả bài viết
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

@@ -3,7 +3,7 @@ const db = require("../models");
 // GET /news - Lấy danh sách tin tức
 const getAllNews = async (req, res) => {
   try {
-    const { category, search, all } = req.query;
+    const { category, search, all, sort = "newest", timeRange } = req.query;
     const query = {};
 
     const isAdmin = req.role === "admin";
@@ -22,7 +22,13 @@ const getAllNews = async (req, res) => {
       ];
     }
 
-    const news = await db.News.find(query).sort({ createdAt: -1 });
+    if (timeRange === "this_month") {
+      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+      query.createdAt = { $gte: thirtyDaysAgo };
+    }
+
+    const sortOption = sort === "older" ? { createdAt: 1 } : { createdAt: -1 };
+    const news = await db.News.find(query).sort(sortOption);
 
     return res.status(200).json({
       message: "Lấy danh sách tin tức thành công",

@@ -3,7 +3,7 @@ const db = require("../models");
 // GET /vouchers - Danh sách voucher
 const getAllVouchers = async (req, res) => {
   try {
-    const { all, search } = req.query;
+    const { all, search, target, sort = "hot" } = req.query;
     const query = {};
 
     const isAdmin = req.role === "admin";
@@ -18,7 +18,36 @@ const getAllVouchers = async (req, res) => {
       ];
     }
 
-    const vouchers = await db.Voucher.find(query).sort({ createdAt: -1 });
+    // Filter by cinema-specific audience/category
+    if (target === "hssv") {
+      query.$or = [
+        { code: { $regex: "HSSV|U22", $options: "i" } },
+        { title: { $regex: "học sinh|sinh viên|u22", $options: "i" } },
+        { description: { $regex: "học sinh|sinh viên|u22", $options: "i" } },
+      ];
+    } else if (target === "combo") {
+      query.$or = [
+        { title: { $regex: "combo|bắp|nước", $options: "i" } },
+        { description: { $regex: "combo|bắp|nước", $options: "i" } },
+      ];
+    } else if (target === "vip") {
+      query.$or = [
+        { code: { $regex: "VIP|IMAX", $options: "i" } },
+        { title: { $regex: "vip|imax|thành viên", $options: "i" } },
+        { description: { $regex: "vip|imax|thành viên", $options: "i" } },
+      ];
+    }
+
+    let sortOption = { discountValue: -1 };
+    if (sort === "newest") {
+      sortOption = { createdAt: -1 };
+    } else if (sort === "expiring_soon") {
+      sortOption = { endDate: 1 };
+    } else if (sort === "min_order_asc") {
+      sortOption = { minOrderValue: 1 };
+    }
+
+    const vouchers = await db.Voucher.find(query).sort(sortOption);
 
     return res.status(200).json({
       message: "Lấy danh sách voucher thành công",

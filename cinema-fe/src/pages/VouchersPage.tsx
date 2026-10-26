@@ -15,6 +15,11 @@ export default function VouchersPage() {
   const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [selectedVoucher, setSelectedVoucher] = useState<VoucherItem | null>(null);
 
+  // Filters state
+  const [targetFilter, setTargetFilter] = useState<string>("all");
+  const [sortBy, setSortBy] = useState<string>("hot");
+  const [search, setSearch] = useState("");
+
   // Authentication modals
   const [modal, setModal] = useState<ModalState>("none");
   const rawUser = localStorage.getItem("user");
@@ -30,20 +35,44 @@ export default function VouchersPage() {
     finalTotal?: number;
   } | null>(null);
 
+  const audienceTabs = [
+    { label: "🌟 Tất cả ưu đãi", value: "all" },
+    { label: "🎓 Học sinh - Sinh viên", value: "hssv" },
+    { label: "🍿 Combo Bắp Nước", value: "combo" },
+    { label: "👑 Thành viên & VIP/IMAX", value: "vip" },
+  ];
+
   useEffect(() => {
     fetchVouchers();
-  }, []);
+  }, [targetFilter, sortBy]);
 
   const fetchVouchers = async () => {
     try {
       setLoading(true);
-      const res = await voucherService.getVouchers();
-      setVouchers(res.vouchers);
+      const params: any = {
+        target: targetFilter,
+        sort: sortBy,
+      };
+      if (search.trim()) params.search = search.trim();
+
+      const res = await voucherService.getVouchers(params);
+      setVouchers(res.vouchers || []);
     } catch (err) {
       console.error("Failed to load vouchers", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchVouchers();
+  };
+
+  const handleResetFilters = () => {
+    setTargetFilter("all");
+    setSortBy("hot");
+    setSearch("");
   };
 
   const handleCopyCode = (code: string) => {
@@ -94,6 +123,10 @@ export default function VouchersPage() {
       <main className="max-w-[1240px] mx-auto px-6 pt-24 pb-16">
         {/* Hero Section */}
         <div className="text-center max-w-2xl mx-auto mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs text-emerald-400 font-semibold mb-3">
+            <span>🎟️</span>
+            <span>Kho voucher & ưu đãi độc quyền từ rạp chiếu</span>
+          </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
             Kho Voucher & <span className="text-[#e8173a]">Ưu Đãi Độc Quyền</span>
           </h1>
@@ -103,7 +136,7 @@ export default function VouchersPage() {
         </div>
 
         {/* Voucher Discount Calculator Banner */}
-        <div className="bg-gradient-to-r from-[#161626] via-[#1f1a30] to-[#161626] border border-white/10 rounded-2xl p-6 sm:p-8 mb-12 shadow-2xl">
+        <div className="bg-gradient-to-r from-[#161626] via-[#1f1a30] to-[#161626] border border-white/10 rounded-2xl p-6 sm:p-8 mb-10 shadow-2xl">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
             <div className="max-w-md">
               <div className="flex items-center gap-2 text-rose-400 font-semibold text-sm mb-1">
@@ -159,16 +192,86 @@ export default function VouchersPage() {
           )}
         </div>
 
+        {/* Filter Section: Quick Audience Tabs */}
+        <div className="flex flex-wrap gap-2 mb-6">
+          {audienceTabs.map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setTargetFilter(tab.value)}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-medium transition-all cursor-pointer border ${
+                targetFilter === tab.value
+                  ? "bg-[#e8173a] text-white border-[#e8173a] shadow-lg shadow-red-950/40"
+                  : "bg-[#161626] text-[#a0a0b0] border-white/10 hover:border-white/20 hover:text-white"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Secondary Toolbar: Sorting & Search */}
+        <div className="bg-[#161626] border border-white/[0.06] rounded-2xl p-4 mb-8 flex flex-col md:flex-row items-center justify-between gap-4 shadow-xl">
+          {/* Sorting */}
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <span className="text-xs text-[#8e8ea0] whitespace-nowrap">Sắp xếp ưu đãi:</span>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-3 py-1.5 bg-[#0d0d14] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none"
+            >
+              <option value="hot">🔥 Ưu đãi Hot nhất</option>
+              <option value="newest">⚡ Mới cập nhật</option>
+              <option value="expiring_soon">⏰ Sắp hết hạn</option>
+              <option value="min_order_asc">🛒 Đơn tối thiểu thấp nhất</option>
+            </select>
+
+            {(targetFilter !== "all" || search || sortBy !== "hot") && (
+              <button
+                onClick={handleResetFilters}
+                className="text-xs text-[#f87083] hover:underline cursor-pointer bg-transparent border-0 px-2 py-1"
+              >
+                Đặt lại ✕
+              </button>
+            )}
+          </div>
+
+          {/* Quick Search */}
+          <form onSubmit={handleSearchSubmit} className="flex gap-2 w-full md:w-auto">
+            <input
+              type="text"
+              placeholder="Tìm theo mã hoặc tên voucher..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="px-4 py-2 bg-[#0d0d14] border border-white/10 rounded-xl text-white text-xs sm:text-sm focus:outline-none focus:border-[#e8173a]/60 flex-1 md:w-64"
+            />
+            <button
+              type="submit"
+              className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white text-xs sm:text-sm font-medium rounded-xl transition-colors cursor-pointer border-0"
+            >
+              Tìm
+            </button>
+          </form>
+        </div>
+
         {/* Vouchers Grid */}
-        <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-          <span>🎁</span> Danh sách mã voucher khả dụng ({vouchers.length})
-        </h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-white flex items-center gap-2">
+            <span>🎁</span> Danh sách mã voucher khả dụng ({vouchers.length})
+          </h2>
+        </div>
 
         {loading ? (
           <div className="py-20 text-center text-[#a0a0b0]">Đang tải danh sách mã voucher...</div>
         ) : vouchers.length === 0 ? (
-          <div className="py-20 text-center text-[#a0a0b0]">
-            Hiện chưa có mã voucher nào đang mở. Quý khách vui lòng quay lại sau!
+          <div className="py-20 text-center text-[#a0a0b0] bg-[#161626] border border-white/[0.06] rounded-2xl p-8">
+            <p className="text-base font-semibold text-white mb-2">Không tìm thấy mã voucher phù hợp</p>
+            <p className="text-xs text-[#8e8ea0] mb-4">Vui lòng thử chọn nhóm ưu đãi khác hoặc từ khóa tìm kiếm khác.</p>
+            <button
+              onClick={handleResetFilters}
+              className="px-5 py-2 bg-[#e8173a] hover:bg-[#c91131] text-white text-xs font-semibold rounded-xl cursor-pointer border-0"
+            >
+              Xem tất cả voucher
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
