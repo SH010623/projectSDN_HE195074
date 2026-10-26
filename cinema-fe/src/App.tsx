@@ -8,6 +8,8 @@ import AdminMoviesPage from "./pages/AdminMoviesPage";
 import AdminShowtimesPage from "./pages/AdminShowtimesPage";
 import AdminNewsPage from "./pages/AdminNewsPage";
 import AdminVouchersPage from "./pages/AdminVouchersPage";
+import NewsPage from "./pages/NewsPage";
+import VouchersPage from "./pages/VouchersPage";
 
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -20,6 +22,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<HomePage />} />
+        <Route path="/news" element={<NewsPage />} />
+        <Route path="/vouchers" element={<VouchersPage />} />
         <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="/register" element={<Navigate to="/" replace />} />
         <Route

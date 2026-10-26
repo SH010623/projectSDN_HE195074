@@ -33,6 +33,20 @@ export default function DashboardPage() {
           <span>👤</span> Hồ sơ cá nhân
         </button>
 
+        <button
+          onClick={() => navigate("/news")}
+          className="px-5 py-3 bg-[#161626] border border-cyan-500/30 hover:border-cyan-500/60 rounded-xl text-cyan-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+        >
+          <span>📰</span> Tin tức (News)
+        </button>
+
+        <button
+          onClick={() => navigate("/vouchers")}
+          className="px-5 py-3 bg-[#161626] border border-emerald-500/30 hover:border-emerald-500/60 rounded-xl text-emerald-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+        >
+          <span>🎟️</span> Khuyến mãi & Voucher
+        </button>
+
         {user?.role === "admin" && (
           <>
             <button
