@@ -1,3 +1,4 @@
+import { useLocation } from "react-router-dom";
 
 interface NavbarProps {
   currentUser: { name?: string; role?: string } | null;
@@ -6,23 +7,65 @@ interface NavbarProps {
   onGoToDashboard: () => void;
 }
 
-// Navigation links list
-const NAV_LINKS = [
-  { id: "nav-home", label: "Trang chủ", href: "/", active: true },
-  { id: "nav-schedule", label: "Lịch chiếu", href: "#schedule" },
-  { id: "nav-news", label: "Tin tức", href: "#news" },
-  { id: "nav-promotions", label: "Khuyến mãi", href: "#promotions" },
-  { id: "nav-tickets", label: "Giá vé", href: "#tickets" },
-  { id: "nav-festival", label: "Liên hoan phim", href: "#festival" },
-  { id: "nav-about", label: "Giới thiệu", href: "#about" },
-];
-
 export default function Navbar({
   currentUser,
   onOpenLogin,
   onOpenRegister,
   onGoToDashboard,
 }: NavbarProps) {
+  const location = useLocation();
+  const currentPath = location.pathname;
+
+  // Dynamically configure nav links and active state based on route
+  const isHomePage = currentPath === "/";
+  const isNewsPage = currentPath.startsWith("/news");
+  const isVouchersPage = currentPath.startsWith("/vouchers");
+
+  const navLinks = [
+    {
+      id: "nav-home",
+      label: "Trang chủ",
+      href: "/",
+      active: isHomePage,
+    },
+    {
+      id: "nav-schedule",
+      label: "Lịch chiếu",
+      href: isHomePage ? "#schedule" : "/#schedule",
+      active: false,
+    },
+    {
+      id: "nav-news",
+      label: "Tin tức",
+      href: isHomePage ? "#news" : "/news",
+      active: isNewsPage,
+    },
+    {
+      id: "nav-promotions",
+      label: "Khuyến mãi",
+      href: isHomePage ? "#promotions" : "/vouchers",
+      active: isVouchersPage,
+    },
+    {
+      id: "nav-tickets",
+      label: "Giá vé",
+      href: isHomePage ? "#tickets" : "/#tickets",
+      active: false,
+    },
+    {
+      id: "nav-festival",
+      label: "Liên hoan phim",
+      href: isHomePage ? "#festival" : "/#festival",
+      active: false,
+    },
+    {
+      id: "nav-about",
+      label: "Giới thiệu",
+      href: isHomePage ? "#about" : "/#about",
+      active: false,
+    },
+  ];
+
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-[#0a0a12]/95 backdrop-blur-md border-b border-white/[0.06]">
       <div className="max-w-[1280px] mx-auto px-6 h-16 flex items-center gap-6">
@@ -39,7 +82,7 @@ export default function Navbar({
 
         {/* Navigation Links */}
         <nav className="flex items-center gap-0.5 flex-1">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <a
               key={link.id}
               id={link.id}

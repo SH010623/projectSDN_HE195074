@@ -17,11 +17,11 @@ export default function DashboardPage() {
         <span className="text-white font-extrabold text-2xl">N</span>
       </div>
       <h1 className="text-3xl font-extrabold text-white">
-        Chao mung, {user?.name ?? "Guest"}!
+        Chào mừng, {user?.name ?? "Khách"}!
       </h1>
       <p className="text-[#a0a0b0] text-sm">{user?.email}</p>
       <span className="px-4 py-1 bg-[#e8173a]/15 border border-[#e8173a]/40 rounded-full text-xs font-semibold text-[#f87083] uppercase tracking-widest">
-        {user?.role}
+        {user?.role === "admin" ? "Quản trị viên" : "Thành viên"}
       </span>
 
       {/* Menu Điều hướng */}
@@ -31,6 +31,20 @@ export default function DashboardPage() {
           className="px-5 py-3 bg-[#161626] border border-white/10 hover:border-white/20 rounded-xl text-white text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
         >
           <span>👤</span> Hồ sơ cá nhân
+        </button>
+
+        <button
+          onClick={() => navigate("/news")}
+          className="px-5 py-3 bg-[#161626] border border-cyan-500/30 hover:border-cyan-500/60 rounded-xl text-cyan-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+        >
+          <span>📰</span> Tin tức (News)
+        </button>
+
+        <button
+          onClick={() => navigate("/vouchers")}
+          className="px-5 py-3 bg-[#161626] border border-emerald-500/30 hover:border-emerald-500/60 rounded-xl text-emerald-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+        >
+          <span>🎟️</span> Khuyến mãi & Voucher
         </button>
 
         {user?.role === "admin" && (
@@ -62,6 +76,20 @@ export default function DashboardPage() {
             >
               <span>👥</span> Quản lý tài khoản
             </button>
+
+            <button
+              onClick={() => navigate("/admin/news")}
+              className="px-5 py-3 bg-[#161626] border border-cyan-500/40 hover:border-cyan-500/70 rounded-xl text-cyan-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+            >
+              <span>📰</span> Quản lý tin tức (News)
+            </button>
+
+            <button
+              onClick={() => navigate("/admin/vouchers")}
+              className="px-5 py-3 bg-[#161626] border border-emerald-500/40 hover:border-emerald-500/70 rounded-xl text-emerald-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+            >
+              <span>🎟️</span> Quản lý Voucher
+            </button>
           </>
         )}
       </div>
@@ -70,7 +98,7 @@ export default function DashboardPage() {
         onClick={handleLogout}
         className="mt-6 px-8 py-2.5 bg-[#e8173a] hover:bg-[#c91131] border-0 text-white text-sm font-semibold rounded-lg cursor-pointer transition-colors"
       >
-        Dang xuat
+        Đăng xuất
       </button>
     </div>
   );
