@@ -6,6 +6,8 @@ import AdminUsersPage from "./pages/AdminUsersPage";
 import AdminRoomsPage from "./pages/AdminRoomsPage";
 import AdminMoviesPage from "./pages/AdminMoviesPage";
 import AdminShowtimesPage from "./pages/AdminShowtimesPage";
+import AdminNewsPage from "./pages/AdminNewsPage";
+import AdminVouchersPage from "./pages/AdminVouchersPage";
 
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -65,6 +67,22 @@ function App() {
           element={
             <ProtectedRoute>
               <AdminShowtimesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/news"
+          element={
+            <ProtectedRoute>
+              <AdminNewsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/vouchers"
+          element={
+            <ProtectedRoute>
+              <AdminVouchersPage />
             </ProtectedRoute>
           }
         />

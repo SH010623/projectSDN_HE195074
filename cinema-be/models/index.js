@@ -3,6 +3,8 @@ const User = require("./user.model");
 const Room = require("./room.model");
 const Movie = require("./movie.model");
 const Showtime = require("./showtime.model");
+const News = require("./news.model");
+const Voucher = require("./voucher.model");
 
 const db = {};
 
@@ -11,5 +13,7 @@ db.User = User;
 db.Room = Room;
 db.Movie = Movie;
 db.Showtime = Showtime;
+db.News = News;
+db.Voucher = Voucher;
 
 module.exports = db;

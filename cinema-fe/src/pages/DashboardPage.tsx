@@ -62,6 +62,20 @@ export default function DashboardPage() {
             >
               <span>👥</span> Quản lý tài khoản
             </button>
+
+            <button
+              onClick={() => navigate("/admin/news")}
+              className="px-5 py-3 bg-[#161626] border border-cyan-500/40 hover:border-cyan-500/70 rounded-xl text-cyan-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+            >
+              <span>📰</span> Quản lý tin tức (News)
+            </button>
+
+            <button
+              onClick={() => navigate("/admin/vouchers")}
+              className="px-5 py-3 bg-[#161626] border border-emerald-500/40 hover:border-emerald-500/70 rounded-xl text-emerald-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+            >
+              <span>🎟️</span> Quản lý Voucher
+            </button>
           </>
         )}
       </div>

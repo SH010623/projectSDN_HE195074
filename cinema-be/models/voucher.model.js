@@ -1,0 +1,69 @@
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+
+const voucherSchema = new Schema(
+  {
+    code: {
+      type: String,
+      required: [true, "Voucher code is required"],
+      unique: true,
+      uppercase: true,
+      trim: true,
+    },
+    title: {
+      type: String,
+      required: [true, "Voucher title is required"],
+      trim: true,
+    },
+    description: {
+      type: String,
+      trim: true,
+      default: "",
+    },
+    discountType: {
+      type: String,
+      enum: ["fixed", "percentage"],
+      default: "fixed",
+    },
+    discountValue: {
+      type: Number,
+      required: [true, "Discount value is required"],
+      min: [1, "Discount value must be at least 1"],
+    },
+    minOrderValue: {
+      type: Number,
+      default: 0,
+    },
+    maxDiscount: {
+      type: Number,
+      default: 0,
+    },
+    startDate: {
+      type: Date,
+      default: Date.now,
+    },
+    endDate: {
+      type: Date,
+      required: [true, "Expiration date is required"],
+    },
+    usageLimit: {
+      type: Number,
+      default: 100,
+    },
+    usedCount: {
+      type: Number,
+      default: 0,
+    },
+    isActive: {
+      type: Boolean,
+      default: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
+
+const Voucher = mongoose.model("Voucher", voucherSchema);
+
+module.exports = Voucher;
