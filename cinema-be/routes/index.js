@@ -7,6 +7,7 @@ const movieRoute = require("./movie.route");
 const showtimeRoute = require("./showtime.route");
 const newsRoute = require("./news.route");
 const voucherRoute = require("./voucher.route");
+const bookingRoute = require("./booking.route");
 const { verifyToken } = require("../middlewares/verifyToken");
 const { verifyAccessKey, userOnly } = require("../middlewares/verifyAccessKey");
 
@@ -21,6 +22,8 @@ router.use("/movies", movieRoute);       // /movies, /movies/:id
 router.use("/showtimes", showtimeRoute); // /showtimes, /showtimes/:id
 router.use("/news", newsRoute);          // /news, /news/:id
 router.use("/vouchers", voucherRoute);   // /vouchers, /vouchers/:id, /vouchers/check
+router.use("/bookings", bookingRoute);   // /bookings, /bookings/my-tickets, /bookings/showtime/:id/seats
+
 
 
 // ─── Route Test / Legacy ────────────────────────────────────────────────────
