@@ -75,35 +75,44 @@ async function seed() {
     await Showtime.deleteMany({});
     console.log("Cleared existing showtimes.");
 
-    const nowShowingMovies = movies.filter((m) => m.status === "now_showing");
-    const targetMovies = nowShowingMovies.length > 0 ? nowShowingMovies : movies;
+    const activeRooms = rooms.filter((r) => r.status === "active" && r.name !== "1111");
+    const useRooms = activeRooms.length > 0 ? activeRooms : rooms;
 
-    const days = [0, 1, 2]; // Today, Tomorrow, Day after tomorrow
+    // Seed for today (day 0) and next 6 days (total 7 days)
+    const days = [0, 1, 2, 3, 4, 5, 6];
+
+    // Time slots throughout the day
     const timeSlots = [
       { hour: 9, minute: 30, price: 75000 },
-      { hour: 13, minute: 0, price: 85000 },
-      { hour: 16, minute: 30, price: 90000 },
-      { hour: 20, minute: 0, price: 95000 },
+      { hour: 12, minute: 15, price: 85000 },
+      { hour: 15, minute: 0, price: 85000 },
+      { hour: 17, minute: 45, price: 90000 },
+      { hour: 20, minute: 30, price: 95000 },
+      { hour: 22, minute: 45, price: 80000 },
     ];
 
     const showtimesToInsert = [];
 
+    // Ensure every movie (especially now_showing) has multiple showtimes each day
     for (const dayOffset of days) {
-      const baseDate = new Date();
-      baseDate.setDate(baseDate.getDate() + dayOffset);
-      const dateStr = baseDate.toISOString().split("T")[0];
+      const targetDate = new Date();
+      targetDate.setDate(targetDate.getDate() + dayOffset);
+      const year = targetDate.getFullYear();
+      const month = String(targetDate.getMonth() + 1).padStart(2, "0");
+      const day = String(targetDate.getDate()).padStart(2, "0");
+      const dateStr = `${year}-${month}-${day}`;
 
-      rooms.forEach((room, roomIndex) => {
-        timeSlots.forEach((slot, slotIndex) => {
-          // Rotate movies evenly across rooms and slots
-          const movie = targetMovies[(roomIndex + slotIndex + dayOffset) % targetMovies.length];
-          const start = new Date(baseDate);
+      useRooms.forEach((room, roomIdx) => {
+        timeSlots.forEach((slot, slotIdx) => {
+          // Rotate movies so every movie gets fair allocation across rooms and time slots
+          const movie = movies[(roomIdx + slotIdx + dayOffset) % movies.length];
+
+          const start = new Date(targetDate);
           start.setHours(slot.hour, slot.minute, 0, 0);
 
-          const duration = movie.duration || 120;
+          const duration = movie.duration || 110;
           const end = new Date(start.getTime() + (duration + 15) * 60 * 1000);
 
-          // Extra pricing for IMAX / VIP
           let price = slot.price;
           if (room.roomType === "IMAX") price += 35000;
           if (room.roomType === "3D") price += 15000;
@@ -123,7 +132,7 @@ async function seed() {
     }
 
     const inserted = await Showtime.insertMany(showtimesToInsert);
-    console.log(`✅ Seeded ${inserted.length} showtimes successfully across ${rooms.length} rooms and ${days.length} days!`);
+    console.log(`Seeded ${inserted.length} showtimes successfully across ${useRooms.length} rooms and ${days.length} days!`);
 
     process.exit(0);
   } catch (err) {

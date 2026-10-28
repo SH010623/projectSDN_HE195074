@@ -1,4 +1,5 @@
 import type { UiMovie } from "./types";
+import { cinemaDate } from "../../utils/cinemaDate";
 import type { Showtime } from "../../services/showtimeService";
 
 interface ShowtimeModalProps {
@@ -7,6 +8,7 @@ interface ShowtimeModalProps {
   onDateChange: (date: string) => void;
   showtimes: Showtime[];
   loading: boolean;
+  error?: string | null;
   onClose: () => void;
   onSelectShowtime: (showtime: Showtime) => void;
 }
@@ -21,6 +23,7 @@ export default function ShowtimeModal({
   onDateChange,
   showtimes,
   loading,
+  error,
   onClose,
   onSelectShowtime,
 }: ShowtimeModalProps) {
@@ -28,11 +31,10 @@ export default function ShowtimeModal({
 
   // Build dates list: today and next 2 days
   const dateOptions = [0, 1, 2].map((offset) => {
-    const d = new Date();
-    d.setDate(d.getDate() + offset);
-    const dateStr = d.toISOString().split("T")[0];
+    const d = new Date(new Date(`${cinemaDate()}T12:00:00+07:00`).getTime() + offset * 86400000);
+    const dateStr = cinemaDate(d);
     let label = offset === 0 ? "Hôm nay" : offset === 1 ? "Ngày mai" : "Ngày kia";
-    const dayMonth = `${d.getDate()}/${d.getMonth() + 1}`;
+    const dayMonth = `${Number(dateStr.slice(8))}/${Number(dateStr.slice(5, 7))}`;
     return { dateStr, label: `${label} (${dayMonth})` };
   });
 
@@ -172,6 +174,8 @@ export default function ShowtimeModal({
             <div style={{ textAlign: "center", padding: "2rem 0", color: "#8e8ea8" }}>
               Đang tải danh sách suất chiếu...
             </div>
+          ) : error ? (
+            <p role="alert" style={{ color: "#fb7185" }}>{error}</p>
           ) : showtimes.length === 0 ? (
             <div
               style={{

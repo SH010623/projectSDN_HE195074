@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { cinemaDate } from "../utils/cinemaDate";
 import { useNavigate } from "react-router-dom";
 import { movies as initialMockMovies } from "../data/movies";
 import { movieService } from "../services/movieService";
@@ -32,11 +33,12 @@ export default function HomePage() {
   const [movieList, setMovieList] = useState<UiMovie[]>(initialMockMovies);
 
   // Showtime selection state
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = cinemaDate();
   const [bookingMovie, setBookingMovie] = useState<UiMovie | null>(null);
   const [bookingDate, setBookingDate] = useState<string>(todayStr);
   const [movieShowtimes, setMovieShowtimes] = useState<Showtime[]>([]);
   const [loadingShowtimes, setLoadingShowtimes] = useState(false);
+  const [showtimesError, setShowtimesError] = useState<string | null>(null);
 
   // Current logged in user info from localStorage
   const rawUser = localStorage.getItem("user");
@@ -90,10 +92,12 @@ export default function HomePage() {
   const fetchShowtimesForBooking = async (movieId: string, date: string) => {
     try {
       setLoadingShowtimes(true);
+      setShowtimesError(null);
       const res = await showtimeService.getShowtimes({ movieId, date });
       setMovieShowtimes(res.showtimes || []);
     } catch (err) {
       setMovieShowtimes([]);
+      setShowtimesError("Không tải được lịch chiếu. Vui lòng kiểm tra backend và thử lại.");
     } finally {
       setLoadingShowtimes(false);
     }
@@ -172,6 +176,7 @@ export default function HomePage() {
           onDateChange={(d) => setBookingDate(d)}
           showtimes={movieShowtimes}
           loading={loadingShowtimes}
+          error={showtimesError}
           onClose={() => setBookingMovie(null)}
           onSelectShowtime={handleSelectShowtime}
         />

@@ -1,4 +1,5 @@
 const db = require("../models");
+const cinemaDate = require("../utils/cinemaDate");
 
 // GET /showtimes – Fetch showtimes list with filters (movieId, roomId, date, status)
 const getAllShowtimes = async (req, res) => {
@@ -94,7 +95,7 @@ const createShowtime = async (req, res) => {
     const end = new Date(start.getTime() + (durationMinutes + 15) * 60 * 1000);
 
     // Extract date in YYYY-MM-DD
-    const dateStr = start.toISOString().split("T")[0];
+    const dateStr = cinemaDate(start);
 
     // Conflict detection: verify if another active showtime occupies the room during [start, end]
     const conflicting = await db.Showtime.findOne({
@@ -163,7 +164,7 @@ const updateShowtime = async (req, res) => {
     const start = startTime ? new Date(startTime) : showtime.startTime;
     const durationMinutes = movie.duration || 120;
     const end = new Date(start.getTime() + (durationMinutes + 15) * 60 * 1000);
-    const dateStr = start.toISOString().split("T")[0];
+    const dateStr = cinemaDate(start);
 
     // Conflict detection excluding current showtime
     const conflicting = await db.Showtime.findOne({
