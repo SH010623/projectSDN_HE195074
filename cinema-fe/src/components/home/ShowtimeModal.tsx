@@ -128,16 +128,16 @@ export default function ShowtimeModal({
           </div>
           <button
             onClick={onClose}
-            style={{ background: "transparent", border: "none", color: "#8e8ea8", fontSize: "1.5rem", cursor: "pointer" }}
+            style={{ background: "transparent", border: "none", color: "#8e8ea8", fontSize: "1.2rem", cursor: "pointer" }}
           >
-            ✕
+            x
           </button>
         </div>
 
         {/* Date Selector Tabs */}
         <div style={{ borderTop: "1px solid rgba(255,255,255,0.08)", paddingTop: "1.2rem", marginBottom: "1.2rem" }}>
           <p style={{ fontSize: "0.85rem", color: "#a0a0b0", fontWeight: 600, margin: "0 0 0.6rem" }}>
-            📅 Chọn ngày xem phim:
+            Chọn ngày xem phim:
           </p>
           <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap" }}>
             {dateOptions.map((opt) => (
@@ -165,7 +165,7 @@ export default function ShowtimeModal({
         {/* Showtimes List */}
         <div>
           <p style={{ fontSize: "0.85rem", color: "#a0a0b0", fontWeight: 600, margin: "0 0 0.8rem" }}>
-            🕒 Các suất chiếu hiện có:
+            Các suất chiếu hiện có:
           </p>
 
           {loading ? (
@@ -183,7 +183,6 @@ export default function ShowtimeModal({
                 color: "#8e8ea8",
               }}
             >
-              <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🍿</div>
               <p style={{ margin: 0, fontSize: "0.9rem" }}>
                 Chưa có suất chiếu nào được xếp cho ngày này. Vui lòng chọn ngày khác!
               </p>

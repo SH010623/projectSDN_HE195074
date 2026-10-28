@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface NavbarProps {
   currentUser: { name?: string; role?: string } | null;
@@ -14,6 +14,7 @@ export default function Navbar({
   onGoToDashboard,
 }: NavbarProps) {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
 
   // Dynamically configure nav links and active state based on route
@@ -100,15 +101,21 @@ export default function Navbar({
 
         {/* Authentication or User Profile Actions */}
         {currentUser ? (
-          <div className="flex items-center gap-3 shrink-0">
-            <span className="text-sm text-[#a0a0c0] hidden sm:inline">
+          <div className="flex items-center gap-2.5 shrink-0">
+            <span className="text-sm text-[#a0a0c0] hidden md:inline">
               Xin chào, <strong className="text-white">{currentUser.name || "Khách"}</strong>
             </span>
             <button
-              onClick={onGoToDashboard}
-              className="px-4 py-1.5 bg-[#e8173a] rounded-md text-white text-sm font-semibold hover:bg-[#c91131] transition-colors cursor-pointer border-0 flex items-center gap-1.5"
+              onClick={() => navigate("/my-tickets")}
+              className="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 border border-white/15 rounded-md text-white text-xs font-semibold transition-colors cursor-pointer"
             >
-              <span>🎬</span> Bảng điều khiển
+              Vé của tôi
+            </button>
+            <button
+              onClick={onGoToDashboard}
+              className="px-3.5 py-1.5 bg-[#e8173a] rounded-md text-white text-xs font-semibold hover:bg-[#c91131] transition-colors cursor-pointer border-0"
+            >
+              Bảng điều khiển
             </button>
           </div>
         ) : (

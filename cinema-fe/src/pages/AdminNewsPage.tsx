@@ -138,10 +138,7 @@ export default function AdminNewsPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">📰</span>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Quản Lý Tin Tức & Bài Viết</h1>
-            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Quản Lý Tin Tức & Bài Viết</h1>
             <p className="text-[#a0a0b0] text-sm mt-1">Đăng tải bài viết tin tức điện ảnh, sự kiện và thông báo của rạp</p>
           </div>
 
@@ -312,8 +309,8 @@ export default function AdminNewsPage() {
         {isModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-[#161626] border border-white/15 rounded-2xl p-6 sm:p-8 max-w-[620px] w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-              <h2 className="text-xl font-bold mb-5 flex items-center gap-2">
-                <span>{editingId ? "✏️ Chỉnh Sửa Bài Viết" : "✨ Tạo Bài Viết Mới"}</span>
+              <h2 className="text-xl font-bold mb-5">
+                {editingId ? "Chỉnh Sửa Bài Viết" : "Tạo Bài Viết Mới"}
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">

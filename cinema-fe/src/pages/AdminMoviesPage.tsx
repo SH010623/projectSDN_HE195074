@@ -237,10 +237,7 @@ export default function AdminMoviesPage() {
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <span style={{ fontSize: "1.8rem" }}>🎬</span>
-              <h1 style={{ fontSize: "1.8rem", margin: 0, fontWeight: 800, letterSpacing: "-0.02em" }}>Quản lý Danh mục Phim</h1>
-            </div>
+            <h1 style={{ fontSize: "1.8rem", margin: 0, fontWeight: 800, letterSpacing: "-0.02em" }}>Quản lý Danh mục Phim</h1>
             <p style={{ color: "#8e8ea8", margin: "0.35rem 0 0", fontSize: "0.9rem" }}>
               Quản lý phim đang chiếu, sắp chiếu, thông tin thời lượng, thể loại và trailer
             </p>
@@ -299,9 +296,9 @@ export default function AdminMoviesPage() {
             <span>{message.text}</span>
             <button
               onClick={() => setMessage(null)}
-              style={{ background: "transparent", border: "none", color: "inherit", cursor: "pointer", fontWeight: 700 }}
+              style={{ background: "transparent", border: "none", color: "inherit", cursor: "pointer", fontWeight: 700, fontSize: "0.85rem" }}
             >
-              ✕
+              x
             </button>
           </div>
         )}
@@ -404,7 +401,6 @@ export default function AdminMoviesPage() {
         {/* Danh sách phim */}
         {loading ? (
           <div style={{ textAlign: "center", padding: "4rem 0", color: "#8e8ea8" }}>
-            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>⏳</div>
             <p>Đang tải danh sách phim...</p>
           </div>
         ) : movies.length === 0 ? (
@@ -417,7 +413,6 @@ export default function AdminMoviesPage() {
               border: "1px dashed rgba(255,255,255,0.15)",
             }}
           >
-            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🎞️</div>
             <h3 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0 }}>Chưa có phim nào</h3>
             <p style={{ color: "#8e8ea8", margin: "0.5rem 0 1.5rem" }}>
               Hãy thêm bộ phim đầu tiên vào hệ thống rạp chiếu.
@@ -525,10 +520,10 @@ export default function AdminMoviesPage() {
                   </div>
 
                   <div style={{ fontSize: "0.82rem", color: "#9ca3af", display: "flex", flexDirection: "column", gap: "0.35rem", marginBottom: "1rem" }}>
-                    <div>⏱️ <strong>Thời lượng:</strong> {movie.duration} phút</div>
-                    <div>📅 <strong>Khởi chiếu:</strong> {movie.releaseDate ? new Date(movie.releaseDate).toLocaleDateString("vi-VN") : "N/A"}</div>
-                    {movie.director && <div>🎬 <strong>Đạo diễn:</strong> {movie.director}</div>}
-                    {movie.cast && movie.cast.length > 0 && <div>👥 <strong>Diễn viên:</strong> {movie.cast.join(", ")}</div>}
+                    <div><strong>Thời lượng:</strong> {movie.duration} phút</div>
+                    <div><strong>Khởi chiếu:</strong> {movie.releaseDate ? new Date(movie.releaseDate).toLocaleDateString("vi-VN") : "N/A"}</div>
+                    {movie.director && <div><strong>Đạo diễn:</strong> {movie.director}</div>}
+                    {movie.cast && movie.cast.length > 0 && <div><strong>Diễn viên:</strong> {movie.cast.join(", ")}</div>}
                   </div>
 
                   {movie.description && (
@@ -629,13 +624,13 @@ export default function AdminMoviesPage() {
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
                 <h2 style={{ margin: 0, fontSize: "1.4rem", fontWeight: 700 }}>
-                  {editingMovieId ? "✏️ Chỉnh sửa thông tin phim" : "🎬 Thêm phim mới vào rạp"}
+                  {editingMovieId ? "Chỉnh sửa thông tin phim" : "Thêm phim mới vào rạp"}
                 </h2>
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  style={{ background: "transparent", border: "none", color: "#8e8ea8", fontSize: "1.4rem", cursor: "pointer" }}
+                  style={{ background: "transparent", border: "none", color: "#8e8ea8", fontSize: "1.2rem", cursor: "pointer" }}
                 >
-                  ✕
+                  x
                 </button>
               </div>
 

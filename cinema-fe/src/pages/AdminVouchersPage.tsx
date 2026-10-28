@@ -146,10 +146,10 @@ export default function AdminVouchersPage() {
         orderTotal: Number(testOrderAmount) || 0,
       });
       setTestResult(
-        `✅ ${res.message}! Mức giảm: -${res.discountAmount.toLocaleString()} VNĐ. Tiền thanh toán sau giảm: ${res.finalTotal.toLocaleString()} VNĐ`
+        `[Hợp lệ] ${res.message}! Mức giảm: -${res.discountAmount.toLocaleString()} VNĐ. Tiền thanh toán sau giảm: ${res.finalTotal.toLocaleString()} VNĐ`
       );
     } catch (err: any) {
-      setTestResult(`❌ ${err.response?.data?.message || "Kiểm tra mã thất bại"}`);
+      setTestResult(`[Thất bại] ${err.response?.data?.message || "Kiểm tra mã thất bại"}`);
     }
   };
 
@@ -159,10 +159,7 @@ export default function AdminVouchersPage() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">🎟️</span>
-              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Quản Lý Khuyến Mãi & Voucher</h1>
-            </div>
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Quản Lý Khuyến Mãi & Voucher</h1>
             <p className="text-[#a0a0b0] text-sm mt-1">Cấu hình mã giảm giá vé, hạn mức và chương trình khuyến mãi</p>
           </div>
 
@@ -218,7 +215,7 @@ export default function AdminVouchersPage() {
           {/* Quick Sandbox Tester */}
           <div className="bg-[#161626] border border-white/[0.06] rounded-2xl p-4 flex flex-col justify-between">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-sm font-semibold text-[#f87083]">⚡ Kiểm tra mã voucher nhanh</span>
+              <span className="text-sm font-semibold text-[#f87083]">Kiểm tra mã voucher nhanh</span>
             </div>
             <div className="flex gap-2">
               <input
@@ -375,8 +372,8 @@ export default function AdminVouchersPage() {
         {isModalOpen && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
             <div className="bg-[#161626] border border-white/15 rounded-2xl p-6 sm:p-8 max-w-[580px] w-full max-h-[90vh] overflow-y-auto shadow-2xl">
-              <h2 className="text-xl font-bold mb-5 flex items-center gap-2">
-                <span>{editingId ? "✏️ Chỉnh Sửa Voucher" : "🎟️ Tạo Voucher Mới"}</span>
+              <h2 className="text-xl font-bold mb-5">
+                {editingId ? "Chỉnh Sửa Voucher" : "Tạo Voucher Mới"}
               </h2>
 
               <form onSubmit={handleSubmit} className="space-y-4">

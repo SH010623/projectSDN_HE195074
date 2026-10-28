@@ -10,6 +10,8 @@ import AdminNewsPage from "./pages/AdminNewsPage";
 import AdminVouchersPage from "./pages/AdminVouchersPage";
 import NewsPage from "./pages/NewsPage";
 import VouchersPage from "./pages/VouchersPage";
+import BookingSeatPage from "./pages/BookingSeatPage";
+import MyTicketsPage from "./pages/MyTicketsPage";
 
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -24,6 +26,22 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/vouchers" element={<VouchersPage />} />
+        <Route
+          path="/booking/:showtimeId"
+          element={
+            <ProtectedRoute>
+              <BookingSeatPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/my-tickets"
+          element={
+            <ProtectedRoute>
+              <MyTicketsPage />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="/register" element={<Navigate to="/" replace />} />
         <Route

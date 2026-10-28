@@ -42,7 +42,7 @@ export default function Footer() {
           <p className="text-2xl font-black text-[#e8173a] tracking-tight">1900 6017</p>
           <p className="text-xs text-[#707090] mt-1">8:00 - 22:00 tất cả các ngày trong tuần</p>
           <div className="mt-4 flex gap-3 text-xs text-[#8e8ea8]">
-            <span>✉️ cskh@chieuphimquocgia.vn</span>
+            <span>Email: cskh@chieuphimquocgia.vn</span>
           </div>
         </div>
       </div>

@@ -118,7 +118,7 @@ export default function AdminRoomsPage() {
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
           <div>
-            <h1 style={{ fontSize: "1.8rem", margin: 0, fontWeight: 700 }}>🏢 Quản lý Phòng chiếu (Cinema Rooms)</h1>
+            <h1 style={{ fontSize: "1.8rem", margin: 0, fontWeight: 700 }}>Quản lý Phòng chiếu (Cinema Rooms)</h1>
             <p style={{ color: "#a0a0b0", margin: "0.4rem 0 0" }}>Quản lý phòng chiếu, sơ đồ ghế và trạng thái hoạt động (Soft Delete / Bảo trì)</p>
           </div>
           <div style={{ display: "flex", gap: "0.8rem" }}>

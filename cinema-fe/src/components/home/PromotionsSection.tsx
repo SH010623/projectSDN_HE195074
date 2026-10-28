@@ -43,7 +43,6 @@ export default function PromotionsSection({ id = "promotions" }: PromotionsSecti
         <div className="flex items-center justify-between mb-8">
           <div>
             <div className="flex items-center gap-2 text-[#e8173a] text-xs font-bold tracking-widest uppercase mb-1">
-              <span>🎟️</span>
               <span>Ưu đãi & Khuyến mãi từ Rạp</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-[#f0f0f5]">
@@ -126,7 +125,7 @@ export default function PromotionsSection({ id = "promotions" }: PromotionsSecti
                             : "bg-[#e8173a] hover:bg-[#c91131] text-white"
                         }`}
                       >
-                        {isCopied ? "✓ Đã copy!" : "Copy mã"}
+                        {isCopied ? "Đã copy!" : "Copy mã"}
                       </button>
                     </div>
 
@@ -150,17 +149,14 @@ export default function PromotionsSection({ id = "promotions" }: PromotionsSecti
           <div className="bg-[#161626] border border-white/15 rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
             <button
               onClick={() => setSelectedVoucher(null)}
-              className="absolute top-4 right-4 w-8 h-8 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center cursor-pointer border-0 text-sm"
+              className="absolute top-4 right-4 w-8 h-8 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center cursor-pointer border-0 text-xs font-bold"
             >
-              ✕
+              x
             </button>
 
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-3xl">🎟️</span>
-              <div>
-                <span className="text-xs uppercase tracking-wider text-rose-400 font-semibold block">Thông tin chi tiết ưu đãi</span>
-                <h3 className="text-xl font-bold text-white">{selectedVoucher.title}</h3>
-              </div>
+            <div className="mb-4">
+              <span className="text-xs uppercase tracking-wider text-rose-400 font-semibold block">Thông tin chi tiết ưu đãi</span>
+              <h3 className="text-xl font-bold text-white mt-1">{selectedVoucher.title}</h3>
             </div>
 
             <div className="p-4 bg-[#0d0d14] rounded-xl border border-white/10 mb-5">
@@ -173,7 +169,7 @@ export default function PromotionsSection({ id = "promotions" }: PromotionsSecti
                   onClick={() => handleCopy(selectedVoucher.code)}
                   className="px-4 py-1.5 bg-[#e8173a] hover:bg-[#c91131] text-white text-xs font-semibold rounded-lg cursor-pointer border-0"
                 >
-                  {copiedCode === selectedVoucher.code ? "✓ Đã copy!" : "Sao chép mã"}
+                  {copiedCode === selectedVoucher.code ? "Đã copy!" : "Sao chép mã"}
                 </button>
               </div>
             </div>

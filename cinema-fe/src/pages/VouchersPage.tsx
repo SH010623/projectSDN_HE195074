@@ -36,10 +36,10 @@ export default function VouchersPage() {
   } | null>(null);
 
   const audienceTabs = [
-    { label: "🌟 Tất cả ưu đãi", value: "all" },
-    { label: "🎓 Học sinh - Sinh viên", value: "hssv" },
-    { label: "🍿 Combo Bắp Nước", value: "combo" },
-    { label: "👑 Thành viên & VIP/IMAX", value: "vip" },
+    { label: "Tất cả ưu đãi", value: "all" },
+    { label: "Học sinh - Sinh viên", value: "hssv" },
+    { label: "Combo Bắp Nước", value: "combo" },
+    { label: "Thành viên & VIP/IMAX", value: "vip" },
   ];
 
   useEffect(() => {
@@ -124,7 +124,6 @@ export default function VouchersPage() {
         {/* Hero Section */}
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-xs text-emerald-400 font-semibold mb-3">
-            <span>🎟️</span>
             <span>Kho voucher & ưu đãi độc quyền từ rạp chiếu</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
@@ -140,7 +139,6 @@ export default function VouchersPage() {
           <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
             <div className="max-w-md">
               <div className="flex items-center gap-2 text-rose-400 font-semibold text-sm mb-1">
-                <span>⚡</span>
                 <span>Công cụ tính giá vé ưu đãi</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">Ước tính số tiền tiết kiệm</h2>
@@ -219,10 +217,10 @@ export default function VouchersPage() {
               onChange={(e) => setSortBy(e.target.value)}
               className="px-3 py-1.5 bg-[#0d0d14] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none"
             >
-              <option value="hot">🔥 Ưu đãi Hot nhất</option>
-              <option value="newest">⚡ Mới cập nhật</option>
-              <option value="expiring_soon">⏰ Sắp hết hạn</option>
-              <option value="min_order_asc">🛒 Đơn tối thiểu thấp nhất</option>
+              <option value="hot">Ưu đãi Hot nhất</option>
+              <option value="newest">Mới cập nhật</option>
+              <option value="expiring_soon">Sắp hết hạn</option>
+              <option value="min_order_asc">Đơn tối thiểu thấp nhất</option>
             </select>
 
             {(targetFilter !== "all" || search || sortBy !== "hot") && (
@@ -230,7 +228,7 @@ export default function VouchersPage() {
                 onClick={handleResetFilters}
                 className="text-xs text-[#f87083] hover:underline cursor-pointer bg-transparent border-0 px-2 py-1"
               >
-                Đặt lại ✕
+                Đặt lại
               </button>
             )}
           </div>
@@ -341,7 +339,7 @@ export default function VouchersPage() {
                               : "bg-[#e8173a] hover:bg-[#c91131] text-white"
                           }`}
                         >
-                          {isCopied ? "✓ Đã copy!" : "Copy mã"}
+                          {isCopied ? "Đã copy!" : "Copy mã"}
                         </button>
                       </div>
 
@@ -366,17 +364,14 @@ export default function VouchersPage() {
           <div className="bg-[#161626] border border-white/15 rounded-2xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative">
             <button
               onClick={() => setSelectedVoucher(null)}
-              className="absolute top-4 right-4 w-8 h-8 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center cursor-pointer border-0 text-sm"
+              className="absolute top-4 right-4 w-8 h-8 bg-white/10 hover:bg-white/20 text-white rounded-full flex items-center justify-center cursor-pointer border-0 text-xs font-bold"
             >
-              ✕
+              x
             </button>
 
-            <div className="flex items-center gap-3 mb-4">
-              <span className="text-3xl">🎟️</span>
-              <div>
-                <span className="text-xs uppercase tracking-wider text-rose-400 font-semibold block">Chi tiết ưu đãi</span>
-                <h3 className="text-xl font-bold text-white">{selectedVoucher.title}</h3>
-              </div>
+            <div className="mb-4">
+              <span className="text-xs uppercase tracking-wider text-rose-400 font-semibold block">Chi tiết ưu đãi</span>
+              <h3 className="text-xl font-bold text-white mt-1">{selectedVoucher.title}</h3>
             </div>
 
             <div className="p-4 bg-[#0d0d14] rounded-xl border border-white/10 mb-5">
@@ -389,7 +384,7 @@ export default function VouchersPage() {
                   onClick={() => handleCopyCode(selectedVoucher.code)}
                   className="px-4 py-1.5 bg-[#e8173a] hover:bg-[#c91131] text-white text-xs font-semibold rounded-lg cursor-pointer border-0"
                 >
-                  {copiedCode === selectedVoucher.code ? "✓ Đã copy!" : "Sao chép mã"}
+                  {copiedCode === selectedVoucher.code ? "Đã copy!" : "Sao chép mã"}
                 </button>
               </div>
             </div>

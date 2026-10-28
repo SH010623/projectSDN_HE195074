@@ -89,7 +89,7 @@ export default function AdminUsersPage() {
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
           <div>
-            <h1 style={{ fontSize: "1.8rem", margin: 0, fontWeight: 700 }}>👥 Quản trị Tài khoản người dùng</h1>
+            <h1 style={{ fontSize: "1.8rem", margin: 0, fontWeight: 700 }}>Quản trị Tài khoản người dùng</h1>
             <p style={{ color: "#a0a0b0", margin: "0.4rem 0 0" }}>Phân quyền và quản lý trạng thái tài khoản (Soft Delete / Inactive)</p>
           </div>
           <button

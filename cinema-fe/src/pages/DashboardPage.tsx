@@ -27,68 +27,82 @@ export default function DashboardPage() {
       {/* Menu Điều hướng */}
       <div className="flex flex-wrap gap-4 justify-center mt-6 max-w-[600px]">
         <button
-          onClick={() => navigate("/profile")}
-          className="px-5 py-3 bg-[#161626] border border-white/10 hover:border-white/20 rounded-xl text-white text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+          onClick={() => navigate("/my-tickets")}
+          className="px-5 py-3 bg-[#161626] border border-[#e8173a]/40 hover:border-[#e8173a] rounded-xl text-white text-sm font-bold cursor-pointer transition-colors shadow-lg shadow-[#e8173a]/15"
         >
-          <span>👤</span> Hồ sơ cá nhân
+          Vé của tôi (My Tickets)
+        </button>
+
+        <button
+          onClick={() => navigate("/")}
+          className="px-5 py-3 bg-[#161626] border border-white/10 hover:border-white/20 rounded-xl text-white text-sm font-semibold cursor-pointer transition-colors"
+        >
+          Trang chủ / Đặt vé
+        </button>
+
+        <button
+          onClick={() => navigate("/profile")}
+          className="px-5 py-3 bg-[#161626] border border-white/10 hover:border-white/20 rounded-xl text-white text-sm font-semibold cursor-pointer transition-colors"
+        >
+          Hồ sơ cá nhân
         </button>
 
         <button
           onClick={() => navigate("/news")}
-          className="px-5 py-3 bg-[#161626] border border-cyan-500/30 hover:border-cyan-500/60 rounded-xl text-cyan-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+          className="px-5 py-3 bg-[#161626] border border-cyan-500/30 hover:border-cyan-500/60 rounded-xl text-cyan-300 text-sm font-semibold cursor-pointer transition-colors"
         >
-          <span>📰</span> Tin tức (News)
+          Tin tức (News)
         </button>
 
         <button
           onClick={() => navigate("/vouchers")}
-          className="px-5 py-3 bg-[#161626] border border-emerald-500/30 hover:border-emerald-500/60 rounded-xl text-emerald-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+          className="px-5 py-3 bg-[#161626] border border-emerald-500/30 hover:border-emerald-500/60 rounded-xl text-emerald-300 text-sm font-semibold cursor-pointer transition-colors"
         >
-          <span>🎟️</span> Khuyến mãi & Voucher
+          Khuyến mãi & Voucher
         </button>
 
         {user?.role === "admin" && (
           <>
             <button
               onClick={() => navigate("/admin/movies")}
-              className="px-5 py-3 bg-[#161626] border border-rose-500/40 hover:border-rose-500/70 rounded-xl text-rose-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+              className="px-5 py-3 bg-[#161626] border border-rose-500/40 hover:border-rose-500/70 rounded-xl text-rose-300 text-sm font-semibold cursor-pointer transition-colors"
             >
-              <span>🎬</span> Quản lý phim
+              Quản lý phim
             </button>
 
             <button
               onClick={() => navigate("/admin/showtimes")}
-              className="px-5 py-3 bg-[#161626] border border-amber-500/40 hover:border-amber-500/70 rounded-xl text-amber-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+              className="px-5 py-3 bg-[#161626] border border-amber-500/40 hover:border-amber-500/70 rounded-xl text-amber-300 text-sm font-semibold cursor-pointer transition-colors"
             >
-              <span>🕒</span> Quản lý lịch chiếu
+              Quản lý lịch chiếu
             </button>
 
             <button
               onClick={() => navigate("/admin/rooms")}
               className="px-5 py-3 bg-[#161626] border border-pink-500/40 hover:border-pink-500/70 rounded-xl text-pink-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
             >
-              <span>🏢</span> Quản lý phòng chiếu
+              Quản lý phòng chiếu
             </button>
 
             <button
               onClick={() => navigate("/admin/users")}
-              className="px-5 py-3 bg-[#161626] border border-indigo-500/40 hover:border-indigo-500/70 rounded-xl text-indigo-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+              className="px-5 py-3 bg-[#161626] border border-indigo-500/40 hover:border-indigo-500/70 rounded-xl text-indigo-300 text-sm font-semibold cursor-pointer transition-colors"
             >
-              <span>👥</span> Quản lý tài khoản
+              Quản lý tài khoản
             </button>
 
             <button
               onClick={() => navigate("/admin/news")}
-              className="px-5 py-3 bg-[#161626] border border-cyan-500/40 hover:border-cyan-500/70 rounded-xl text-cyan-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+              className="px-5 py-3 bg-[#161626] border border-cyan-500/40 hover:border-cyan-500/70 rounded-xl text-cyan-300 text-sm font-semibold cursor-pointer transition-colors"
             >
-              <span>📰</span> Quản lý tin tức (News)
+              Quản lý tin tức (News)
             </button>
 
             <button
               onClick={() => navigate("/admin/vouchers")}
-              className="px-5 py-3 bg-[#161626] border border-emerald-500/40 hover:border-emerald-500/70 rounded-xl text-emerald-300 text-sm font-semibold cursor-pointer flex items-center gap-2 transition-colors"
+              className="px-5 py-3 bg-[#161626] border border-emerald-500/40 hover:border-emerald-500/70 rounded-xl text-emerald-300 text-sm font-semibold cursor-pointer transition-colors"
             >
-              <span>🎟️</span> Quản lý Voucher
+              Quản lý Voucher
             </button>
           </>
         )}

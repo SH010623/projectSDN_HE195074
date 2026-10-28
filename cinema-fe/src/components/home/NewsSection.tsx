@@ -146,9 +146,9 @@ export default function NewsSection({ id = "news" }: NewsSectionProps) {
               />
               <button
                 onClick={() => setReadingArticle(null)}
-                className="absolute top-4 right-4 w-9 h-9 bg-black/60 hover:bg-black/90 text-white rounded-full flex items-center justify-center cursor-pointer border border-white/20 text-sm"
+                className="absolute top-4 right-4 w-9 h-9 bg-black/60 hover:bg-black/90 text-white rounded-full flex items-center justify-center cursor-pointer border border-white/20 text-xs font-bold"
               >
-                ✕
+                x
               </button>
               <div className="absolute bottom-4 left-6">
                 <span className={`px-3 py-1 rounded-md text-xs font-semibold border backdrop-blur-md ${getCategoryBadgeClass(readingArticle.category)}`}>

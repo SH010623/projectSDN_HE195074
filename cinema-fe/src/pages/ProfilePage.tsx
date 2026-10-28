@@ -113,7 +113,7 @@ export default function ProfilePage() {
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
           <div>
-            <h1 style={{ fontSize: "1.8rem", margin: 0, fontWeight: 700 }}>👤 Hồ sơ cá nhân</h1>
+            <h1 style={{ fontSize: "1.8rem", margin: 0, fontWeight: 700 }}>Hồ sơ cá nhân</h1>
             <p style={{ color: "#a0a0b0", margin: "0.4rem 0 0" }}>Quản lý thông tin tài khoản và bảo mật của bạn</p>
           </div>
           <button

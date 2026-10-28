@@ -25,10 +25,10 @@ export default function NewsPage() {
 
   const categories = [
     { label: "Tất cả tin tức", value: "Tất cả" },
-    { label: "🎬 Điện ảnh & Bom tấn", value: "Tin điện ảnh" },
-    { label: "🎟️ Ưu đãi & Khuyến mãi", value: "Khuyến mãi" },
-    { label: "🎪 Sự kiện & Suất chiếu", value: "Sự kiện" },
-    { label: "📢 Thông báo từ rạp", value: "Thông báo" },
+    { label: "Điện ảnh & Bom tấn", value: "Tin điện ảnh" },
+    { label: "Ưu đãi & Khuyến mãi", value: "Khuyến mãi" },
+    { label: "Sự kiện & Suất chiếu", value: "Sự kiện" },
+    { label: "Thông báo từ rạp", value: "Thông báo" },
   ];
 
   useEffect(() => {
@@ -104,7 +104,6 @@ export default function NewsPage() {
         {/* Hero Section */}
         <div className="text-center max-w-2xl mx-auto mb-10">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-rose-500/10 border border-rose-500/20 rounded-full text-xs text-rose-400 font-semibold mb-3">
-            <span>📰</span>
             <span>Bản tin điện ảnh Trung Tâm Chiếu Phim Quốc Gia</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
@@ -143,8 +142,8 @@ export default function NewsPage() {
                 onChange={(e) => setSortBy(e.target.value as any)}
                 className="px-3 py-1.5 bg-[#0d0d14] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none"
               >
-                <option value="newest">⚡ Mới nhất</option>
-                <option value="older">🗂️ Lưu trữ cũ hơn</option>
+                <option value="newest">Mới nhất</option>
+                <option value="older">Lưu trữ cũ hơn</option>
               </select>
             </div>
 
@@ -156,7 +155,7 @@ export default function NewsPage() {
                 className="px-3 py-1.5 bg-[#0d0d14] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none"
               >
                 <option value="all">Toàn bộ thời gian</option>
-                <option value="this_month">📅 Trong tháng này</option>
+                <option value="this_month">Trong tháng này</option>
               </select>
             </div>
 
@@ -165,7 +164,7 @@ export default function NewsPage() {
                 onClick={handleResetFilters}
                 className="text-xs text-[#f87083] hover:underline cursor-pointer bg-transparent border-0 px-2 py-1"
               >
-                Đặt lại bộ lọc ✕
+                Đặt lại bộ lọc
               </button>
             )}
           </div>
@@ -269,9 +268,9 @@ export default function NewsPage() {
               />
               <button
                 onClick={() => setReadingArticle(null)}
-                className="absolute top-4 right-4 w-9 h-9 bg-black/60 hover:bg-black/90 text-white rounded-full flex items-center justify-center cursor-pointer border border-white/20 text-sm"
+                className="absolute top-4 right-4 w-9 h-9 bg-black/60 hover:bg-black/90 text-white rounded-full flex items-center justify-center cursor-pointer border border-white/20 text-xs font-bold"
               >
-                ✕
+                x
               </button>
               <div className="absolute bottom-4 left-6">
                 <span className={`px-3 py-1 rounded-md text-xs font-semibold border backdrop-blur-md ${getCategoryBadgeClass(readingArticle.category)}`}>

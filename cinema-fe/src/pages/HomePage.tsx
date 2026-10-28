@@ -112,14 +112,8 @@ export default function HomePage() {
       return;
     }
 
-    const startTimeStr = new Date(showtime.startTime).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    alert(
-      `Đã chọn suất chiếu lúc ${startTimeStr} (${showtime.roomId?.name} - ${showtime.roomId?.roomType}).\nLuồng Đặt vé & Chọn ghế (Luồng 3) sẽ kích hoạt tiếp theo!`
-    );
+    setBookingMovie(null);
+    navigate(`/booking/${showtime._id}`);
   };
 
   // Handle successful login
