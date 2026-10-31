@@ -36,7 +36,13 @@ export default function LoginModal({
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data
           ?.message ?? "Đăng nhập thất bại. Vui lòng thử lại.";
-      setError(msg);
+      const messages: Record<string, string> = {
+        "Invalid password": "Mật khẩu không chính xác",
+        "User not found": "Không tìm thấy tài khoản với email này",
+        "Email and password are required": "Vui lòng nhập email và mật khẩu",
+        "Unauthorized!": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+      };
+      setError(messages[msg] || msg);
     } finally {
       setLoading(false);
     }

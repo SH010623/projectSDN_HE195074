@@ -80,15 +80,9 @@ export default function MyTicketsPage() {
   return (
     <div className="min-h-screen bg-[#0d0d14] text-[#f0f0f5] font-inter pb-20">
       {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-[#0a0a12]/95 backdrop-blur-md border-b border-white/[0.06] px-6 py-4">
+      <header className="sticky top-32 lg:top-16 z-30 bg-[#0a0a12]/95 backdrop-blur-md border-b border-white/[0.06] px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm font-medium text-white/80 transition-colors flex items-center gap-2 cursor-pointer border border-white/10"
-            >
-              <span>←</span> Bảng điều khiển
-            </button>
             <div>
               <h1 className="text-xl font-black text-white">
                 Vé Của Tôi
@@ -98,7 +92,7 @@ export default function MyTicketsPage() {
           </div>
 
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/schedule")}
             className="px-4 py-2 bg-[#e8173a] hover:bg-[#c91131] rounded-lg text-xs font-bold text-white uppercase tracking-wider transition-colors cursor-pointer border-0"
           >
             + Đặt vé mới
@@ -181,7 +175,7 @@ export default function MyTicketsPage() {
                   }.`}
             </p>
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/schedule")}
               className="px-6 py-3 bg-[#e8173a] hover:bg-[#c91131] rounded-xl text-sm font-bold text-white transition-all cursor-pointer shadow-lg shadow-[#e8173a]/30"
             >
               Khám phá phim đang chiếu ngay

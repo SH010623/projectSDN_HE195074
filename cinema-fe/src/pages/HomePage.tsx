@@ -22,7 +22,7 @@ import ForgotPasswordModal from "../components/ForgotPasswordModal";
 
 type ModalState = "none" | "login" | "register" | "forgotPassword";
 
-export default function HomePage() {
+export default function HomePage({ scheduleOnly = false }: { scheduleOnly?: boolean }) {
   const navigate = useNavigate();
 
   // Authentication modals state
@@ -62,7 +62,7 @@ export default function HomePage() {
     try {
       const res = await movieService.getMovies({ status: "all" });
       if (res.movies && res.movies.length > 0) {
-        const mapped: UiMovie[] = res.movies.map((m: ApiMovie) => ({
+        const mapped: UiMovie[] = res.movies.filter((m: ApiMovie) => m.status !== "ended").map((m: ApiMovie) => ({
           id: m._id,
           title: m.title,
           titleEn: m.titleEn || "",
@@ -111,6 +111,10 @@ export default function HomePage() {
 
   // Handle selecting a specific showtime slot
   const handleSelectShowtime = (showtime: Showtime) => {
+    if (!["scheduled", "opened"].includes(showtime.status) || new Date(showtime.startTime).getTime() <= Date.now()) {
+      setShowtimesError("Suất chiếu đã hết hạn đặt vé. Vui lòng chọn suất khác.");
+      return;
+    }
     if (!currentUser) {
       alert("Vui lòng đăng nhập để tiến hành chọn ghế và đặt vé!");
       setModal("login");
@@ -145,16 +149,17 @@ export default function HomePage() {
       />
 
       {/* ── 2. HERO BANNER ── */}
-      <HeroBanner
+      {!scheduleOnly && <HeroBanner
         movieList={movieList}
         activeSlide={activeSlide}
         onSelectSlide={(idx) => setActiveSlide(idx)}
         onPrevSlide={() => setActiveSlide((s) => (s - 1 + movieList.length) % movieList.length)}
         onNextSlide={() => setActiveSlide((s) => (s + 1) % movieList.length)}
         onBookNow={handleOpenShowtimes}
-      />
+      />}
 
       {/* ── 3. MOVIES SECTION ── */}
+      {scheduleOnly && <div className="pt-32 px-6 max-w-[1280px] mx-auto"><h1 className="text-3xl font-bold">Lịch chiếu & Đặt vé</h1><p className="mt-3 text-gray-400">Chọn phim, ngày và suất chiếu để đặt vé.</p></div>}
       <MovieSection
         activeTab={activeTab}
         onTabChange={(tab) => setActiveTab(tab)}
@@ -163,10 +168,10 @@ export default function HomePage() {
       />
 
       {/* ── 4. NEWS SECTION ── */}
-      <NewsSection id="news" />
+      {!scheduleOnly && <NewsSection id="news" />}
 
       {/* ── 5. PROMOTIONS SECTION ── */}
-      <PromotionsSection id="promotions" />
+      {!scheduleOnly && <PromotionsSection id="promotions" />}
 
       {/* ── 6. FOOTER ── */}
       <Footer />

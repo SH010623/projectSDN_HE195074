@@ -11,14 +11,14 @@ const register = async (req, res) => {
     // Validate required fields
     if (!email || !password || !name || !phone) {
       return res.status(400).json({
-        message: "All fields are required: email, password, name, phone",
+        message: "Vui lòng nhập đầy đủ email, mật khẩu, họ tên và số điện thoại",
       });
     }
 
     // Check if user already exists
     const existingUser = await db.User.findOne({ email });
     if (existingUser) {
-      return res.status(409).json({ message: "Email is already registered" });
+      return res.status(409).json({ message: "Email này đã được đăng ký" });
     }
 
     // Hash password
@@ -35,7 +35,7 @@ const register = async (req, res) => {
     await newUser.save();
 
     return res.status(201).json({
-      message: "User registered successfully",
+      message: "Đăng ký tài khoản thành công",
       user: {
         _id: newUser._id,
         email: newUser.email,
@@ -46,7 +46,7 @@ const register = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: "Không thể xử lý yêu cầu lúc này. Vui lòng thử lại sau." });
   }
 };
 
@@ -59,14 +59,14 @@ const login = async (req, res) => {
     // Validate required fields
     if (!email || !password) {
       return res.status(400).json({
-        message: "Email and password are required",
+        message: "Vui lòng nhập email và mật khẩu",
       });
     }
 
     // Find user by email
     const user = await db.User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "Không tìm thấy tài khoản với email này" });
     }
 
     // Check if account is active
@@ -79,7 +79,7 @@ const login = async (req, res) => {
     // Verify password
     const isPasswordValid = await bcryptjs.compare(password, user.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid password" });
+      return res.status(401).json({ message: "Mật khẩu không chính xác" });
     }
 
     // Generate JWT token
@@ -90,7 +90,7 @@ const login = async (req, res) => {
     );
 
     return res.status(200).json({
-      message: "Login successful",
+      message: "Đăng nhập thành công",
       token,
       user: {
         _id: user._id,
@@ -102,7 +102,7 @@ const login = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: "Không thể xử lý yêu cầu lúc này. Vui lòng thử lại sau." });
   }
 };
 
@@ -154,7 +154,7 @@ const forgotPassword = async (req, res) => {
       message: "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.",
     });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({ message: "Không thể xử lý yêu cầu lúc này. Vui lòng thử lại sau." });
   }
 };
 

@@ -1,4 +1,5 @@
 const db = require("../models");
+const bookingUnavailableReason = require("../utils/bookingAvailability");
 
 // Generate unique booking code e.g. NCC-839214
 const generateBookingCode = () => {
@@ -19,6 +20,9 @@ const getOccupiedSeats = async (req, res) => {
     if (!showtime) {
       return res.status(404).json({ message: "Không tìm thấy suất chiếu" });
     }
+
+    const unavailable = bookingUnavailableReason(showtime);
+    if (unavailable) return res.status(400).json({ message: unavailable });
 
     // Find all confirmed bookings for this showtime
     const confirmedBookings = await db.Booking.find(
@@ -65,11 +69,8 @@ const createBooking = async (req, res) => {
       return res.status(404).json({ message: "Suất chiếu không tồn tại" });
     }
 
-    if (showtime.status === "cancelled" || showtime.status === "closed") {
-      return res.status(400).json({
-        message: `Suất chiếu hiện đang ở trạng thái "${showtime.status}", không thể đặt vé`,
-      });
-    }
+    const unavailable = bookingUnavailableReason(showtime);
+    if (unavailable) return res.status(400).json({ message: unavailable });
 
     // Check race condition: Verify none of selected seats are already booked
     const existingBookings = await db.Booking.find(

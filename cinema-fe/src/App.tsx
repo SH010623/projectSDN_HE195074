@@ -13,6 +13,7 @@ import VouchersPage from "./pages/VouchersPage";
 import TicketsPage from "./pages/TicketsPage";
 import BookingSeatPage from "./pages/BookingSeatPage";
 import MyTicketsPage from "./pages/MyTicketsPage";
+import CustomerLayout from "./components/CustomerLayout";
 import AdminLayout from "./components/admin/AdminLayout";
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
@@ -46,9 +47,11 @@ function App() {
       <Routes>
         {/* Public & Customer Routes */}
         <Route path="/" element={<HomePage />} />
+        <Route path="/schedule" element={<HomePage key="schedule" scheduleOnly />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/vouchers" element={<VouchersPage />} />
         <Route path="/tickets" element={<TicketsPage />} />
+        <Route element={<CustomerLayout />}>
         <Route
           path="/booking/:showtimeId"
           element={
@@ -65,9 +68,11 @@ function App() {
             </ProtectedRoute>
           }
         />
+        </Route>
         <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="/register" element={<Navigate to="/" replace />} />
         <Route path="/dashboard" element={<DashboardRoute />} />
+        <Route element={<CustomerLayout />}>
         <Route
           path="/profile"
           element={
@@ -76,6 +81,8 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        </Route>
 
         {/* ── Admin Management Routes with Persistent Dynamic Sidebar ── */}
         <Route

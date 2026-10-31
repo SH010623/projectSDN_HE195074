@@ -28,6 +28,20 @@ export default function TicketsPage() {
 
       {/* ── 2. MAIN CONTENT ── */}
       <main className="max-w-[1240px] mx-auto px-6 pt-24 pb-16 w-full flex-1">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center mb-10">
+          <button
+            onClick={() => navigate("/schedule")}
+            className="w-full sm:w-auto px-8 py-3.5 bg-[#e8173a] hover:bg-[#c91131] rounded-xl text-white text-sm font-bold shadow-lg shadow-red-950/40 transition-all cursor-pointer border-0"
+          >
+            Xem Lịch Chiếu & Đặt Vé Ngay
+          </button>
+          <button
+            onClick={() => navigate("/vouchers")}
+            className="w-full sm:w-auto px-8 py-3.5 bg-[#161626] hover:bg-[#202038] border border-white/15 rounded-xl text-emerald-300 text-sm font-semibold transition-all cursor-pointer"
+          >
+            Săn Voucher Giảm Giá Vé
+          </button>
+        </div>
         {/* Hero Title */}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-rose-500/10 border border-rose-500/20 rounded-full text-xs text-rose-400 font-semibold mb-3">
@@ -215,21 +229,6 @@ export default function TicketsPage() {
           </div>
         </div>
 
-        {/* ── SECTION 4: CALL TO ACTION BUTTONS ── */}
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
-          <button
-            onClick={() => navigate("/#schedule")}
-            className="w-full sm:w-auto px-8 py-3.5 bg-[#e8173a] hover:bg-[#c91131] rounded-xl text-white text-sm font-bold shadow-lg shadow-red-950/40 transition-all cursor-pointer border-0"
-          >
-            🎬 Xem Lịch Chiếu & Đặt Vé Ngay
-          </button>
-          <button
-            onClick={() => navigate("/vouchers")}
-            className="w-full sm:w-auto px-8 py-3.5 bg-[#161626] hover:bg-[#202038] border border-white/15 rounded-xl text-emerald-300 text-sm font-semibold transition-all cursor-pointer"
-          >
-            🎟️ Săn Voucher Giảm Giá Vé
-          </button>
-        </div>
       </main>
 
       {/* ── 3. FOOTER ── */}
