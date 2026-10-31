@@ -185,12 +185,6 @@ export default function BookingSeatPage() {
       <header className="bg-[#12121f] border-b border-white/[0.08] sticky top-32 lg:top-16 z-30 px-6 py-4">
         <div className="max-w-[1280px] mx-auto flex items-center justify-between flex-wrap gap-4">
           <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate("/schedule")}
-              className="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-sm text-gray-300 border border-white/10 cursor-pointer transition-colors"
-            >
-              ← Trang chủ
-            </button>
             <div>
               <h1 className="text-lg font-bold text-white flex items-center gap-2">
                 <span>{movie?.title}</span>
@@ -207,13 +201,6 @@ export default function BookingSeatPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs font-semibold text-gray-400">
-            <span className="text-[#e8173a]">1. Chọn ghế</span>
-            <span>/</span>
-            <span>2. Thanh toán</span>
-            <span>/</span>
-            <span>3. Nhận vé</span>
-          </div>
         </div>
       </header>
 

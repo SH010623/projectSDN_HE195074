@@ -1,4 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import MovieShowtimesPage from "./pages/MovieShowtimesPage";
+import SchedulePage from "./pages/SchedulePage";
 import HomePage from "./pages/HomePage";
 import DashboardPage from "./pages/DashboardPage";
 import ProfilePage from "./pages/ProfilePage";
@@ -47,7 +49,8 @@ function App() {
       <Routes>
         {/* Public & Customer Routes */}
         <Route path="/" element={<HomePage />} />
-        <Route path="/schedule" element={<HomePage key="schedule" scheduleOnly />} />
+        <Route path="/movies/:movieId/showtimes" element={<MovieShowtimesPage />} />
+        <Route path="/schedule" element={<SchedulePage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/vouchers" element={<VouchersPage />} />
         <Route path="/tickets" element={<TicketsPage />} />

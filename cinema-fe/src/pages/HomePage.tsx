@@ -1,18 +1,14 @@
 import { useState, useEffect } from "react";
-import { cinemaDate } from "../utils/cinemaDate";
 import { useNavigate } from "react-router-dom";
 import { movies as initialMockMovies } from "../data/movies";
 import { movieService } from "../services/movieService";
 import type { Movie as ApiMovie } from "../services/movieService";
-import { showtimeService } from "../services/showtimeService";
-import type { Showtime } from "../services/showtimeService";
 
 // Sub-components
 import type { UiMovie } from "../components/home/types";
 import Navbar from "../components/home/Navbar";
 import HeroBanner from "../components/home/HeroBanner";
 import MovieSection from "../components/home/MovieSection";
-import ShowtimeModal from "../components/home/ShowtimeModal";
 import NewsSection from "../components/home/NewsSection";
 import PromotionsSection from "../components/home/PromotionsSection";
 import Footer from "../components/home/Footer";
@@ -33,14 +29,6 @@ export default function HomePage({ scheduleOnly = false }: { scheduleOnly?: bool
   const [activeTab, setActiveTab] = useState<"now-showing" | "coming-soon">("now-showing");
   const [movieList, setMovieList] = useState<UiMovie[]>(initialMockMovies);
 
-  // Showtime selection state
-  const todayStr = cinemaDate();
-  const [bookingMovie, setBookingMovie] = useState<UiMovie | null>(null);
-  const [bookingDate, setBookingDate] = useState<string>(todayStr);
-  const [movieShowtimes, setMovieShowtimes] = useState<Showtime[]>([]);
-  const [loadingShowtimes, setLoadingShowtimes] = useState(false);
-  const [showtimesError, setShowtimesError] = useState<string | null>(null);
-
   // Current logged in user info from localStorage
   const rawUser = localStorage.getItem("user");
   const currentUser = rawUser ? JSON.parse(rawUser) : null;
@@ -49,13 +37,6 @@ export default function HomePage({ scheduleOnly = false }: { scheduleOnly?: bool
   useEffect(() => {
     fetchMoviesFromBackend();
   }, []);
-
-  // Fetch showtimes whenever a movie is selected or booking date changes
-  useEffect(() => {
-    if (bookingMovie && typeof bookingMovie.id === "string") {
-      fetchShowtimesForBooking(bookingMovie.id, bookingDate);
-    }
-  }, [bookingMovie, bookingDate]);
 
   // Fetch movies from API with fallback to initial mock data
   const fetchMoviesFromBackend = async () => {
@@ -89,40 +70,8 @@ export default function HomePage({ scheduleOnly = false }: { scheduleOnly?: bool
     }
   };
 
-  // Fetch showtimes for the selected movie and date
-  const fetchShowtimesForBooking = async (movieId: string, date: string) => {
-    try {
-      setLoadingShowtimes(true);
-      setShowtimesError(null);
-      const res = await showtimeService.getShowtimes({ movieId, date });
-      setMovieShowtimes(res.showtimes || []);
-    } catch (err) {
-      setMovieShowtimes([]);
-      setShowtimesError("Không tải được lịch chiếu. Vui lòng kiểm tra backend và thử lại.");
-    } finally {
-      setLoadingShowtimes(false);
-    }
-  };
-
-  // Handle movie card click to open showtime modal
   const handleOpenShowtimes = (movie: UiMovie) => {
-    setBookingMovie(movie);
-  };
-
-  // Handle selecting a specific showtime slot
-  const handleSelectShowtime = (showtime: Showtime) => {
-    if (!["scheduled", "opened"].includes(showtime.status) || new Date(showtime.startTime).getTime() <= Date.now()) {
-      setShowtimesError("Suất chiếu đã hết hạn đặt vé. Vui lòng chọn suất khác.");
-      return;
-    }
-    if (!currentUser) {
-      alert("Vui lòng đăng nhập để tiến hành chọn ghế và đặt vé!");
-      setModal("login");
-      return;
-    }
-
-    setBookingMovie(null);
-    navigate(`/booking/${showtime._id}`);
+    navigate(`/movies/${movie.id}/showtimes`);
   };
 
   // Handle successful login
@@ -175,20 +124,6 @@ export default function HomePage({ scheduleOnly = false }: { scheduleOnly?: bool
 
       {/* ── 6. FOOTER ── */}
       <Footer />
-
-      {/* ── 6. SHOWTIME BOOKING MODAL ── */}
-      {bookingMovie && (
-        <ShowtimeModal
-          movie={bookingMovie}
-          selectedDate={bookingDate}
-          onDateChange={(d) => setBookingDate(d)}
-          showtimes={movieShowtimes}
-          loading={loadingShowtimes}
-          error={showtimesError}
-          onClose={() => setBookingMovie(null)}
-          onSelectShowtime={handleSelectShowtime}
-        />
-      )}
 
       {/* ── 7. AUTH MODALS ── */}
       {modal === "login" && (
