@@ -10,22 +10,45 @@ import AdminNewsPage from "./pages/AdminNewsPage";
 import AdminVouchersPage from "./pages/AdminVouchersPage";
 import NewsPage from "./pages/NewsPage";
 import VouchersPage from "./pages/VouchersPage";
+import TicketsPage from "./pages/TicketsPage";
 import BookingSeatPage from "./pages/BookingSeatPage";
 import MyTicketsPage from "./pages/MyTicketsPage";
+import AdminLayout from "./components/admin/AdminLayout";
 
+function AdminRoute({ children }: { children: React.ReactNode }) {
+  const token = localStorage.getItem("token");
+  const raw = localStorage.getItem("user");
+  const user = raw ? JSON.parse(raw) : null;
+  if (!token) return <Navigate to="/" replace />;
+  if (user?.role !== "admin") return <Navigate to="/" replace />;
+  return <>{children}</>;
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const token = localStorage.getItem("token");
   return token ? <>{children}</> : <Navigate to="/" replace />;
 }
 
+function DashboardRoute() {
+  const token = localStorage.getItem("token");
+  if (!token) return <Navigate to="/" replace />;
+  const raw = localStorage.getItem("user");
+  const user = raw ? JSON.parse(raw) : null;
+  if (user?.role === "admin") {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+  return <DashboardPage />;
+}
+
 function App() {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public & Customer Routes */}
         <Route path="/" element={<HomePage />} />
         <Route path="/news" element={<NewsPage />} />
         <Route path="/vouchers" element={<VouchersPage />} />
+        <Route path="/tickets" element={<TicketsPage />} />
         <Route
           path="/booking/:showtimeId"
           element={
@@ -44,14 +67,7 @@ function App() {
         />
         <Route path="/login" element={<Navigate to="/" replace />} />
         <Route path="/register" element={<Navigate to="/" replace />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/dashboard" element={<DashboardRoute />} />
         <Route
           path="/profile"
           element={
@@ -60,58 +76,26 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        {/* ── Admin Management Routes with Persistent Dynamic Sidebar ── */}
         <Route
-          path="/admin/users"
           element={
-            <ProtectedRoute>
-              <AdminUsersPage />
-            </ProtectedRoute>
+            <AdminRoute>
+              <AdminLayout />
+            </AdminRoute>
           }
-        />
-        <Route
-          path="/admin/rooms"
-          element={
-            <ProtectedRoute>
-              <AdminRoomsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/movies"
-          element={
-            <ProtectedRoute>
-              <AdminMoviesPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/showtimes"
-          element={
-            <ProtectedRoute>
-              <AdminShowtimesPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/news"
-          element={
-            <ProtectedRoute>
-              <AdminNewsPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/admin/vouchers"
-          element={
-            <ProtectedRoute>
-              <AdminVouchersPage />
-            </ProtectedRoute>
-          }
-        />
+        >
+          <Route path="/admin/dashboard" element={<DashboardPage />} />
+          <Route path="/admin/movies" element={<AdminMoviesPage />} />
+          <Route path="/admin/showtimes" element={<AdminShowtimesPage />} />
+          <Route path="/admin/rooms" element={<AdminRoomsPage />} />
+          <Route path="/admin/users" element={<AdminUsersPage />} />
+          <Route path="/admin/news" element={<AdminNewsPage />} />
+          <Route path="/admin/vouchers" element={<AdminVouchersPage />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
 }
-
 
 export default App;
