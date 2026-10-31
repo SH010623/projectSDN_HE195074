@@ -1,10 +1,9 @@
+import AppSelect from "../components/AppSelect";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { adminUserService } from "../services/adminUserService";
 import type { UserProfile } from "../services/profileService";
 
 export default function AdminUsersPage() {
-  const navigate = useNavigate();
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -92,20 +91,7 @@ export default function AdminUsersPage() {
             <h1 style={{ fontSize: "1.8rem", margin: 0, fontWeight: 700 }}>Quản trị Tài khoản người dùng</h1>
             <p style={{ color: "#a0a0b0", margin: "0.4rem 0 0" }}>Phân quyền và quản lý trạng thái tài khoản (Soft Delete / Inactive)</p>
           </div>
-          <button
-            onClick={() => navigate("/dashboard")}
-            style={{
-              padding: "0.6rem 1.2rem",
-              background: "rgba(255,255,255,0.08)",
-              border: "1px solid rgba(255,255,255,0.15)",
-              color: "#fff",
-              borderRadius: "10px",
-              cursor: "pointer",
-              fontWeight: 500,
-            }}
-          >
-            ← Về Dashboard
-          </button>
+
         </div>
 
         {/* Thông báo */}
@@ -143,25 +129,9 @@ export default function AdminUsersPage() {
           </form>
 
           <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              style={{ padding: "0.6rem 0.8rem", background: "#0f0f1a", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "#fff" }}
-            >
-              <option value="all">Tất cả vai trò</option>
-              <option value="user">User</option>
-              <option value="admin">Admin</option>
-            </select>
+            <AppSelect label="Vai trò" value={roleFilter || ""} onValueChange={value => setRoleFilter(value)} options={[{"value": "all", "label": "Tất cả vai trò"}, {"value": "user", "label": "Khách hàng"}, {"value": "admin", "label": "Quản trị viên"}]} />
 
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              style={{ padding: "0.6rem 0.8rem", background: "#0f0f1a", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "#fff" }}
-            >
-              <option value="all">Tất cả trạng thái</option>
-              <option value="active">Đang hoạt động (Active)</option>
-              <option value="inactive">Đã bị khóa (Inactive)</option>
-            </select>
+            <AppSelect label="Trạng thái" value={statusFilter || ""} onValueChange={value => setStatusFilter(value)} options={[{"value": "all", "label": "Tất cả trạng thái"}, {"value": "active", "label": "Đang hoạt động"}, {"value": "inactive", "label": "Đã bị khóa"}]} />
           </div>
         </div>
 
@@ -285,14 +255,7 @@ export default function AdminUsersPage() {
 
               <div style={{ marginBottom: "1.5rem" }}>
                 <label style={{ display: "block", marginBottom: "0.5rem", fontSize: "0.9rem", color: "#d1d5db" }}>Chọn vai trò (Role):</label>
-                <select
-                  value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value as "user" | "admin")}
-                  style={{ width: "100%", padding: "0.7rem", background: "#0f0f1a", border: "1px solid rgba(255,255,255,0.2)", borderRadius: "8px", color: "#fff" }}
-                >
-                  <option value="user">User (Khách hàng thông thường)</option>
-                  <option value="admin">Admin (Quản trị viên toàn hệ thống)</option>
-                </select>
+                <AppSelect label="Vai trò" value={selectedRole || ""} onValueChange={value => setSelectedRole(value as "user" | "admin")} options={[{"value": "user", "label": "User (Khách hàng thông thường)"}, {"value": "admin", "label": "Admin (Quản trị viên toàn hệ thống)"}]} fullWidth />
               </div>
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.8rem" }}>

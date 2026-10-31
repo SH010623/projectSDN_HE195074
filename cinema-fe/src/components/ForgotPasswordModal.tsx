@@ -1,3 +1,4 @@
+import Icon from "./ui/Icon";
 import { useState, type FormEvent } from "react";
 import { authApi } from "../services/authService";
 
@@ -80,7 +81,7 @@ export default function ForgotPasswordModal({
           aria-label="Đóng"
           className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-full bg-white/5 text-[#8888a0] hover:bg-white/10 hover:text-white transition-colors text-sm border-0 cursor-pointer"
         >
-          ✕
+          <Icon name="close" />
         </button>
 
         <h2 className="text-2xl font-bold text-[#f0f0f5] mb-1">Quên mật khẩu</h2>
@@ -91,7 +92,7 @@ export default function ForgotPasswordModal({
         {successMsg ? (
           <div className="flex flex-col items-center py-4 text-center">
             <div className="w-14 h-14 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded-full flex items-center justify-center text-2xl mb-4">
-              ✓
+              <Icon name="check" />
             </div>
             <h3 className="text-lg font-bold text-white mb-2">Thành công!</h3>
             <p className="text-xs text-gray-300 leading-relaxed mb-6">

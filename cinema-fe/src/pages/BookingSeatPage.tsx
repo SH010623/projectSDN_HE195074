@@ -1,3 +1,4 @@
+import Icon from "../components/ui/Icon";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { bookingService } from "../services/bookingService";
@@ -475,7 +476,7 @@ export default function BookingSeatPage() {
               // Success Screen
               <div className="flex flex-col items-center py-4">
                 <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded-full flex items-center justify-center text-3xl mb-4">
-                  ✓
+                  <Icon name="check" />
                 </div>
                 <h3 className="text-xl font-bold mb-1">Đặt vé thành công!</h3>
                 <p className="text-xs text-gray-400 mb-5">

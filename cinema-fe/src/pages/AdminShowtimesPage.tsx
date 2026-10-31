@@ -1,5 +1,6 @@
+import Icon from "../components/ui/Icon";
+import AppSelect from "../components/AppSelect";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { showtimeService } from "../services/showtimeService";
 import type { Showtime, ShowtimePayload } from "../services/showtimeService";
 import { movieService } from "../services/movieService";
@@ -14,8 +15,14 @@ const formatDateToYMD = (d: Date) => d.toISOString().split("T")[0];
 const formatVND = (price: number) =>
   new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(price);
 
+const showtimeStatusOptions = [
+  { value: "opened", label: "Đang mở bán" },
+  { value: "scheduled", label: "Đã lên lịch" },
+  { value: "closed", label: "Đã đóng" },
+  { value: "cancelled", label: "Đã hủy" },
+];
+
 export default function AdminShowtimesPage() {
-  const navigate = useNavigate();
 
   // State for showtimes list and available movies/rooms
   const [showtimes, setShowtimes] = useState<Showtime[]>([]);
@@ -29,6 +36,13 @@ export default function AdminShowtimesPage() {
   const [movieFilter, setMovieFilter] = useState("all");
   const [roomFilter, setRoomFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  const totalPages = Math.max(1, Math.ceil(showtimes.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * pageSize;
+  const visibleShowtimes = showtimes.slice(pageStart, pageStart + pageSize);
 
   // Notifications state
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -53,6 +67,7 @@ export default function AdminShowtimesPage() {
 
   // Fetch showtimes when filters change
   useEffect(() => {
+    setPage(1);
     fetchShowtimes();
   }, [selectedDate, movieFilter, roomFilter, statusFilter]);
 
@@ -190,20 +205,6 @@ export default function AdminShowtimesPage() {
     }
   };
 
-  // Quick toggle showtime status
-  const handleStatusChange = async (
-    id: string,
-    newStatus: "scheduled" | "opened" | "closed" | "cancelled"
-  ) => {
-    try {
-      await showtimeService.updateShowtimeStatus(id, newStatus);
-      setMessage({ type: "success", text: "Đã cập nhật trạng thái suất chiếu!" });
-      fetchShowtimes();
-    } catch (err: any) {
-      alert(err.response?.data?.message || "Không thể cập nhật trạng thái");
-    }
-  };
-
   // Status badge styling helper
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -266,7 +267,7 @@ export default function AdminShowtimesPage() {
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <span style={{ fontSize: "1.8rem" }}>🕒</span>
+              <span style={{ fontSize: "1.8rem" }}><Icon name="clock" /></span>
               <h1 style={{ fontSize: "1.8rem", margin: 0, fontWeight: 800, letterSpacing: "-0.02em" }}>
                 Quản lý Lịch chiếu & Suất chiếu
               </h1>
@@ -292,21 +293,7 @@ export default function AdminShowtimesPage() {
             >
               + Thêm suất chiếu mới
             </button>
-            <button
-              onClick={() => navigate("/dashboard")}
-              style={{
-                padding: "0.65rem 1rem",
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                color: "#e2e8f0",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontWeight: 500,
-                fontSize: "0.85rem",
-              }}
-            >
-              ← Về Dashboard
-            </button>
+
           </div>
         </div>
 
@@ -330,7 +317,7 @@ export default function AdminShowtimesPage() {
               onClick={() => setMessage(null)}
               style={{ background: "transparent", border: "none", color: "inherit", cursor: "pointer", fontWeight: 700 }}
             >
-              ✕
+              <Icon name="close" />
             </button>
           </div>
         )}
@@ -350,53 +337,17 @@ export default function AdminShowtimesPage() {
             justifyContent: "space-between",
           }}
         >
-          {/* Quick Date Selectors */}
+          {/* Chọn ngày chiếu */}
           <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", flexWrap: "wrap" }}>
-            <span style={{ fontSize: "0.85rem", color: "#9ca3af", fontWeight: 600 }}>Ngày chiếu:</span>
-            <button
-              type="button"
-              onClick={() => setSelectedDate(todayStr)}
-              style={{
-                padding: "0.45rem 0.85rem",
-                borderRadius: "8px",
-                fontSize: "0.82rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                border: "none",
-                background: selectedDate === todayStr ? "#e8173a" : "rgba(255,255,255,0.06)",
-                color: "#fff",
-              }}
-            >
-              Hôm nay
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                const tmr = new Date();
-                tmr.setDate(tmr.getDate() + 1);
-                setSelectedDate(formatDateToYMD(tmr));
-              }}
-              style={{
-                padding: "0.45rem 0.85rem",
-                borderRadius: "8px",
-                fontSize: "0.82rem",
-                fontWeight: 600,
-                cursor: "pointer",
-                border: "none",
-                background:
-                  selectedDate === formatDateToYMD(new Date(Date.now() + 86400000))
-                    ? "#e8173a"
-                    : "rgba(255,255,255,0.06)",
-                color: "#fff",
-              }}
-            >
-              Ngày mai
-            </button>
+            <label htmlFor="showtime-date-filter" style={{ fontSize: "0.85rem", color: "#9ca3af", fontWeight: 600 }}>Ngày chiếu:</label>
             <input
+              id="showtime-date-filter"
+              aria-label="Chọn ngày chiếu"
               type="date"
               value={selectedDate === "all" ? "" : selectedDate}
               onChange={(e) => setSelectedDate(e.target.value || "all")}
               style={{
+                colorScheme: "dark",
                 padding: "0.45rem 0.75rem",
                 background: "#0a0a12",
                 border: "1px solid rgba(255,255,255,0.15)",
@@ -428,71 +379,17 @@ export default function AdminShowtimesPage() {
           <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "center" }}>
             {/* Filter by Movie */}
             <div>
-              <select
-                value={movieFilter}
-                onChange={(e) => setMovieFilter(e.target.value)}
-                style={{
-                  padding: "0.5rem 0.8rem",
-                  background: "#0a0a12",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  borderRadius: "8px",
-                  color: "#fff",
-                  fontSize: "0.82rem",
-                  maxWidth: "180px",
-                }}
-              >
-                <option value="all">Tất cả phim</option>
-                {movies.map((m) => (
-                  <option key={m._id} value={m._id}>
-                    {m.title}
-                  </option>
-                ))}
-              </select>
+              <AppSelect label="Lọc theo phim" value={movieFilter} onValueChange={setMovieFilter} options={[{ value: "all", label: "Tất cả phim" }, ...movies.map(m => ({ value: m._id, label: m.title }))]} />
             </div>
 
             {/* Filter by Room */}
             <div>
-              <select
-                value={roomFilter}
-                onChange={(e) => setRoomFilter(e.target.value)}
-                style={{
-                  padding: "0.5rem 0.8rem",
-                  background: "#0a0a12",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  borderRadius: "8px",
-                  color: "#fff",
-                  fontSize: "0.82rem",
-                }}
-              >
-                <option value="all">Tất cả phòng</option>
-                {rooms.map((r) => (
-                  <option key={r._id} value={r._id}>
-                    {r.name} ({r.roomType})
-                  </option>
-                ))}
-              </select>
+              <AppSelect label="Lọc theo phòng" value={roomFilter} onValueChange={setRoomFilter} options={[{ value: "all", label: "Tất cả phòng" }, ...rooms.map(r => ({ value: r._id, label: `${r.name} (${r.roomType})` }))]} />
             </div>
 
             {/* Filter by Status */}
             <div>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                style={{
-                  padding: "0.5rem 0.8rem",
-                  background: "#0a0a12",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  borderRadius: "8px",
-                  color: "#fff",
-                  fontSize: "0.82rem",
-                }}
-              >
-                <option value="all">Tất cả trạng thái</option>
-                <option value="opened">Đang mở bán</option>
-                <option value="scheduled">Đã lên lịch</option>
-                <option value="closed">Đã kết thúc</option>
-                <option value="cancelled">Đã huỷ</option>
-              </select>
+              <AppSelect label="Lọc theo trạng thái" value={statusFilter} onValueChange={setStatusFilter} options={[{ value: "all", label: "Tất cả trạng thái" }, ...showtimeStatusOptions]} />
             </div>
           </div>
         </div>
@@ -500,7 +397,7 @@ export default function AdminShowtimesPage() {
         {/* Showtimes List Table */}
         {loading ? (
           <div style={{ textAlign: "center", padding: "4rem 0", color: "#8e8ea8" }}>
-            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}>⏳</div>
+            <div style={{ fontSize: "2rem", marginBottom: "1rem" }}><Icon name="hourglass" /></div>
             <p>Đang tải danh sách suất chiếu...</p>
           </div>
         ) : showtimes.length === 0 ? (
@@ -513,7 +410,7 @@ export default function AdminShowtimesPage() {
               border: "1px dashed rgba(255,255,255,0.15)",
             }}
           >
-            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📅</div>
+            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}><Icon name="calendar" /></div>
             <h3 style={{ fontSize: "1.2rem", fontWeight: 700, margin: 0 }}>Không có suất chiếu nào</h3>
             <p style={{ color: "#8e8ea8", margin: "0.5rem 0 1.5rem" }}>
               Chưa có suất chiếu phù hợp với bộ lọc ngày hoặc phòng đã chọn.
@@ -548,7 +445,7 @@ export default function AdminShowtimesPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {showtimes.map((st) => {
+                  {visibleShowtimes.map((st) => {
                     const startObj = new Date(st.startTime);
                     const endObj = new Date(st.endTime);
                     const startTimeStr = startObj.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -569,7 +466,7 @@ export default function AdminShowtimesPage() {
                             {startTimeStr} <span style={{ color: "#6b7280", fontWeight: 400 }}>→</span> {endTimeStr}
                           </div>
                           <div style={{ fontSize: "0.75rem", color: "#9ca3af", marginTop: "2px" }}>
-                            📅 {dateDisplay}
+                            <Icon name="calendar" /> {dateDisplay}
                           </div>
                         </td>
 
@@ -606,7 +503,7 @@ export default function AdminShowtimesPage() {
                                 {st.movieId?.title || "Phim không xác định"}
                               </div>
                               <div style={{ fontSize: "0.75rem", color: "#8e8ea8", display: "flex", gap: "6px", alignItems: "center", marginTop: "2px" }}>
-                                <span>⏱️ {st.movieId?.duration || 120} phút</span>
+                                <span><Icon name="clock" /> {st.movieId?.duration || 120} phút</span>
                                 <span>•</span>
                                 <span style={{ color: "#f87171", fontWeight: 600 }}>{st.movieId?.rating || "P"}</span>
                               </div>
@@ -640,25 +537,6 @@ export default function AdminShowtimesPage() {
                         {/* Actions Column */}
                         <td style={{ padding: "1rem 1.2rem", textAlign: "right", whiteSpace: "nowrap" }}>
                           <div style={{ display: "inline-flex", gap: "0.5rem", alignItems: "center" }}>
-                            {/* Quick status dropdown */}
-                            <select
-                              value={st.status}
-                              onChange={(e) => handleStatusChange(st._id, e.target.value as any)}
-                              style={{
-                                padding: "0.35rem 0.55rem",
-                                background: "#0a0a12",
-                                border: "1px solid rgba(255,255,255,0.15)",
-                                borderRadius: "6px",
-                                color: "#cbd5e1",
-                                fontSize: "0.75rem",
-                              }}
-                            >
-                              <option value="opened">Mở bán</option>
-                              <option value="scheduled">Lên lịch</option>
-                              <option value="closed">Đóng</option>
-                              <option value="cancelled">Huỷ</option>
-                            </select>
-
                             <button
                               onClick={() => handleOpenEdit(st)}
                               style={{
@@ -700,6 +578,22 @@ export default function AdminShowtimesPage() {
           </div>
         )}
 
+        {!loading && showtimes.length > 0 && (
+          <nav aria-label="Phân trang lịch chiếu" className="mt-5 flex flex-wrap items-center justify-between gap-4 text-sm text-[#a0a0b0]">
+            <p>Hiển thị {pageStart + 1}–{Math.min(pageStart + pageSize, showtimes.length)} / {showtimes.length} suất chiếu</p>
+            <div className="flex items-center gap-2">
+              <button type="button" disabled={currentPage === 1} onClick={() => setPage(currentPage - 1)} className="rounded-lg border border-white/15 px-4 py-2 text-white hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed">Trước</button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).filter(n => n === 1 || n === totalPages || Math.abs(n - currentPage) <= 1).map((n, index, pages) => (
+                <React.Fragment key={n}>
+                  {index > 0 && n - pages[index - 1] > 1 && <span className="px-1">…</span>}
+                  <button type="button" aria-label={`Trang ${n}`} aria-current={n === currentPage ? "page" : undefined} onClick={() => setPage(n)} className={`min-w-9 rounded-lg px-3 py-2 ${n === currentPage ? "bg-[#e8173a] text-white" : "border border-white/15 text-white hover:bg-white/10"}`}>{n}</button>
+                </React.Fragment>
+              ))}
+              <button type="button" disabled={currentPage === totalPages} onClick={() => setPage(currentPage + 1)} className="rounded-lg border border-white/15 px-4 py-2 text-white hover:bg-white/10 disabled:opacity-40 disabled:cursor-not-allowed">Sau</button>
+            </div>
+          </nav>
+        )}
+
         {/* Modal Thêm / Chỉnh sửa Suất chiếu */}
         {isModalOpen && (
           <div
@@ -733,13 +627,13 @@ export default function AdminShowtimesPage() {
             >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
                 <h2 style={{ margin: 0, fontSize: "1.3rem", fontWeight: 700 }}>
-                  {editingShowtimeId ? "✏️ Chỉnh sửa suất chiếu" : "🕒 Thêm suất chiếu mới"}
+                  <Icon name={editingShowtimeId ? "edit" : "clock"} className="mr-2" />{editingShowtimeId ? "Chỉnh sửa suất chiếu" : "Thêm suất chiếu mới"}
                 </h2>
                 <button
                   onClick={() => setIsModalOpen(false)}
                   style={{ background: "transparent", border: "none", color: "#8e8ea8", fontSize: "1.4rem", cursor: "pointer" }}
                 >
-                  ✕
+                  <Icon name="close" />
                 </button>
               </div>
 
@@ -757,7 +651,7 @@ export default function AdminShowtimesPage() {
                     lineHeight: 1.4,
                   }}
                 >
-                  ⚠️ <strong>Lỗi xếp lịch:</strong> {modalConflictError}
+                  <Icon name="alert" /> <strong>Lỗi xếp lịch:</strong> {modalConflictError}
                 </div>
               )}
 
@@ -767,18 +661,7 @@ export default function AdminShowtimesPage() {
                   <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem", color: "#d1d5db" }}>
                     Chọn bộ phim *
                   </label>
-                  <select
-                    required
-                    value={formData.movieId}
-                    onChange={(e) => setFormData({ ...formData, movieId: e.target.value })}
-                    style={{ width: "100%", padding: "0.7rem", background: "#0a0a12", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "#fff", boxSizing: "border-box" }}
-                  >
-                    {movies.map((m) => (
-                      <option key={m._id} value={m._id}>
-                        [{m.rating}] {m.title} ({m.duration} phút)
-                      </option>
-                    ))}
-                  </select>
+                  <AppSelect label="Chọn bộ phim" required value={formData.movieId} onValueChange={movieId => setFormData({ ...formData, movieId })} options={movies.map(m => ({ value: m._id, label: `[${m.rating}] ${m.title} (${m.duration} phút)` }))} fullWidth />
                 </div>
 
                 {/* Chọn phòng chiếu */}
@@ -786,18 +669,7 @@ export default function AdminShowtimesPage() {
                   <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem", color: "#d1d5db" }}>
                     Chọn phòng chiếu *
                   </label>
-                  <select
-                    required
-                    value={formData.roomId}
-                    onChange={(e) => setFormData({ ...formData, roomId: e.target.value })}
-                    style={{ width: "100%", padding: "0.7rem", background: "#0a0a12", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "#fff", boxSizing: "border-box" }}
-                  >
-                    {rooms.map((r) => (
-                      <option key={r._id} value={r._id}>
-                        {r.name} - Định dạng {r.roomType} ({r.totalSeats} ghế)
-                      </option>
-                    ))}
-                  </select>
+                  <AppSelect label="Chọn phòng chiếu" required value={formData.roomId} onValueChange={roomId => setFormData({ ...formData, roomId })} options={rooms.map(r => ({ value: r._id, label: `${r.name} - ${r.roomType} (${r.totalSeats} ghế)` }))} fullWidth />
                 </div>
 
                 {/* Thời gian bắt đầu */}
@@ -814,7 +686,7 @@ export default function AdminShowtimesPage() {
                   />
                   {getEstimatedEndTime() && (
                     <div style={{ fontSize: "0.78rem", color: "#38bdf8", marginTop: "0.4rem" }}>
-                      ℹ️ Giờ kết thúc dự kiến: <strong>{getEstimatedEndTime()}</strong> (bao gồm 15 phút dọn phòng)
+                      <Icon name="info" /> Giờ kết thúc dự kiến: <strong>{getEstimatedEndTime()}</strong> (bao gồm 15 phút dọn phòng)
                     </div>
                   )}
                 </div>
@@ -840,16 +712,7 @@ export default function AdminShowtimesPage() {
                     <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem", color: "#d1d5db" }}>
                       Trạng thái ban đầu
                     </label>
-                    <select
-                      value={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                      style={{ width: "100%", padding: "0.7rem", background: "#0a0a12", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "#fff", boxSizing: "border-box" }}
-                    >
-                      <option value="opened">Đang mở bán</option>
-                      <option value="scheduled">Đã lên lịch</option>
-                      <option value="closed">Đã kết thúc</option>
-                      <option value="cancelled">Đã huỷ</option>
-                    </select>
+                    <AppSelect label="Trạng thái suất chiếu" value={formData.status || "scheduled"} onValueChange={status => setFormData({ ...formData, status: status as Showtime["status"] })} options={showtimeStatusOptions} fullWidth />
                   </div>
                 </div>
 

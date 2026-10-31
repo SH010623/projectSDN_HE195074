@@ -1,3 +1,4 @@
+import Icon from "../components/ui/Icon";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/home/Navbar";
@@ -45,7 +46,7 @@ export default function TicketsPage() {
         {/* Hero Title */}
         <div className="text-center max-w-2xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 px-3 py-1 bg-rose-500/10 border border-rose-500/20 rounded-full text-xs text-rose-400 font-semibold mb-3">
-            <span>🎟️</span>
+            <span><Icon name="ticket" /></span>
             <span>Trung Tâm Chiếu Phim Quốc Gia</span>
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight mb-3">
@@ -161,7 +162,7 @@ export default function TicketsPage() {
             <div>
               <div className="flex items-center gap-3 mb-4 pb-3 border-b border-white/[0.08]">
                 <span className="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-xl text-amber-400 font-bold">
-                  👑
+                  <Icon name="crown" />
                 </span>
                 <div>
                   <h3 className="font-bold text-lg text-white">Phụ Thu Ghế VIP & Ghế Đôi</h3>
@@ -201,27 +202,27 @@ export default function TicketsPage() {
         {/* ── SECTION 3: QUY ĐỊNH & ĐỐI TƯỢNG ƯU TIÊN ── */}
         <div className="bg-gradient-to-r from-[#161626] via-[#1a1730] to-[#161626] border border-white/10 rounded-2xl p-6 sm:p-8 mb-12 shadow-2xl">
           <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
-            <span>ℹ️</span>
+            <span><Icon name="info" /></span>
             <span>Quy định & Chính sách đối tượng ưu tiên</span>
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5 text-xs sm:text-sm text-[#c0c0d8] leading-relaxed">
             <div className="bg-[#0d0d14]/70 p-4 rounded-xl border border-white/[0.06]">
-              <h4 className="font-semibold text-white mb-1">🎓 Học sinh, Sinh viên & U22:</h4>
+              <h4 className="font-semibold text-white mb-1"><Icon name="graduation" /> Học sinh, Sinh viên & U22:</h4>
               <p>
                 Áp dụng cho học sinh, sinh viên có thẻ HSSV còn hạn hoặc khách hàng dưới 22 tuổi xuất trình CCCD khi mua vé hoặc nhận vé tại quầy.
               </p>
             </div>
 
             <div className="bg-[#0d0d14]/70 p-4 rounded-xl border border-white/[0.06]">
-              <h4 className="font-semibold text-white mb-1">👶 Trẻ em & Người cao tuổi:</h4>
+              <h4 className="font-semibold text-white mb-1"><Icon name="user" /> Trẻ em & Người cao tuổi:</h4>
               <p>
                 Trẻ em chiều cao dưới 1.3m và người cao tuổi từ 60 tuổi trở lên được hưởng mức giá ưu đãi đồng giá 50.000 VNĐ cho các suất chiếu 2D trước 17:00.
               </p>
             </div>
 
             <div className="bg-[#0d0d14]/70 p-4 rounded-xl border border-white/[0.06]">
-              <h4 className="font-semibold text-white mb-1">📌 Lưu ý quan trọng:</h4>
+              <h4 className="font-semibold text-white mb-1"><Icon name="pin" /> Lưu ý quan trọng:</h4>
               <p>
                 Giá vé đã bao gồm thuế VAT. Không áp dụng đồng thời với các chương trình khuyến mãi khác. Vé đã mua trực tuyến có thể hủy trước giờ chiếu 60 phút.
               </p>

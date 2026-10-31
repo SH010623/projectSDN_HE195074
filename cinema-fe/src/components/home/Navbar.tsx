@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface NavbarProps {
@@ -17,34 +17,6 @@ export default function Navbar({
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
-  const [accountOpen, setAccountOpen] = useState(false);
-  const accountRef = useRef<HTMLDivElement>(null);
-  const accountButtonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const closeOutside = (event: PointerEvent) => {
-      if (!accountRef.current?.contains(event.target as Node)) setAccountOpen(false);
-    };
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        setAccountOpen(false);
-        accountButtonRef.current?.focus();
-      }
-    };
-    if (!accountOpen) return;
-    document.addEventListener("pointerdown", closeOutside);
-    document.addEventListener("keydown", closeOnEscape);
-    return () => {
-      document.removeEventListener("pointerdown", closeOutside);
-      document.removeEventListener("keydown", closeOnEscape);
-    };
-  }, [accountOpen]);
-
-  const goToAccountPage = (path: string) => {
-    setAccountOpen(false);
-    navigate(path);
-  };
-
   // Dynamically configure nav links and active state based on route
   const isHomePage = currentPath === "/";
   const isNewsPage = currentPath.startsWith("/news");
@@ -135,35 +107,28 @@ export default function Navbar({
 
         {/* Authentication or User Profile Actions */}
         {currentUser ? (
-          <div ref={accountRef} className="relative shrink-0" onBlur={(event) => {
-            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setAccountOpen(false);
-          }}>
-            <button
-              ref={accountButtonRef}
-              type="button"
-              aria-expanded={accountOpen}
-              aria-controls="account-dropdown"
-              onClick={() => setAccountOpen(open => !open)}
-              className="flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10 transition-colors cursor-pointer"
-            >
-              <span><span className="text-[#a0a0c0]">Xin chào, </span><strong>{currentUser.name || "Khách"}</strong></span>
-              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`transition-transform ${accountOpen ? "rotate-180" : ""}`}><path d="m6 9 6 6 6-6" /></svg>
-            </button>
-            {accountOpen && (
-              <div id="account-dropdown" className="absolute right-0 top-full mt-2 w-52 rounded-xl border border-white/10 bg-[#161620] p-1.5 shadow-xl">
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button type="button" className="flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-rose-400 outline-none cursor-pointer">
+                <span><span className="text-[#a0a0c0]">Xin chào, </span><strong>{currentUser.name || "Khách"}</strong></span>
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg>
+              </button>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content align="end" sideOffset={8} collisionPadding={12} className="z-[60] w-52 rounded-xl border border-white/10 bg-[#161620] p-1.5 text-white shadow-xl">
                 {currentUser.role === "admin" ? (
-                  <button type="button" onClick={() => { setAccountOpen(false); if (onGoToDashboard) onGoToDashboard(); else navigate("/admin/dashboard"); }} className="block w-full rounded-lg px-3 py-2.5 text-left text-sm text-white hover:bg-white/10 cursor-pointer">Trang quản trị</button>
+                  <DropdownMenu.Item onSelect={() => { if (onGoToDashboard) onGoToDashboard(); else navigate("/admin/dashboard"); }} className="rounded-lg px-3 py-2.5 text-sm outline-none data-[highlighted]:bg-white/10 cursor-pointer">Trang quản trị</DropdownMenu.Item>
                 ) : (
                   <>
-                    <button type="button" onClick={() => goToAccountPage("/my-tickets")} className="block w-full rounded-lg px-3 py-2.5 text-left text-sm text-white hover:bg-white/10 cursor-pointer">Vé của tôi</button>
-                    <button type="button" onClick={() => goToAccountPage("/profile")} className="block w-full rounded-lg px-3 py-2.5 text-left text-sm text-white hover:bg-white/10 cursor-pointer">Hồ sơ</button>
+                    <DropdownMenu.Item onSelect={() => navigate("/my-tickets")} className="rounded-lg px-3 py-2.5 text-sm outline-none data-[highlighted]:bg-white/10 cursor-pointer">Vé của tôi</DropdownMenu.Item>
+                    <DropdownMenu.Item onSelect={() => navigate("/profile")} className="rounded-lg px-3 py-2.5 text-sm outline-none data-[highlighted]:bg-white/10 cursor-pointer">Hồ sơ</DropdownMenu.Item>
                   </>
                 )}
-                <div className="my-1 border-t border-white/10" />
-                <button type="button" onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); window.location.assign("/"); }} className="block w-full rounded-lg px-3 py-2.5 text-left text-sm font-semibold text-rose-400 hover:bg-rose-500/10 cursor-pointer">Đăng xuất</button>
-              </div>
-            )}
-          </div>
+                <DropdownMenu.Separator className="my-1 border-t border-white/10" />
+                <DropdownMenu.Item onSelect={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); window.location.assign("/"); }} className="rounded-lg px-3 py-2.5 text-sm font-semibold text-rose-400 outline-none data-[highlighted]:bg-rose-500/10 cursor-pointer">Đăng xuất</DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         ) : (
           <div className="flex items-center gap-2.5 shrink-0">
             <button

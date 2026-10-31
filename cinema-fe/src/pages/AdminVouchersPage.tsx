@@ -1,10 +1,9 @@
+import AppSelect from "../components/AppSelect";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { voucherService } from "../services/voucherService";
 import type { VoucherItem, VoucherPayload } from "../services/voucherService";
 
 export default function AdminVouchersPage() {
-  const navigate = useNavigate();
   const [vouchers, setVouchers] = useState<VoucherItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -170,12 +169,7 @@ export default function AdminVouchersPage() {
             >
               + Tạo Voucher Mới
             </button>
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="px-4 py-2.5 bg-[#161626] border border-white/10 hover:border-white/20 text-[#a0a0b0] hover:text-white text-sm font-medium rounded-xl transition-colors cursor-pointer"
-            >
-              ← Bảng điều khiển
-            </button>
+
           </div>
         </div>
 
@@ -195,13 +189,13 @@ export default function AdminVouchersPage() {
         {/* Search & Voucher Test Box */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           <div className="lg:col-span-2 bg-[#161626] border border-white/[0.06] rounded-2xl p-4 flex items-center gap-4">
-            <form onSubmit={handleSearchSubmit} className="flex gap-2 flex-1">
+            <form onSubmit={handleSearchSubmit} className="flex gap-2 flex-1 min-w-0">
               <input
                 type="text"
                 placeholder="Tìm kiếm theo mã voucher hoặc tên khuyến mãi..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="flex-1 px-4 py-2.5 bg-[#0d0d14] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-[#e8173a]/60"
+                className="min-w-0 flex-1 px-4 py-2.5 bg-[#0d0d14] border border-white/10 rounded-xl text-white text-sm focus:outline-none focus:border-[#e8173a]/60"
               />
               <button
                 type="submit"
@@ -223,14 +217,14 @@ export default function AdminVouchersPage() {
                 placeholder="Mã (vd: XINCHAO50)"
                 value={testCode}
                 onChange={(e) => setTestCode(e.target.value.toUpperCase())}
-                className="w-1/2 px-3 py-1.5 bg-[#0d0d14] border border-white/10 rounded-lg text-xs uppercase font-mono"
+                className="min-w-0 flex-1 w-0 px-3 py-1.5 bg-[#0d0d14] border border-white/10 rounded-lg text-xs uppercase font-mono"
               />
               <input
                 type="number"
                 placeholder="Tiền đơn (VNĐ)"
                 value={testOrderAmount}
                 onChange={(e) => setTestOrderAmount(Number(e.target.value))}
-                className="w-1/2 px-3 py-1.5 bg-[#0d0d14] border border-white/10 rounded-lg text-xs"
+                className="min-w-0 flex-1 w-0 px-3 py-1.5 bg-[#0d0d14] border border-white/10 rounded-lg text-xs"
               />
               <button
                 onClick={handleTestCheck}
@@ -246,16 +240,16 @@ export default function AdminVouchersPage() {
         {/* Vouchers Table */}
         <div className="bg-[#161626] border border-white/[0.06] rounded-2xl overflow-hidden shadow-xl">
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm border-collapse">
+            <table className="w-full min-w-[1180px] text-left text-sm border-collapse">
               <thead>
                 <tr className="border-b border-white/[0.08] bg-white/[0.02] text-[#a0a0b0] font-medium text-xs uppercase tracking-wider">
-                  <th className="py-4 px-6">Mã & Tên ưu đãi</th>
-                  <th className="py-4 px-4">Mức giảm</th>
-                  <th className="py-4 px-4">Đơn tối thiểu</th>
-                  <th className="py-4 px-4">Lượt dùng</th>
-                  <th className="py-4 px-4">Thời hạn</th>
-                  <th className="py-4 px-4">Trạng thái</th>
-                  <th className="py-4 px-6 text-right">Thao tác</th>
+                  <th className="whitespace-nowrap py-4 px-6">Mã & Tên ưu đãi</th>
+                  <th className="whitespace-nowrap py-4 px-4">Mức giảm</th>
+                  <th className="whitespace-nowrap py-4 px-4">Đơn tối thiểu</th>
+                  <th className="whitespace-nowrap py-4 px-4">Lượt dùng</th>
+                  <th className="whitespace-nowrap py-4 px-4">Thời hạn</th>
+                  <th className="whitespace-nowrap py-4 px-4">Trạng thái</th>
+                  <th className="whitespace-nowrap py-4 px-6 text-right">Thao tác</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.04]">
@@ -278,10 +272,10 @@ export default function AdminVouchersPage() {
                       <tr key={item._id} className="hover:bg-white/[0.02] transition-colors">
                         <td className="py-4 px-6">
                           <div className="flex items-center gap-3">
-                            <span className="px-2.5 py-1 bg-rose-500/15 border border-rose-500/40 text-rose-300 font-mono font-bold text-xs tracking-wider rounded-lg">
+                            <span className="shrink-0 whitespace-nowrap px-2.5 py-1 bg-rose-500/15 border border-rose-500/40 text-rose-300 font-mono font-bold text-xs tracking-wider rounded-lg">
                               {item.code}
                             </span>
-                            <div>
+                            <div className="min-w-0 max-w-[22rem]">
                               <h3 className="font-semibold text-white leading-tight">{item.title}</h3>
                               {item.description && (
                                 <p className="text-xs text-[#a0a0b0] line-clamp-1 mt-0.5">{item.description}</p>
@@ -291,28 +285,28 @@ export default function AdminVouchersPage() {
                         </td>
 
                         <td className="py-4 px-4">
-                          <span className="font-bold text-[#86efac]">
+                          <span className="whitespace-nowrap font-bold text-[#86efac]">
                             {item.discountType === "percentage"
                               ? `Giảm ${item.discountValue}%`
                               : `-${item.discountValue.toLocaleString()} VNĐ`}
                           </span>
                           {item.discountType === "percentage" && item.maxDiscount > 0 && (
-                            <span className="text-[0.7rem] text-[#9ca3af] block">
+                            <span className="text-[0.7rem] text-[#9ca3af] block whitespace-nowrap">
                               (Tối đa: {item.maxDiscount.toLocaleString()} VNĐ)
                             </span>
                           )}
                         </td>
 
-                        <td className="py-4 px-4 text-[#d1d5db]">
+                        <td className="py-4 px-4 whitespace-nowrap text-[#d1d5db]">
                           {item.minOrderValue > 0 ? `${item.minOrderValue.toLocaleString()} VNĐ` : "Không giới hạn"}
                         </td>
 
-                        <td className="py-4 px-4 text-[#d1d5db]">
+                        <td className="py-4 px-4 whitespace-nowrap text-[#d1d5db]">
                           <span className="font-medium text-white">{item.usedCount}</span>
                           <span className="text-xs text-[#6b7280]"> / {item.usageLimit || "∞"}</span>
                         </td>
 
-                        <td className="py-4 px-4 text-xs text-[#a0a0b0]">
+                        <td className="py-4 px-4 whitespace-nowrap text-xs text-[#a0a0b0]">
                           <span className={isExpired ? "text-rose-400 font-semibold" : ""}>
                             {new Date(item.endDate).toLocaleDateString("vi-VN")}
                           </span>
@@ -321,7 +315,7 @@ export default function AdminVouchersPage() {
 
                         <td className="py-4 px-4">
                           <span
-                            className={`px-2.5 py-1 rounded-md text-xs font-semibold border ${
+                            className={`inline-flex whitespace-nowrap px-2.5 py-1 rounded-md text-xs font-semibold border ${
                               !item.isActive
                                 ? "bg-zinc-500/15 text-zinc-400 border-zinc-500/30"
                                 : isExpired
@@ -334,7 +328,7 @@ export default function AdminVouchersPage() {
                         </td>
 
                         <td className="py-4 px-6 text-right">
-                          <div className="flex items-center justify-end gap-2">
+                          <div className="flex items-center justify-end gap-2 whitespace-nowrap">
                             <button
                               onClick={() => handleOpenEdit(item)}
                               className="px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-xs font-medium text-[#c4b5fd] transition-colors cursor-pointer"
@@ -392,14 +386,7 @@ export default function AdminVouchersPage() {
 
                   <div>
                     <label className="block text-xs font-medium text-[#a0a0b0] mb-1">Loại giảm giá</label>
-                    <select
-                      value={formData.discountType}
-                      onChange={(e) => setFormData({ ...formData, discountType: e.target.value as any })}
-                      className="w-full px-3 py-2.5 bg-[#0d0d14] border border-white/10 rounded-xl text-white text-sm focus:outline-none"
-                    >
-                      <option value="fixed">Số tiền cố định (VNĐ)</option>
-                      <option value="percentage">Phần trăm (%)</option>
-                    </select>
+                    <AppSelect label="Định dạng" value={formData.discountType || ""} onValueChange={value => setFormData({ ...formData, discountType: value as any })} options={[{"value": "fixed", "label": "Số tiền cố định (VNĐ)"}, {"value": "percentage", "label": "Phần trăm (%)"}]} fullWidth />
                   </div>
                 </div>
 

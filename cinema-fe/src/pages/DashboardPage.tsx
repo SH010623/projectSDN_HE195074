@@ -1,3 +1,4 @@
+import Icon from "../components/ui/Icon";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { dashboardService } from "../services/dashboardService";
@@ -50,7 +51,6 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [tableSearch, setTableSearch] = useState("");
-  const [hoveredWeekDay, setHoveredWeekDay] = useState<number | null>(null);
 
   useEffect(() => {
     if (isAdmin) {
@@ -99,19 +99,19 @@ export default function DashboardPage() {
               onClick={() => navigate("/my-tickets")}
               className="w-full py-3 bg-[#e8173a] hover:bg-[#c91131] rounded-xl text-white font-semibold text-sm transition-colors cursor-pointer border-0 shadow-lg shadow-[#e8173a]/25"
             >
-              🎟️ Vé của tôi (My Tickets)
+              <Icon name="ticket" /> Vé của tôi (My Tickets)
             </button>
             <button
               onClick={() => navigate("/")}
               className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white font-medium text-sm transition-colors cursor-pointer"
             >
-              🎬 Trang chủ & Đặt vé xem phim
+              <Icon name="film" /> Trang chủ & Đặt vé xem phim
             </button>
             <button
               onClick={() => navigate("/profile")}
               className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white font-medium text-sm transition-colors cursor-pointer"
             >
-              👤 Hồ sơ cá nhân
+              <Icon name="user" /> Hồ sơ cá nhân
             </button>
             <button
               onClick={handleLogout}
@@ -152,16 +152,6 @@ export default function DashboardPage() {
     avgOrder: [25, 27, 26, 29, 28, 32, 30],
   };
 
-  const weeklyRevenue = stats?.weeklyRevenue || [
-    { day: "T2", date: "25/10", revenue: 2100000, tickets: 24 },
-    { day: "T3", date: "26/10", revenue: 2850000, tickets: 32 },
-    { day: "T4", date: "27/10", revenue: 1950000, tickets: 22 },
-    { day: "T5", date: "28/10", revenue: 3400000, tickets: 38 },
-    { day: "T6", date: "29/10", revenue: 4900000, tickets: 56 },
-    { day: "T7", date: "30/10", revenue: 6200000, tickets: 72 },
-    { day: "CN", date: "31/10", revenue: 5800000, tickets: 68 },
-  ];
-
   const recentBookings = stats?.recentBookings || [];
   const topMovies = stats?.topMovies || [];
 
@@ -180,14 +170,6 @@ export default function DashboardPage() {
   const bookCurves = generateBezierSvg(sparklines.bookings, 260, 60);
   const refCurves = generateBezierSvg(sparklines.refunds, 260, 60);
   const avgCurves = generateBezierSvg(sparklines.avgOrder, 260, 60);
-
-  // Generate dual-curve SVG for Weekly Acquisition Chart
-  const weeklyRevVals = weeklyRevenue.map((w) => w.revenue);
-  const weeklyTicketVals = weeklyRevenue.map((w) => w.tickets * 80000);
-  const chartW = 340;
-  const chartH = 170;
-  const weekRevCurve = generateBezierSvg(weeklyRevVals, chartW, chartH, 16);
-  const weekTicketCurve = generateBezierSvg(weeklyTicketVals, chartW, chartH, 16);
 
   return (
     <div className="flex-1 flex flex-col min-w-0 bg-[#0c0d1c]">
@@ -208,7 +190,7 @@ export default function DashboardPage() {
             disabled={loading}
             className="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-[#c0c3e0] hover:text-white transition-colors cursor-pointer border border-white/10 flex items-center gap-1.5"
           >
-            <span className={loading ? "animate-spin" : ""}>🔄</span>
+            <span className={loading ? "animate-spin" : ""}><Icon name="refresh" /></span>
             <span>Làm mới</span>
           </button>
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
@@ -222,7 +204,7 @@ export default function DashboardPage() {
       <div className="p-6 flex flex-col gap-6">
         {error && (
           <div className="p-4 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-sm flex items-center justify-between">
-            <span>⚠️ {error}</span>
+            <span><Icon name="alert" /> {error}</span>
             <button
               onClick={fetchDashboardStats}
               className="text-xs underline text-rose-200 hover:text-white"
@@ -366,7 +348,7 @@ export default function DashboardPage() {
         ══════════════════════════════════════════════════════════════════ */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* LEFT: Recent Orders Table */}
-          <div className="lg:col-span-8 bg-[#141530] border border-white/[0.08] rounded-2xl p-6 shadow-xl flex flex-col">
+          <div className="lg:col-span-12 bg-[#141530] border border-white/[0.08] rounded-2xl p-6 shadow-xl flex flex-col">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
               <div>
                 <h2 className="text-base font-bold text-white tracking-tight">Recent Orders (Đơn đặt vé gần đây)</h2>
@@ -489,87 +471,14 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* RIGHT: Customer Acquisition Chart */}
-          <div className="lg:col-span-4 bg-[#141530] border border-white/[0.08] rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="text-base font-bold text-white tracking-tight">Customer Acquisition</h2>
-                <span className="text-xs font-semibold text-[#8083a3]">Tuần này</span>
-              </div>
-              <p className="text-xs text-[#8083a3] mb-4">Xu hướng doanh thu & số lượng vé theo ngày</p>
-            </div>
-
-            {/* Interactive Dual-Curve SVG */}
-            <div className="relative my-auto py-2">
-              <svg className="w-full h-44" viewBox="0 0 340 170" preserveAspectRatio="none">
-                <defs>
-                  <linearGradient id="chartGrad1" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#6366f1" stopOpacity="0.5" />
-                    <stop offset="100%" stopColor="#6366f1" stopOpacity="0.0" />
-                  </linearGradient>
-                  <linearGradient id="chartGrad2" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#f43f5e" stopOpacity="0.4" />
-                    <stop offset="100%" stopColor="#f43f5e" stopOpacity="0.0" />
-                  </linearGradient>
-                </defs>
-
-                <line x1="0" y1="30" x2="340" y2="30" stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
-                <line x1="0" y1="75" x2="340" y2="75" stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
-                <line x1="0" y1="120" x2="340" y2="120" stroke="rgba(255,255,255,0.05)" strokeDasharray="3 3" />
-
-                <path d={weekRevCurve.areaPath} fill="url(#chartGrad1)" />
-                <path d={weekRevCurve.linePath} fill="none" stroke="#6366f1" strokeWidth="3" />
-
-                <path d={weekTicketCurve.areaPath} fill="url(#chartGrad2)" />
-                <path d={weekTicketCurve.linePath} fill="none" stroke="#f43f5e" strokeWidth="2.5" />
-              </svg>
-
-              {/* Day labels below chart */}
-              <div className="flex justify-between text-[11px] font-semibold text-[#8083a3] px-2 pt-2 border-t border-white/[0.08]">
-                {weeklyRevenue.map((item, idx) => (
-                  <button
-                    key={item.day}
-                    onMouseEnter={() => setHoveredWeekDay(idx)}
-                    onMouseLeave={() => setHoveredWeekDay(null)}
-                    className={`hover:text-white transition-colors cursor-pointer border-0 bg-transparent ${
-                      hoveredWeekDay === idx ? "text-indigo-400 font-bold" : ""
-                    }`}
-                  >
-                    {item.day}
-                  </button>
-                ))}
-              </div>
-
-              {/* Tooltip on hover */}
-              {hoveredWeekDay !== null && weeklyRevenue[hoveredWeekDay] && (
-                <div className="absolute top-2 right-4 px-3 py-1.5 bg-[#0f1026] border border-white/20 rounded-lg text-xs shadow-xl animate-fade-in">
-                  <div className="font-bold text-white">{weeklyRevenue[hoveredWeekDay].day} ({weeklyRevenue[hoveredWeekDay].date})</div>
-                  <div className="text-indigo-400 font-semibold">{formatVND(weeklyRevenue[hoveredWeekDay].revenue)}</div>
-                  <div className="text-rose-400 font-medium">{weeklyRevenue[hoveredWeekDay].tickets} vé đã bán</div>
-                </div>
-              )}
-            </div>
-
-            {/* Chart Legend */}
-            <div className="flex items-center justify-center gap-6 pt-4 border-t border-white/[0.08] text-xs">
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-[#6366f1]" />
-                <span className="text-[#a0a3c2] font-medium">Doanh thu vé</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-3 h-3 rounded-full bg-[#f43f5e]" />
-                <span className="text-[#a0a3c2] font-medium">Lượt vé xem phim</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* ══════════════════════════════════════════════════════════════════
-            ROW 3: TOP PERFORMING MOVIES & QUICK MANAGEMENT SHORTCUTS
+            ROW 3: TOP PERFORMING MOVIES
         ══════════════════════════════════════════════════════════════════ */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Top Movies (7 cols) */}
-          <div className="lg:col-span-7 bg-[#141530] border border-white/[0.08] rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+          {/* Top Movies */}
+          <div className="lg:col-span-12 bg-[#141530] border border-white/[0.08] rounded-2xl p-6 shadow-xl flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-4">
                 <div>
@@ -633,66 +542,6 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Quick Management Shortcuts (5 cols) */}
-          <div className="lg:col-span-5 bg-[#141530] border border-white/[0.08] rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-            <div>
-              <h2 className="text-base font-bold text-white tracking-tight mb-1">Quick Actions (Thao tác nhanh)</h2>
-              <p className="text-xs text-[#8083a3] mb-4">Các lối tắt quản trị thường dùng trong ca làm việc</p>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => navigate("/admin/movies")}
-                  className="p-4 rounded-xl bg-gradient-to-br from-rose-500/10 to-transparent border border-rose-500/20 hover:border-rose-500/50 hover:bg-rose-500/15 transition-all text-left cursor-pointer group"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-rose-500/20 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition-transform">
-                    🎬
-                  </div>
-                  <div className="font-semibold text-sm text-white">Thêm phim mới</div>
-                  <div className="text-[11px] text-[#8083a3]">Khởi tạo bom tấn</div>
-                </button>
-
-                <button
-                  onClick={() => navigate("/admin/showtimes")}
-                  className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/20 hover:border-amber-500/50 hover:bg-amber-500/15 transition-all text-left cursor-pointer group"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition-transform">
-                    🕒
-                  </div>
-                  <div className="font-semibold text-sm text-white">Xếp suất chiếu</div>
-                  <div className="text-[11px] text-[#8083a3]">Tránh trùng lịch phòng</div>
-                </button>
-
-                <button
-                  onClick={() => navigate("/admin/rooms")}
-                  className="p-4 rounded-xl bg-gradient-to-br from-pink-500/10 to-transparent border border-pink-500/20 hover:border-pink-500/50 hover:bg-pink-500/15 transition-all text-left cursor-pointer group"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition-transform">
-                    🏛️
-                  </div>
-                  <div className="font-semibold text-sm text-white">Phòng chiếu</div>
-                  <div className="text-[11px] text-[#8083a3]">Sơ đồ ghế & loại phòng</div>
-                </button>
-
-                <button
-                  onClick={() => navigate("/admin/vouchers")}
-                  className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-500/15 transition-all text-left cursor-pointer group"
-                >
-                  <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition-transform">
-                    🏷️
-                  </div>
-                  <div className="font-semibold text-sm text-white">Tạo Voucher</div>
-                  <div className="text-[11px] text-[#8083a3]">Mã giảm giá ưu đãi</div>
-                </button>
-              </div>
-            </div>
-
-            {/* Status summary */}
-            <div className="mt-4 pt-4 border-t border-white/[0.08] flex items-center justify-between text-xs text-[#8083a3]">
-              <span>Phòng hoạt động: <strong className="text-white">{kpi.activeRooms}/{kpi.totalRooms}</strong></span>
-              <span>Phim đang chiếu: <strong className="text-white">{kpi.nowShowingMovies}</strong></span>
-              <span>Khách hàng: <strong className="text-white">{kpi.totalUsers}</strong></span>
-            </div>
-          </div>
         </div>
       </div>
     </div>
