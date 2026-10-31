@@ -5,8 +5,9 @@ import type { NewsItem } from "../services/newsService";
 import Navbar from "../components/home/Navbar";
 import LoginModal from "../components/LoginModal";
 import RegisterModal from "../components/RegisterModal";
+import ForgotPasswordModal from "../components/ForgotPasswordModal";
 
-type ModalState = "none" | "login" | "register";
+type ModalState = "none" | "login" | "register" | "forgotPassword";
 
 export default function NewsPage() {
   const navigate = useNavigate();
@@ -318,15 +319,24 @@ export default function NewsPage() {
       {modal === "login" && (
         <LoginModal
           onClose={() => setModal("none")}
-          onSuccess={() => {
+          onSuccess={(u) => {
             setModal("none");
-            navigate("/dashboard");
+            if (u?.role === "admin") {
+              navigate("/dashboard");
+            }
           }}
           onSwitchToRegister={() => setModal("register")}
+          onSwitchToForgotPassword={() => setModal("forgotPassword")}
         />
       )}
       {modal === "register" && (
         <RegisterModal
+          onClose={() => setModal("none")}
+          onSwitchToLogin={() => setModal("login")}
+        />
+      )}
+      {modal === "forgotPassword" && (
+        <ForgotPasswordModal
           onClose={() => setModal("none")}
           onSwitchToLogin={() => setModal("login")}
         />

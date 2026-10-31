@@ -106,4 +106,56 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+// POST /forgot-password
+// Body: { email, phone, newPassword }
+const forgotPassword = async (req, res) => {
+  try {
+    const { email, phone, newPassword } = req.body;
+
+    if (!email || !phone || !newPassword) {
+      return res.status(400).json({
+        message: "Vui lòng nhập đầy đủ Email, Số điện thoại và Mật khẩu mới",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        message: "Mật khẩu mới phải có ít nhất 6 ký tự",
+      });
+    }
+
+    // Find user matching both email and phone
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPhone = phone.trim();
+
+    const user = await db.User.findOne({
+      email: { $regex: new RegExp(`^${cleanEmail}$`, "i") },
+      phone: cleanPhone,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Thông tin xác minh không chính xác. Không tìm thấy tài khoản phù hợp với Email và Số điện thoại này.",
+      });
+    }
+
+    if (user.isActive === false) {
+      return res.status(403).json({
+        message: "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.",
+      });
+    }
+
+    // Hash new password and save
+    const hashedPassword = await bcryptjs.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    return res.status(200).json({
+      message: "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.",
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
+module.exports = { register, login, forgotPassword };

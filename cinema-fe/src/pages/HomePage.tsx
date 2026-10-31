@@ -18,8 +18,9 @@ import PromotionsSection from "../components/home/PromotionsSection";
 import Footer from "../components/home/Footer";
 import LoginModal from "../components/LoginModal";
 import RegisterModal from "../components/RegisterModal";
+import ForgotPasswordModal from "../components/ForgotPasswordModal";
 
-type ModalState = "none" | "login" | "register";
+type ModalState = "none" | "login" | "register" | "forgotPassword";
 
 export default function HomePage() {
   const navigate = useNavigate();
@@ -121,9 +122,11 @@ export default function HomePage() {
   };
 
   // Handle successful login
-  const handleLoginSuccess = () => {
+  const handleLoginSuccess = (loggedInUser?: any) => {
     setModal("none");
-    navigate("/dashboard");
+    if (loggedInUser?.role === "admin") {
+      navigate("/dashboard");
+    }
   };
 
   // Filter movies by active tab
@@ -188,10 +191,17 @@ export default function HomePage() {
           onClose={() => setModal("none")}
           onSuccess={handleLoginSuccess}
           onSwitchToRegister={() => setModal("register")}
+          onSwitchToForgotPassword={() => setModal("forgotPassword")}
         />
       )}
       {modal === "register" && (
         <RegisterModal
+          onClose={() => setModal("none")}
+          onSwitchToLogin={() => setModal("login")}
+        />
+      )}
+      {modal === "forgotPassword" && (
+        <ForgotPasswordModal
           onClose={() => setModal("none")}
           onSwitchToLogin={() => setModal("login")}
         />

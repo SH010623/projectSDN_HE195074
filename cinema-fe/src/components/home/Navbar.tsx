@@ -4,7 +4,7 @@ interface NavbarProps {
   currentUser: { name?: string; role?: string } | null;
   onOpenLogin: () => void;
   onOpenRegister: () => void;
-  onGoToDashboard: () => void;
+  onGoToDashboard?: () => void;
 }
 
 export default function Navbar({
@@ -21,6 +21,7 @@ export default function Navbar({
   const isHomePage = currentPath === "/";
   const isNewsPage = currentPath.startsWith("/news");
   const isVouchersPage = currentPath.startsWith("/vouchers");
+  const isTicketsPage = currentPath.startsWith("/tickets");
 
   const navLinks = [
     {
@@ -38,20 +39,20 @@ export default function Navbar({
     {
       id: "nav-news",
       label: "Tin tức",
-      href: isHomePage ? "#news" : "/news",
+      href: "/news",
       active: isNewsPage,
     },
     {
       id: "nav-promotions",
       label: "Khuyến mãi",
-      href: isHomePage ? "#promotions" : "/vouchers",
+      href: "/vouchers",
       active: isVouchersPage,
     },
     {
       id: "nav-tickets",
       label: "Giá vé",
-      href: isHomePage ? "#tickets" : "/#tickets",
-      active: false,
+      href: "/tickets",
+      active: isTicketsPage,
     },
     {
       id: "nav-festival",
@@ -67,11 +68,27 @@ export default function Navbar({
     },
   ];
 
+  const handleNavClick = (
+    e: React.MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    // If it's a direct route without hash (like / or /news or /vouchers or /tickets), navigate smoothly with router
+    if (href.startsWith("/") && !href.includes("#")) {
+      e.preventDefault();
+      navigate(href);
+    }
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-[#0a0a12]/95 backdrop-blur-md border-b border-white/[0.06]">
       <div className="max-w-[1280px] mx-auto px-6 h-16 flex items-center gap-6">
         {/* Brand Logo */}
-        <a href="/" id="navbar-logo" className="flex items-center gap-2.5 shrink-0 no-underline">
+        <a
+          href="/"
+          id="navbar-logo"
+          onClick={(e) => handleNavClick(e, "/")}
+          className="flex items-center gap-2.5 shrink-0 no-underline"
+        >
           <div className="w-9 h-9 bg-[#e8173a] flex items-center justify-center rounded-md">
             <span className="text-white font-extrabold text-lg leading-none">N</span>
           </div>
@@ -88,6 +105,7 @@ export default function Navbar({
               key={link.id}
               id={link.id}
               href={link.href}
+              onClick={(e) => handleNavClick(e, link.href)}
               className={`px-3 py-1.5 text-[0.82rem] font-medium rounded-md whitespace-nowrap no-underline transition-colors ${
                 link.active
                   ? "text-white border-b-2 border-[#e8173a]"
@@ -105,18 +123,30 @@ export default function Navbar({
             <span className="text-sm text-[#a0a0c0] hidden md:inline">
               Xin chào, <strong className="text-white">{currentUser.name || "Khách"}</strong>
             </span>
-            <button
-              onClick={() => navigate("/my-tickets")}
-              className="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 border border-white/15 rounded-md text-white text-xs font-semibold transition-colors cursor-pointer"
-            >
-              Vé của tôi
-            </button>
-            <button
-              onClick={onGoToDashboard}
-              className="px-3.5 py-1.5 bg-[#e8173a] rounded-md text-white text-xs font-semibold hover:bg-[#c91131] transition-colors cursor-pointer border-0"
-            >
-              Bảng điều khiển
-            </button>
+            {currentUser.role === "admin" ? (
+              <button
+                onClick={onGoToDashboard || (() => navigate("/admin/dashboard"))}
+                className="px-3.5 py-1.5 bg-gradient-to-r from-[#e8173a] to-[#ff3b5c] rounded-md text-white text-xs font-bold hover:shadow-lg hover:shadow-[#e8173a]/30 transition-all cursor-pointer border-0 flex items-center gap-1.5"
+              >
+                <span>🛡️</span>
+                <span>Trang Quản Trị</span>
+              </button>
+            ) : (
+              <>
+                <button
+                  onClick={() => navigate("/my-tickets")}
+                  className="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 border border-white/15 rounded-md text-white text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Vé của tôi
+                </button>
+                <button
+                  onClick={() => navigate("/profile")}
+                  className="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 border border-white/15 rounded-md text-white text-xs font-semibold transition-colors cursor-pointer"
+                >
+                  Hồ sơ
+                </button>
+              </>
+            )}
           </div>
         ) : (
           <div className="flex items-center gap-2.5 shrink-0">
