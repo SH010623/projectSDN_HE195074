@@ -1,4 +1,5 @@
 const db = require("../models");
+const { sendBookingConfirmation } = require("../utils/bookingMail");
 const bookingUnavailableReason = require("../utils/bookingAvailability");
 
 // Generate unique booking code e.g. NCC-839214
@@ -198,8 +199,23 @@ const createBooking = async (req, res) => {
         ],
       });
 
+    // The ticket is already saved. SMTP failure must not turn a paid booking into an error.
+    let emailSent = false;
+    try {
+      await sendBookingConfirmation(populatedBooking);
+      emailSent = true;
+    } catch (error) {
+      console.error("Booking confirmation email failed", {
+        bookingCode: savedBooking.bookingCode,
+        code: error.code || "MAIL_ERROR",
+      });
+    }
+
     return res.status(201).json({
-      message: "Đặt vé và thanh toán thành công!",
+      message: emailSent
+        ? "Đặt vé và thanh toán thành công! Email xác nhận đã được gửi."
+        : "Đặt vé và thanh toán thành công! Chưa gửi được email xác nhận, bạn có thể xem vé trong Vé của tôi.",
+      emailSent,
       booking: populatedBooking,
     });
   } catch (error) {
