@@ -15,7 +15,7 @@ export interface LoginPayload {
 
 export interface ForgotPasswordPayload {
   email: string;
-  phone: string;
+  otp: string;
   newPassword: string;
 }
 
@@ -40,6 +40,8 @@ export interface RegisterResponse {
 
 export interface ForgotPasswordResponse {
   message: string;
+  retryAfter: number;
+  expiresIn: number;
 }
 
 export const authApi = {
@@ -49,6 +51,8 @@ export const authApi = {
   login: (payload: LoginPayload) =>
     axios.post<LoginResponse>(`${API_BASE}/login`, payload),
 
-  forgotPassword: (payload: ForgotPasswordPayload) =>
+  forgotPassword: (payload: { email: string }) =>
     axios.post<ForgotPasswordResponse>(`${API_BASE}/forgot-password`, payload),
+  resetPassword: (payload: ForgotPasswordPayload) =>
+    axios.post<{ message: string }>(`${API_BASE}/reset-password`, payload),
 };

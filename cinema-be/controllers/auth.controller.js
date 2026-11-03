@@ -106,56 +106,68 @@ const login = async (req, res) => {
   }
 };
 
-// POST /forgot-password
-// Body: { email, phone, newPassword }
+const crypto = require("node:crypto");
+const { sendPasswordResetOtp } = require("../utils/passwordResetMail");
+const OTP_TTL_MS = 5 * 60 * 1000;
+const RESEND_MS = 60 * 1000;
+const normalizeEmail = (value) => typeof value === "string" ? value.trim().toLowerCase() : "";
+const otpHash = (email, otp) => crypto.createHmac("sha256", process.env.JWT_SECRET).update(`${email}:${otp}`).digest("hex");
+
+// Sending again replaces the previous code. The database claim prevents concurrent sends.
 const forgotPassword = async (req, res) => {
+  const email = normalizeEmail(req.body.email);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
+    return res.status(400).json({ message: "Vui lòng nhập email hợp lệ" });
+  }
   try {
-    const { email, phone, newPassword } = req.body;
-
-    if (!email || !phone || !newPassword) {
-      return res.status(400).json({
-        message: "Vui lòng nhập đầy đủ Email, Số điện thoại và Mật khẩu mới",
-      });
+    const now = new Date();
+    const otp = String(crypto.randomInt(100000, 1000000));
+    const hash = otpHash(email, otp);
+    const user = await db.User.findOneAndUpdate({
+      email: { $regex: `^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" },
+      isActive: { $ne: false },
+      $or: [{ resetOtpSentAt: { $exists: false } }, { resetOtpSentAt: { $lte: new Date(now.getTime() - RESEND_MS) } }],
+    }, { $set: { resetOtpHash: hash, resetOtpExpiresAt: new Date(now.getTime() + OTP_TTL_MS), resetOtpSentAt: now, resetOtpAttempts: 0 } }, { new: true });
+    if (user) {
+      try {
+        await sendPasswordResetOtp(user.email, otp);
+      } catch (error) {
+        await db.User.updateOne({ _id: user._id, resetOtpHash: hash }, { $unset: { resetOtpHash: 1, resetOtpExpiresAt: 1, resetOtpSentAt: 1 }, $set: { resetOtpAttempts: 0 } });
+        return res.status(503).json({ message: "Không thể gửi email. Vui lòng thử lại sau." });
+      }
     }
-
-    if (newPassword.length < 6) {
-      return res.status(400).json({
-        message: "Mật khẩu mới phải có ít nhất 6 ký tự",
-      });
-    }
-
-    // Find user matching both email and phone
-    const cleanEmail = email.trim().toLowerCase();
-    const cleanPhone = phone.trim();
-
-    const user = await db.User.findOne({
-      email: { $regex: new RegExp(`^${cleanEmail}$`, "i") },
-      phone: cleanPhone,
-    });
-
-    if (!user) {
-      return res.status(404).json({
-        message: "Thông tin xác minh không chính xác. Không tìm thấy tài khoản phù hợp với Email và Số điện thoại này.",
-      });
-    }
-
-    if (user.isActive === false) {
-      return res.status(403).json({
-        message: "Tài khoản của bạn đã bị khóa. Vui lòng liên hệ quản trị viên.",
-      });
-    }
-
-    // Hash new password and save
-    const hashedPassword = await bcryptjs.hash(newPassword, 10);
-    user.password = hashedPassword;
-    await user.save();
-
-    return res.status(200).json({
-      message: "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới.",
-    });
+    return res.json({ message: "Nếu email đã đăng ký và tài khoản đang hoạt động, mã OTP sẽ được gửi. Vui lòng kiểm tra cả thư rác và chờ 60 giây trước khi gửi lại.", retryAfter: 60, expiresIn: 300 });
   } catch (error) {
     return res.status(500).json({ message: "Không thể xử lý yêu cầu lúc này. Vui lòng thử lại sau." });
   }
 };
 
-module.exports = { register, login, forgotPassword };
+const resetPassword = async (req, res) => {
+  const email = normalizeEmail(req.body.email);
+  const { otp, newPassword } = req.body;
+  if (!email || typeof otp !== "string" || !/^\d{6}$/.test(otp) || typeof newPassword !== "string" || newPassword.length < 6 || newPassword.length > 128) {
+    return res.status(400).json({ message: "Vui lòng nhập email, OTP 6 số và mật khẩu mới từ 6 đến 128 ký tự" });
+  }
+  try {
+    // Every attempt is counted atomically, including concurrent requests.
+    const user = await db.User.findOneAndUpdate({
+      email: { $regex: `^${email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`, $options: "i" },
+      isActive: { $ne: false }, resetOtpExpiresAt: { $gt: new Date() }, resetOtpAttempts: { $lt: 5 },
+    }, { $inc: { resetOtpAttempts: 1 } }, { new: true }).select("+resetOtpHash");
+    const hash = otpHash(email, otp);
+    if (!user || user.resetOtpHash !== hash) {
+      return res.status(400).json({ message: "OTP không hợp lệ, đã hết hạn hoặc đã nhập sai quá 5 lần. Vui lòng yêu cầu mã mới." });
+    }
+    const password = await bcryptjs.hash(newPassword, 10);
+    const result = await db.User.updateOne({ _id: user._id, isActive: { $ne: false }, resetOtpHash: hash, resetOtpExpiresAt: { $gt: new Date() } }, {
+      $set: { password, updatedAt: new Date() },
+      $unset: { resetOtpHash: 1, resetOtpExpiresAt: 1, resetOtpAttempts: 1 },
+    });
+    if (!result.modifiedCount) return res.status(400).json({ message: "OTP đã được sử dụng hoặc hết hạn. Vui lòng yêu cầu mã mới." });
+    return res.json({ message: "Đặt lại mật khẩu thành công! Bạn có thể đăng nhập bằng mật khẩu mới." });
+  } catch (error) {
+    return res.status(500).json({ message: "Không thể xử lý yêu cầu lúc này. Vui lòng thử lại sau." });
+  }
+};
+
+module.exports = { register, login, forgotPassword, resetPassword };
