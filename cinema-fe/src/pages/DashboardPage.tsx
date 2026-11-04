@@ -458,7 +458,7 @@ export default function DashboardPage() {
                             ) : (
                               <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-500/15 text-rose-400 border border-rose-500/30">
                                 <span className="w-1.5 h-1.5 rounded-full bg-rose-400" />
-                                Refunded
+                                {b.paymentStatus === "review" ? "Cần đối soát" : b.status === "pending" ? "Chờ thanh toán" : b.status === "expired" ? "Hết hạn" : b.paymentStatus === "refunded" ? "Đã hoàn tiền" : "Đã hủy"}
                               </span>
                             )}
                           </td>

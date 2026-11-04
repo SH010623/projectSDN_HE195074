@@ -64,19 +64,28 @@ const bookingSchema = new Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ["momo_mock", "vnpay_mock", "card_mock", "cash"],
-      default: "momo_mock",
+      enum: ["sepay", "momo_mock", "vnpay_mock", "card_mock", "cash"],
+      default: "sepay",
     },
     paymentStatus: {
       type: String,
-      enum: ["pending", "paid", "refunded"],
-      default: "paid",
+      enum: ["pending", "paid", "refunded", "review"],
+      default: "pending",
     },
     status: {
       type: String,
-      enum: ["confirmed", "cancelled"],
-      default: "confirmed",
+      enum: ["pending", "confirmed", "cancelled", "expired"],
+      default: "pending",
     },
+    // Active seat locks use a unique multikey index. Expired/cancelled orders release it.
+    seatLock: { type: Boolean, default: false },
+    expiresAt: Date,
+    paidAt: Date,
+    sepayTransactionId: String,
+    voucherReserved: { type: Boolean, default: false },
+    confirmationEmailStatus: { type: String, enum: ["pending", "sending", "sent"], select: false },
+    confirmationEmailRetryAt: { type: Date, select: false },
+    confirmationEmailAttempts: { type: Number, default: 0, select: false },
     bookingDate: {
       type: Date,
       default: Date.now,
@@ -88,6 +97,12 @@ const bookingSchema = new Schema(
 );
 
 bookingSchema.index({ showtimeId: 1, status: 1 });
+bookingSchema.index({ showtimeId: 1, seats: 1 }, {
+  unique: true,
+  partialFilterExpression: { seatLock: true },
+  name: "unique_active_showtime_seat",
+});
+bookingSchema.index({ status: 1, expiresAt: 1 });
 bookingSchema.index({ userId: 1, createdAt: -1 });
 
 const Booking = mongoose.model("Booking", bookingSchema);

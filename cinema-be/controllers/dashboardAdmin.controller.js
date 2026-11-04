@@ -98,7 +98,7 @@ const getDashboardStats = async (req, res) => {
           movieSalesMap[mId].revenue += price;
           movieSalesMap[mId].tickets += seatsCount;
         }
-      } else if (b.status === "cancelled") {
+      } else if (b.status === "cancelled" && b.paymentStatus === "refunded") {
         refundedRevenue += Number(b.finalPrice) || 0;
         refundedCount += 1;
       }

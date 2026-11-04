@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 const Room = require("./models/room.model");
 const Movie = require("./models/movie.model");
 const Showtime = require("./models/showtime.model");
+const cinemaDate = require("./utils/cinemaDate");
 
 const sampleRooms = [
   {
@@ -46,43 +47,28 @@ const sampleRooms = [
 
 async function seed() {
   try {
-    console.log("Connecting to MongoDB...");
-    await mongoose.connect(process.env.MONGO_URI);
-    console.log("Connected!");
-
-    // 1. Ensure rooms exist
-    let rooms = await Room.find();
-    if (rooms.length < 3) {
-      console.log("Adding standard cinema halls...");
-      for (const r of sampleRooms) {
-        const found = await Room.findOne({ name: r.name });
-        if (!found) {
-          await Room.create(r);
-        }
+    await mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 15000 });
+    let rooms = await Room.find({ status: "active" }).sort({ name: 1 });
+    if (!rooms.length) {
+      for (const room of sampleRooms) {
+        await Room.updateOne({ name: room.name }, { $setOnInsert: room }, { upsert: true });
       }
-      rooms = await Room.find({ status: "active" });
+      rooms = await Room.find({ status: "active" }).sort({ name: 1 });
+      if (!rooms.length) rooms = [await Room.create({ ...sampleRooms[0], name: `Phòng demo ${Date.now()}` })];
     }
-    console.log(`Active rooms: ${rooms.length}`);
-
-    // 2. Fetch movies
-    const movies = await Movie.find({ status: { $ne: "ended" } });
-    if (movies.length === 0) {
-      console.log("No movies found! Please seed movies first.");
-      process.exit(1);
+    let movies = await Movie.find({ status: "now_showing" }).sort({ title: 1 });
+    if (!movies.length) {
+      movies = [await Movie.create({
+        title: "Cinema Demo - Hành trình khám phá", titleEn: "Cinema Demo",
+        duration: 100, rating: "P", genres: ["Phiêu Lưu"],
+        description: "Phim mẫu dùng thử lịch chiếu và đặt vé Cinema.",
+        releaseDate: new Date(), status: "now_showing",
+      })];
     }
-
-    // 3. Clean old showtimes and create fresh ones
-    await Showtime.deleteMany({});
-    console.log("Cleared existing showtimes.");
-
-    const activeRooms = rooms.filter((r) => r.status === "active" && r.name !== "1111");
-    const useRooms = activeRooms.length > 0 ? activeRooms : rooms;
-
-    // Seed for today (day 0) and next 6 days (total 7 days)
-    const days = [0, 1, 2, 3, 4, 5, 6];
-
-    // Time slots throughout the day
-    const timeSlots = [
+    const now = new Date();
+    const today = cinemaDate(now);
+    const midnight = new Date(`${today}T00:00:00+07:00`);
+    const slots = [
       { hour: 9, minute: 30, price: 75000 },
       { hour: 12, minute: 15, price: 85000 },
       { hour: 15, minute: 0, price: 85000 },
@@ -90,54 +76,47 @@ async function seed() {
       { hour: 20, minute: 30, price: 95000 },
       { hour: 22, minute: 45, price: 80000 },
     ];
-
-    const showtimesToInsert = [];
-
-    // Ensure every movie (especially now_showing) has multiple showtimes each day
-    for (const dayOffset of days) {
-      const targetDate = new Date();
-      targetDate.setDate(targetDate.getDate() + dayOffset);
-      const year = targetDate.getFullYear();
-      const month = String(targetDate.getMonth() + 1).padStart(2, "0");
-      const day = String(targetDate.getDate()).padStart(2, "0");
-      const dateStr = `${year}-${month}-${day}`;
-
-      useRooms.forEach((room, roomIdx) => {
-        timeSlots.forEach((slot, slotIdx) => {
-          // Rotate movies so every movie gets fair allocation across rooms and time slots
+    let inserted = 0;
+    let skipped = 0;
+    for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+      const dayStart = new Date(midnight.getTime() + dayOffset * 86400000);
+      const date = cinemaDate(dayStart);
+      for (let roomIdx = 0; roomIdx < rooms.length; roomIdx++) {
+        const room = rooms[roomIdx];
+        for (let slotIdx = 0; slotIdx < slots.length; slotIdx++) {
+          const slot = slots[slotIdx];
+          const start = new Date(dayStart.getTime() + (slot.hour * 60 + slot.minute) * 60000);
+          if (start.getTime() <= now.getTime() + 15 * 60000) continue;
           const movie = movies[(roomIdx + slotIdx + dayOffset) % movies.length];
-
-          const start = new Date(targetDate);
-          start.setHours(slot.hour, slot.minute, 0, 0);
-
-          const duration = movie.duration || 110;
-          const end = new Date(start.getTime() + (duration + 15) * 60 * 1000);
-
-          let price = slot.price;
-          if (room.roomType === "IMAX") price += 35000;
-          if (room.roomType === "3D") price += 15000;
-          if (room.roomType === "VIP") price += 50000;
-
-          showtimesToInsert.push({
-            movieId: movie._id,
-            roomId: room._id,
-            startTime: start,
-            endTime: end,
-            date: dateStr,
-            price,
-            status: "opened",
+          if (movie.releaseDate && movie.releaseDate > start) continue;
+          if (movie.endDate && cinemaDate(movie.endDate) < date) continue;
+          const end = new Date(start.getTime() + ((movie.duration || 110) + 15) * 60000);
+          const conflict = await Showtime.exists({ roomId: room._id, status: { $ne: "cancelled" },
+            startTime: { $lt: end }, endTime: { $gt: start },
           });
-        });
-      });
+          if (conflict) { skipped++; continue; }
+          const surcharge = { IMAX: 35000, "3D": 15000, VIP: 50000 }[room.roomType] || 0;
+          await Showtime.create({ movieId: movie._id, roomId: room._id,
+            startTime: start, endTime: end, date, price: slot.price + surcharge, status: "opened",
+          });
+          inserted++;
+        }
+      }
     }
-
-    const inserted = await Showtime.insertMany(showtimesToInsert);
-    console.log(`Seeded ${inserted.length} showtimes successfully across ${useRooms.length} rooms and ${days.length} days!`);
-
-    process.exit(0);
-  } catch (err) {
-    console.error("❌ Seed showtimes failed:", err);
-    process.exit(1);
+    const until = new Date(midnight.getTime() + 7 * 86400000);
+    const available = await Showtime.countDocuments({ roomId: { $in: rooms.map(room => room._id) },
+      movieId: { $in: movies.map(movie => movie._id) }, status: { $in: ["opened", "scheduled"] },
+      startTime: { $gt: now, $lt: until },
+    });
+    console.log(JSON.stringify({ added: inserted, skippedOverlapping: skipped, available,
+      activeRooms: rooms.length, movies: movies.length, from: today,
+      through: cinemaDate(new Date(until.getTime() - 1)), timeZone: "Asia/Ho_Chi_Minh",
+    }, null, 2));
+  } catch (error) {
+    console.error("Không thể bổ sung lịch chiếu. Kiểm tra kết nối MongoDB.", { code: error.code || error.name });
+    process.exitCode = 1;
+  } finally {
+    await mongoose.disconnect();
   }
 }
 

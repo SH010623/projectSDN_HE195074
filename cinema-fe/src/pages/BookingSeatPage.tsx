@@ -1,4 +1,4 @@
-import Icon from "../components/ui/Icon";
+import SePayPayment from "../components/SePayPayment";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { bookingService } from "../services/bookingService";
@@ -29,13 +29,9 @@ export default function BookingSeatPage() {
   const [voucherError, setVoucherError] = useState<string | null>(null);
   const [voucherLoading, setVoucherLoading] = useState(false);
 
-  // Payment method selection
-  const [paymentMethod, setPaymentMethod] = useState<"momo_mock" | "vnpay_mock" | "card_mock" | "cash">("momo_mock");
-
-  // Payment process simulation modal
-  const [isPayingModalOpen, setIsPayingModalOpen] = useState(false);
   const [processingPayment, setProcessingPayment] = useState(false);
-  const [bookingSuccessCode, setBookingSuccessCode] = useState<string | null>(null);
+  const [paymentBookingId, setPaymentBookingId] = useState<string | null>(null);
+  const [paymentError, setPaymentError] = useState("");
 
   // Fetch showtime layout and occupied seats on mount
   useEffect(() => {
@@ -156,22 +152,23 @@ export default function BookingSeatPage() {
     }
   };
 
-  // Confirm booking & execute mock payment
+  // Create a pending order; only the verified webhook can mark it paid.
   const handleExecutePayment = async () => {
+    if (processingPayment || paymentBookingId) return;
     try {
       setProcessingPayment(true);
+      setPaymentError("");
       const payload = {
         showtimeId: showtime._id,
         seats: selectedSeats,
         voucherCode: appliedVoucher ? appliedVoucher.code : undefined,
-        paymentMethod,
+        paymentMethod: "sepay" as const,
       };
 
       const res = await bookingService.createBooking(payload);
-      setBookingSuccessCode(res.booking.bookingCode);
+      setPaymentBookingId(res.booking._id);
     } catch (err: any) {
-      alert(err.response?.data?.message || "Đặt vé thất bại. Vui lòng thử lại!");
-      setIsPayingModalOpen(false);
+      setPaymentError(err.response?.data?.message || "Chưa nhận được kết quả tạo đơn. Kiểm tra Vé của tôi trước khi tạo lại để tránh trùng đơn.");
       // Refresh seat layout in case of race condition
       if (showtimeId) fetchSeatLayout(showtimeId);
     } finally {
@@ -390,36 +387,11 @@ export default function BookingSeatPage() {
               )}
             </div>
 
-            {/* Payment method selector (Mock) */}
-            <div>
-              <label className="block text-xs font-semibold text-gray-300 mb-2">
-                Phương thức thanh toán (Tạm giả lập):
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { id: "momo_mock", label: "Ví MoMo", tag: "MOMO" },
-                  { id: "vnpay_mock", label: "Cổng VNPAY", tag: "VNPAY" },
-                  { id: "card_mock", label: "Thẻ ATM/Visa", tag: "CARD" },
-                  { id: "cash", label: "Tiền mặt quầy", tag: "CASH" },
-                ].map((item) => (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setPaymentMethod(item.id as any)}
-                    className={`p-2.5 rounded-lg border text-xs font-semibold flex items-center gap-2 cursor-pointer transition-all ${
-                      paymentMethod === item.id
-                        ? "bg-[#e8173a]/15 border-[#e8173a] text-white"
-                        : "bg-[#0b0b14] border-white/10 text-gray-400 hover:border-white/20"
-                    }`}
-                  >
-                    <span className="px-1.5 py-0.5 rounded bg-white/10 text-[9px] font-mono font-bold text-white/80">
-                      {item.tag}
-                    </span>
-                    <span className="truncate">{item.label}</span>
-                  </button>
-                ))}
-              </div>
+            <div className="text-sm text-gray-300">
+              Thanh toán bằng QR chuyển khoản ngân hàng (SePay).
+              <p className="mt-1 text-xs text-gray-400">Ghế được giữ tối đa 5 phút sau khi tạo đơn.</p>
             </div>
+            {paymentError && <p role="alert" className="text-sm text-amber-300">{paymentError}</p>}
 
             {/* Price Breakdown */}
             <div className="border-t border-white/[0.08] pt-3 flex flex-col gap-1.5 text-xs text-gray-400">
@@ -442,11 +414,11 @@ export default function BookingSeatPage() {
             {/* Submit Button */}
             <button
               type="button"
-              disabled={selectedSeats.length === 0}
-              onClick={() => setIsPayingModalOpen(true)}
+              disabled={selectedSeats.length === 0 || processingPayment || Boolean(paymentBookingId)}
+              onClick={handleExecutePayment}
               className="w-full py-3 bg-[#e8173a] hover:bg-[#c91131] disabled:bg-gray-800 disabled:text-gray-600 disabled:cursor-not-allowed text-white font-bold rounded-xl shadow-lg shadow-[#e8173a]/30 transition-all cursor-pointer text-sm"
             >
-              {selectedSeats.length === 0
+              {processingPayment ? "Đang tạo đơn…" : selectedSeats.length === 0
                 ? "Vui lòng chọn ghế"
                 : `Thanh toán ${formatVND(finalPrice)}`}
             </button>
@@ -454,99 +426,15 @@ export default function BookingSeatPage() {
         </section>
       </main>
 
-      {/* ── MOCK PAYMENT PROCESSING MODAL ────────────────── */}
-      {isPayingModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="bg-[#161626] border border-white/15 rounded-2xl w-full max-w-[460px] p-6 text-white shadow-2xl flex flex-col items-center text-center">
-            
-            {bookingSuccessCode ? (
-              // Success Screen
-              <div className="flex flex-col items-center py-4">
-                <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded-full flex items-center justify-center text-3xl mb-4">
-                  <Icon name="check" />
-                </div>
-                <h3 className="text-xl font-bold mb-1">Đặt vé thành công!</h3>
-                <p className="text-xs text-gray-400 mb-5">
-                  Giao dịch thanh toán giả lập đã được hệ thống phê duyệt.
-                </p>
-
-                <div className="w-full bg-[#0d0d18] border border-white/10 rounded-xl p-4 mb-6 text-left">
-                  <div className="text-xs text-gray-400 mb-1">Mã vé xem phim:</div>
-                  <div className="text-xl font-extrabold text-[#e8173a] tracking-widest uppercase mb-3">
-                    {bookingSuccessCode}
-                  </div>
-                  <div className="text-xs text-gray-300 flex flex-col gap-1">
-                    <div><strong>Phim:</strong> {movie?.title}</div>
-                    <div><strong>Phòng:</strong> {room?.name} ({room?.roomType})</div>
-                    <div><strong>Ghế:</strong> {selectedSeats.join(", ")}</div>
-                    <div><strong>Đã thanh toán:</strong> {formatVND(finalPrice)}</div>
-                  </div>
-                </div>
-
-                <div className="flex gap-3 w-full">
-                  <button
-                    onClick={() => navigate("/my-tickets")}
-                    className="flex-1 py-2.5 bg-[#e8173a] hover:bg-[#c91131] rounded-lg text-xs font-bold text-white transition-colors cursor-pointer"
-                  >
-                    Xem vé của tôi
-                  </button>
-                  <button
-                    onClick={() => navigate("/schedule")}
-                    className="py-2.5 px-4 bg-white/10 hover:bg-white/15 rounded-lg text-xs font-semibold text-gray-300 transition-colors cursor-pointer"
-                  >
-                    Về Trang chủ
-                  </button>
-                </div>
-              </div>
-            ) : (
-              // Payment Processing / Mock Confirmation
-              <div className="flex flex-col items-center w-full">
-                <div className="px-3 py-1 bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 text-xs font-mono font-bold uppercase rounded-md mb-3">
-                  {paymentMethod.toUpperCase()}
-                </div>
-                <h3 className="text-lg font-bold mb-1">
-                  Xác nhận thanh toán giả lập
-                </h3>
-                <p className="text-xs text-gray-400 mb-4">
-                  Hệ thống đang mô phỏng cổng thanh toán{" "}
-                  <strong className="text-white">
-                    {paymentMethod === "momo_mock" ? "Ví MoMo" : paymentMethod === "vnpay_mock" ? "Cổng VNPAY" : "Thẻ ATM/Visa"}
-                  </strong>
-                </p>
-
-                {/* Mock QR / Card UI */}
-                <div className="w-48 h-48 bg-white rounded-xl p-3 flex flex-col items-center justify-center mb-4 shadow-lg">
-                  <div className="w-full h-full border-4 border-dashed border-gray-400 rounded-lg flex flex-col items-center justify-center p-2 text-center text-gray-800">
-                    <span className="text-xs font-mono font-black text-gray-400 mb-1">NCC-PAY</span>
-                    <span className="text-[0.65rem] font-bold uppercase">Mã QR Thanh Toán Giả Lập</span>
-                    <span className="text-[0.6rem] text-gray-500 mt-1">{formatVND(finalPrice)}</span>
-                  </div>
-                </div>
-
-                <p className="text-xs text-gray-400 mb-6">
-                  Bấm nút bên dưới để hoàn tất giả lập thanh toán và giữ chỗ ngay lập tức.
-                </p>
-
-                <div className="flex gap-3 w-full">
-                  <button
-                    type="button"
-                    disabled={processingPayment}
-                    onClick={() => setIsPayingModalOpen(false)}
-                    className="flex-1 py-2.5 bg-white/10 hover:bg-white/15 rounded-lg text-xs font-semibold text-gray-300 transition-colors cursor-pointer"
-                  >
-                    Huỷ bỏ
-                  </button>
-                  <button
-                    type="button"
-                    disabled={processingPayment}
-                    onClick={handleExecutePayment}
-                    className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-lg shadow-emerald-600/30 transition-colors cursor-pointer"
-                  >
-                    {processingPayment ? "Đang xử lý..." : "Xác nhận đã thanh toán"}
-                  </button>
-                </div>
-              </div>
-            )}
+      {paymentBookingId && (
+        <div role="dialog" aria-modal="true" aria-label="Thanh toán vé" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+          <div className="bg-[#161626] border border-white/15 rounded-2xl w-full max-w-[460px] max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
+            <SePayPayment bookingId={paymentBookingId} onClose={() => {
+              setPaymentBookingId(null);
+              if (showtimeId) void fetchSeatLayout(showtimeId);
+              setSelectedSeats([]);
+              setAppliedVoucher(null);
+            }} />
           </div>
         </div>
       )}

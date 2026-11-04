@@ -33,9 +33,11 @@ export interface Booking {
   discountAmount: number;
   finalPrice: number;
   bookingCode: string;
-  paymentMethod: "momo_mock" | "vnpay_mock" | "card_mock" | "cash";
-  paymentStatus: "pending" | "paid" | "refunded";
-  status: "confirmed" | "cancelled";
+  paymentMethod: "sepay" | "momo_mock" | "vnpay_mock" | "card_mock" | "cash";
+  paymentStatus: "pending" | "paid" | "refunded" | "review";
+  status: "pending" | "confirmed" | "cancelled" | "expired";
+  expiresAt?: string;
+  paidAt?: string;
   bookingDate: string;
   createdAt?: string;
   updatedAt?: string;
@@ -45,13 +47,29 @@ export interface CreateBookingPayload {
   showtimeId: string;
   seats: string[];
   voucherCode?: string;
-  paymentMethod?: "momo_mock" | "vnpay_mock" | "card_mock" | "cash";
+  paymentMethod?: "sepay" | "momo_mock" | "vnpay_mock" | "card_mock" | "cash";
 }
 
 export interface OccupiedSeatsResponse {
   message: string;
   showtime: Showtime;
   occupiedSeats: string[];
+}
+
+export interface PaymentDetails {
+  accountNumber: string;
+  bank: string;
+  accountName: string;
+  amount: number;
+  content: string;
+  expiresAt: string;
+  qrUrl: string;
+}
+
+export interface BookingResponse {
+  message: string;
+  booking: Booking;
+  payment: PaymentDetails | null;
 }
 
 // Booking API Service
@@ -66,7 +84,7 @@ export const bookingService = {
 
   // Create booking with mock payment
   createBooking: async (payload: CreateBookingPayload) => {
-    const res = await apiClient.post<{ message: string; booking: Booking }>(
+    const res = await apiClient.post<BookingResponse>(
       "/bookings",
       payload
     );
@@ -85,7 +103,7 @@ export const bookingService = {
 
   // Get single booking details
   getBookingById: async (id: string) => {
-    const res = await apiClient.get<{ message: string; booking: Booking }>(
+    const res = await apiClient.get<BookingResponse>(
       `/bookings/${id}`
     );
     return res.data;
