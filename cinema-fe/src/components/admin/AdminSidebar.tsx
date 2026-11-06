@@ -76,6 +76,13 @@ export default function AdminSidebar() {
       badgeColor: "bg-indigo-500/15 text-indigo-400",
     },
     {
+      label: "Báo cáo thống kê",
+      icon: "📈",
+      path: "/admin/reports",
+      badge: "Reports",
+      badgeColor: "bg-teal-500/15 text-teal-300",
+    },
+    {
       label: "Quản lý phim",
       icon: "🎬",
       path: "/admin/movies",

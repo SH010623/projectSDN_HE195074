@@ -9,6 +9,7 @@ const newsRoute = require("./news.route");
 const voucherRoute = require("./voucher.route");
 const bookingRoute = require("./booking.route");
 const dashboardAdminRoute = require("./dashboardAdmin.route");
+const reportRoute = require("./report.route");
 const { verifyToken } = require("../middlewares/verifyToken");
 const { verifyAccessKey, userOnly } = require("../middlewares/verifyAccessKey");
 
@@ -25,6 +26,7 @@ router.use("/news", newsRoute);          // /news, /news/:id
 router.use("/vouchers", voucherRoute);   // /vouchers, /vouchers/:id, /vouchers/check
 router.use("/bookings", bookingRoute);   // /bookings, /bookings/my-tickets, /bookings/showtime/:id/seats
 router.use("/admin/dashboard", dashboardAdminRoute); // /admin/dashboard/stats
+router.use("/admin/reports", reportRoute);           // /admin/reports/analytics
 
 
 

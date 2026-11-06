@@ -8,6 +8,7 @@ import AdminMoviesPage from "./pages/AdminMoviesPage";
 import AdminShowtimesPage from "./pages/AdminShowtimesPage";
 import AdminNewsPage from "./pages/AdminNewsPage";
 import AdminVouchersPage from "./pages/AdminVouchersPage";
+import AdminReportsPage from "./pages/AdminReportsPage";
 import NewsPage from "./pages/NewsPage";
 import VouchersPage from "./pages/VouchersPage";
 import TicketsPage from "./pages/TicketsPage";
@@ -86,6 +87,7 @@ function App() {
           }
         >
           <Route path="/admin/dashboard" element={<DashboardPage />} />
+          <Route path="/admin/reports" element={<AdminReportsPage />} />
           <Route path="/admin/movies" element={<AdminMoviesPage />} />
           <Route path="/admin/showtimes" element={<AdminShowtimesPage />} />
           <Route path="/admin/rooms" element={<AdminRoomsPage />} />
