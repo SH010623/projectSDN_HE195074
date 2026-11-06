@@ -126,9 +126,8 @@ export default function Navbar({
             {currentUser.role === "admin" ? (
               <button
                 onClick={onGoToDashboard || (() => navigate("/admin/dashboard"))}
-                className="px-3.5 py-1.5 bg-gradient-to-r from-[#e8173a] to-[#ff3b5c] rounded-md text-white text-xs font-bold hover:shadow-lg hover:shadow-[#e8173a]/30 transition-all cursor-pointer border-0 flex items-center gap-1.5"
+                className="px-3.5 py-1.5 bg-gradient-to-r from-[#e8173a] to-[#ff3b5c] rounded-md text-white text-xs font-bold hover:shadow-lg hover:shadow-[#e8173a]/30 transition-all cursor-pointer border-0 flex items-center"
               >
-                <span>🛡️</span>
                 <span>Trang Quản Trị</span>
               </button>
             ) : (

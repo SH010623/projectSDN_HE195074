@@ -151,7 +151,7 @@ export default function AdminReportsPage() {
       <header className="bg-[#111229]/90 backdrop-blur-md border-b border-white/[0.08] px-6 py-4 sticky top-0 z-20 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
-            <span>📈 Báo Cáo Thống Kê & Phân Tích Nghiệp Vụ</span>
+            <span>Báo Cáo Thống Kê & Phân Tích Nghiệp Vụ</span>
             <span className="text-[11px] px-2 py-0.5 rounded bg-[#e8173a]/20 text-[#f87083] font-bold">
               ANALYTICS
             </span>
@@ -221,9 +221,8 @@ export default function AdminReportsPage() {
           <button
             onClick={handleExportCSV}
             disabled={loading || !data}
-            className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all cursor-pointer border-0 flex items-center gap-1.5 shadow-lg shadow-emerald-600/20"
+            className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all cursor-pointer border-0 flex items-center shadow-lg shadow-emerald-600/20"
           >
-            <span>📥</span>
             <span>Xuất Excel/CSV</span>
           </button>
 
@@ -231,10 +230,10 @@ export default function AdminReportsPage() {
           <button
             onClick={fetchReport}
             disabled={loading}
-            className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-colors cursor-pointer border border-white/10"
+            className="px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-semibold text-[#c0c3e0] hover:text-white transition-colors cursor-pointer border border-white/10 flex items-center justify-center"
             title="Làm mới số liệu"
           >
-            <span className={loading ? "animate-spin" : ""}>🔄</span>
+            <span className={loading ? "animate-pulse" : ""}>Làm mới</span>
           </button>
         </div>
       </header>
@@ -274,7 +273,7 @@ export default function AdminReportsPage() {
       <div className="p-6 flex flex-col gap-6">
         {error && (
           <div className="p-4 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-sm flex items-center justify-between">
-            <span>⚠️ {error}</span>
+            <span>{error}</span>
             <button onClick={fetchReport} className="text-xs underline text-rose-200">
               Thử lại
             </button>
@@ -285,7 +284,7 @@ export default function AdminReportsPage() {
         {data?.insights && data.insights.length > 0 && (
           <div className="bg-gradient-to-r from-[#171838] via-[#1a1b40] to-[#171838] border border-indigo-500/30 rounded-2xl p-5 shadow-xl">
             <div className="flex items-center gap-2 mb-3">
-              <span className="text-base">💡</span>
+              <span className="w-2 h-2 rounded-full bg-indigo-400" />
               <h2 className="text-sm font-bold text-indigo-300 uppercase tracking-wider">
                 Nhận Định & Khuyến Nghị Nghiệp Vụ Tự Động
               </h2>
@@ -310,8 +309,8 @@ export default function AdminReportsPage() {
           <div className="bg-[#141530] border border-white/[0.08] rounded-2xl p-5 shadow-lg flex flex-col justify-between">
             <div className="flex items-center justify-between text-[#8b8ea8] text-xs font-semibold uppercase tracking-wider mb-2">
               <span>Doanh Thu Thực Thu</span>
-              <span className="w-7 h-7 rounded-lg bg-indigo-500/15 text-indigo-400 flex items-center justify-center text-sm">
-                💰
+              <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/15 text-indigo-300 font-bold">
+                REVENUE
               </span>
             </div>
             <div className="text-2xl font-black text-white tracking-tight">
@@ -327,8 +326,8 @@ export default function AdminReportsPage() {
           <div className="bg-[#141530] border border-white/[0.08] rounded-2xl p-5 shadow-lg flex flex-col justify-between">
             <div className="flex items-center justify-between text-[#8b8ea8] text-xs font-semibold uppercase tracking-wider mb-2">
               <span>Vé Đã Bán Ra</span>
-              <span className="w-7 h-7 rounded-lg bg-rose-500/15 text-rose-400 flex items-center justify-center text-sm">
-                🎟️
+              <span className="text-[10px] px-2 py-0.5 rounded bg-rose-500/15 text-rose-300 font-bold">
+                TICKETS
               </span>
             </div>
             <div className="text-2xl font-black text-white tracking-tight">
@@ -344,8 +343,8 @@ export default function AdminReportsPage() {
           <div className="bg-[#141530] border border-white/[0.08] rounded-2xl p-5 shadow-lg flex flex-col justify-between">
             <div className="flex items-center justify-between text-[#8b8ea8] text-xs font-semibold uppercase tracking-wider mb-2">
               <span>Ưu Đãi Đã Chiết Khấu</span>
-              <span className="w-7 h-7 rounded-lg bg-emerald-500/15 text-emerald-400 flex items-center justify-center text-sm">
-                🏷️
+              <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 font-bold">
+                DISCOUNT
               </span>
             </div>
             <div className="text-2xl font-black text-emerald-400 tracking-tight">
@@ -366,8 +365,8 @@ export default function AdminReportsPage() {
           <div className="bg-[#141530] border border-white/[0.08] rounded-2xl p-5 shadow-lg flex flex-col justify-between">
             <div className="flex items-center justify-between text-[#8b8ea8] text-xs font-semibold uppercase tracking-wider mb-2">
               <span>Huỷ Vé & Hoàn Tiền</span>
-              <span className="w-7 h-7 rounded-lg bg-cyan-500/15 text-cyan-400 flex items-center justify-center text-sm">
-                ↩️
+              <span className="text-[10px] px-2 py-0.5 rounded bg-cyan-500/15 text-cyan-300 font-bold">
+                REFUND
               </span>
             </div>
             <div className="text-2xl font-black text-rose-300 tracking-tight">
@@ -384,47 +383,43 @@ export default function AdminReportsPage() {
         <div className="flex items-center gap-2 border-b border-white/[0.08] pb-1 overflow-x-auto">
           <button
             onClick={() => setActiveTab("movies")}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border-0 whitespace-nowrap flex items-center gap-2 ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border-0 whitespace-nowrap ${
               activeTab === "movies"
                 ? "bg-[#e8173a] text-white shadow-lg shadow-[#e8173a]/25"
                 : "bg-white/5 text-[#9fa2c4] hover:text-white"
             }`}
           >
-            <span>🎬</span>
-            <span>Doanh Thu Theo Phim</span>
+            Doanh Thu Theo Phim
           </button>
           <button
             onClick={() => setActiveTab("rooms")}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border-0 whitespace-nowrap flex items-center gap-2 ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border-0 whitespace-nowrap ${
               activeTab === "rooms"
                 ? "bg-[#e8173a] text-white shadow-lg shadow-[#e8173a]/25"
                 : "bg-white/5 text-[#9fa2c4] hover:text-white"
             }`}
           >
-            <span>🏛️</span>
-            <span>Phòng Chiếu & Khung Giờ Vàng</span>
+            Phòng Chiếu & Khung Giờ Vàng
           </button>
           <button
             onClick={() => setActiveTab("seats")}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border-0 whitespace-nowrap flex items-center gap-2 ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border-0 whitespace-nowrap ${
               activeTab === "seats"
                 ? "bg-[#e8173a] text-white shadow-lg shadow-[#e8173a]/25"
                 : "bg-white/5 text-[#9fa2c4] hover:text-white"
             }`}
           >
-            <span>💺</span>
-            <span>Hạng Ghế & Phương Thức Thanh Toán</span>
+            Hạng Ghế & Phương Thức Thanh Toán
           </button>
           <button
             onClick={() => setActiveTab("vouchers")}
-            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border-0 whitespace-nowrap flex items-center gap-2 ${
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border-0 whitespace-nowrap ${
               activeTab === "vouchers"
                 ? "bg-[#e8173a] text-white shadow-lg shadow-[#e8173a]/25"
                 : "bg-white/5 text-[#9fa2c4] hover:text-white"
             }`}
           >
-            <span>👑</span>
-            <span>Khách Hàng VIP & Voucher</span>
+            Khách Hàng VIP & Voucher
           </button>
         </div>
 
@@ -677,7 +672,7 @@ export default function AdminReportsPage() {
                   >
                     <div>
                       <div className="font-bold text-sm text-white flex items-center gap-2">
-                        <span>{st.key === "vip" ? "⭐" : "💺"}</span>
+                        <span className={`w-2.5 h-2.5 rounded-full ${st.key === "vip" ? "bg-amber-400" : "bg-slate-400"}`} />
                         <span>{st.name}</span>
                       </div>
                       <div className="text-xs text-[#8083a3] mt-1">

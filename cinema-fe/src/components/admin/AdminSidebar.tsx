@@ -70,56 +70,48 @@ export default function AdminSidebar() {
   const menuItems = [
     {
       label: "Dashboard",
-      icon: "📊",
       path: "/admin/dashboard",
       badge: "Overview",
       badgeColor: "bg-indigo-500/15 text-indigo-400",
     },
     {
       label: "Báo cáo thống kê",
-      icon: "📈",
       path: "/admin/reports",
       badge: "Reports",
       badgeColor: "bg-teal-500/15 text-teal-300",
     },
     {
       label: "Quản lý phim",
-      icon: "🎬",
       path: "/admin/movies",
       badge: counts.movies > 0 ? String(counts.movies) : undefined,
       badgeColor: "bg-rose-500/15 text-rose-400",
     },
     {
       label: "Lịch chiếu phim",
-      icon: "🕒",
       path: "/admin/showtimes",
       badge: counts.showtimes > 0 ? String(counts.showtimes) : undefined,
       badgeColor: "bg-amber-500/15 text-amber-400",
     },
     {
       label: "Phòng chiếu",
-      icon: "🏛️",
       path: "/admin/rooms",
       badge: counts.rooms > 0 ? String(counts.rooms) : undefined,
       badgeColor: "bg-pink-500/15 text-pink-400",
     },
     {
       label: "Người dùng",
-      icon: "👥",
       path: "/admin/users",
       badge: counts.users > 0 ? String(counts.users) : undefined,
       badgeColor: "bg-indigo-500/15 text-indigo-400",
     },
     {
       label: "Voucher ưu đãi",
-      icon: "🏷️",
       path: "/admin/vouchers",
       badge: counts.vouchers > 0 ? String(counts.vouchers) : undefined,
       badgeColor: "bg-emerald-500/15 text-emerald-400",
     },
     {
       label: "Tin tức rạp",
-      icon: "📰",
       path: "/admin/news",
       badge: "News",
       badgeColor: "bg-cyan-500/15 text-cyan-400",
@@ -162,8 +154,12 @@ export default function AdminSidebar() {
                       : "text-[#9fa2c4] font-medium hover:text-white hover:bg-white/[0.05] bg-transparent"
                   }`}
                 >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span className="text-base shrink-0">{item.icon}</span>
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span
+                      className={`w-1.5 h-1.5 rounded-full shrink-0 transition-colors ${
+                        active ? "bg-[#e8173a]" : "bg-white/20"
+                      }`}
+                    />
                     <span className="truncate">{item.label}</span>
                   </div>
                   {item.badge && (
@@ -189,20 +185,24 @@ export default function AdminSidebar() {
           <nav className="flex flex-col gap-1">
             <button
               onClick={() => navigate("/")}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-[#9fa2c4] hover:text-white hover:bg-white/[0.05] transition-all cursor-pointer border-0 bg-transparent text-left"
+              className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium text-[#9fa2c4] hover:text-white hover:bg-white/[0.05] transition-all cursor-pointer border-0 bg-transparent text-left"
             >
-              <span className="text-base shrink-0">🌐</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-white/20 shrink-0" />
               <span className="truncate">Xem Website khách</span>
             </button>
             <button
               onClick={() => navigate("/profile")}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer border-0 text-left ${
+              className={`flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-sm font-medium transition-all cursor-pointer border-0 text-left ${
                 currentPath === "/profile"
                   ? "text-white font-bold bg-gradient-to-r from-[#e8173a]/25 to-transparent border-l-4 border-[#e8173a]"
                   : "text-[#9fa2c4] hover:text-white hover:bg-white/[0.05] bg-transparent"
               }`}
             >
-              <span className="text-base shrink-0">👤</span>
+              <span
+                className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                  currentPath === "/profile" ? "bg-[#e8173a]" : "bg-white/20"
+                }`}
+              />
               <span className="truncate">Hồ sơ Admin</span>
             </button>
           </nav>
@@ -228,9 +228,9 @@ export default function AdminSidebar() {
         <button
           onClick={handleLogout}
           title="Đăng xuất"
-          className="w-8 h-8 rounded-lg bg-white/5 hover:bg-rose-500/20 text-[#a0a0c0] hover:text-rose-400 flex items-center justify-center transition-colors cursor-pointer border-0 shrink-0"
+          className="px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-rose-500/20 text-[#a0a0c0] hover:text-rose-400 text-xs font-semibold transition-colors cursor-pointer border border-white/10 shrink-0"
         >
-          🚪
+          Đăng xuất
         </button>
       </div>
     </aside>

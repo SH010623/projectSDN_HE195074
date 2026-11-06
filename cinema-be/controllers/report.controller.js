@@ -383,15 +383,15 @@ const getReportAnalytics = async (req, res) => {
 
     const insights = [
       topMovie
-        ? `🎬 Phim dẫn đầu phòng vé: "${topMovie.title}" mang về ${new Intl.NumberFormat("vi-VN").format(topMovie.revenue)} đ (chiếm ${topMovie.revenueShare}% doanh thu).`
-        : "🎬 Chưa có dữ liệu doanh thu phim trong khoảng thời gian này.",
+        ? `Phim dẫn đầu phòng vé: "${topMovie.title}" mang về ${new Intl.NumberFormat("vi-VN").format(topMovie.revenue)} đ (chiếm ${topMovie.revenueShare}% doanh thu).`
+        : "Chưa có dữ liệu doanh thu phim trong khoảng thời gian này.",
       peakSlot && peakSlot.tickets > 0
-        ? `🕒 Khung giờ vàng hút khách nhất: ${peakSlot.name} với ${peakSlot.tickets} vé đã xuất.`
-        : "🕒 Lượng khách phân bổ đồng đều giữa các khung giờ chiếu.",
+        ? `Khung giờ vàng hút khách nhất: ${peakSlot.name} với ${peakSlot.tickets} vé đã xuất.`
+        : "Lượng khách phân bổ đồng đều giữa các khung giờ chiếu.",
       topRoom && topRoom.occupancyRate > 0
-        ? `🏛️ Phòng chiếu hiệu suất cao nhất: ${topRoom.name} đạt tỷ lệ lấp đầy ước tính ${topRoom.occupancyRate}%.`
-        : "🏛️ Cần theo dõi thêm số lượng suất chiếu để tối ưu công suất phòng.",
-      `🏷️ Hiệu quả khuyến mãi: Đã chiết khấu ${new Intl.NumberFormat("vi-VN").format(totalDiscountAmount)} đ (tỷ lệ giảm ${discountRate}% trên tổng giá vé gốc).`,
+        ? `Phòng chiếu hiệu suất cao nhất: ${topRoom.name} đạt tỷ lệ lấp đầy ước tính ${topRoom.occupancyRate}%.`
+        : "Cần theo dõi thêm số lượng suất chiếu để tối ưu công suất phòng.",
+      `Hiệu quả khuyến mãi: Đã chiết khấu ${new Intl.NumberFormat("vi-VN").format(totalDiscountAmount)} đ (tỷ lệ giảm ${discountRate}% trên tổng giá vé gốc).`,
     ];
 
     return res.status(200).json({

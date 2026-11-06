@@ -99,19 +99,19 @@ export default function DashboardPage() {
               onClick={() => navigate("/my-tickets")}
               className="w-full py-3 bg-[#e8173a] hover:bg-[#c91131] rounded-xl text-white font-semibold text-sm transition-colors cursor-pointer border-0 shadow-lg shadow-[#e8173a]/25"
             >
-              🎟️ Vé của tôi (My Tickets)
+              Vé của tôi (My Tickets)
             </button>
             <button
               onClick={() => navigate("/")}
               className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white font-medium text-sm transition-colors cursor-pointer"
             >
-              🎬 Trang chủ & Đặt vé xem phim
+              Trang chủ & Đặt vé xem phim
             </button>
             <button
               onClick={() => navigate("/profile")}
               className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-white font-medium text-sm transition-colors cursor-pointer"
             >
-              👤 Hồ sơ cá nhân
+              Hồ sơ cá nhân
             </button>
             <button
               onClick={handleLogout}
@@ -208,8 +208,7 @@ export default function DashboardPage() {
             disabled={loading}
             className="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-xs font-semibold text-[#c0c3e0] hover:text-white transition-colors cursor-pointer border border-white/10 flex items-center gap-1.5"
           >
-            <span className={loading ? "animate-spin" : ""}>🔄</span>
-            <span>Làm mới</span>
+            <span className={loading ? "animate-pulse" : ""}>Làm mới</span>
           </button>
           <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -222,7 +221,7 @@ export default function DashboardPage() {
       <div className="p-6 flex flex-col gap-6">
         {error && (
           <div className="p-4 rounded-xl bg-rose-500/15 border border-rose-500/30 text-rose-300 text-sm flex items-center justify-between">
-            <span>⚠️ {error}</span>
+            <span>{error}</span>
             <button
               onClick={fetchDashboardStats}
               className="text-xs underline text-rose-200 hover:text-white"
@@ -644,8 +643,8 @@ export default function DashboardPage() {
                   onClick={() => navigate("/admin/movies")}
                   className="p-4 rounded-xl bg-gradient-to-br from-rose-500/10 to-transparent border border-rose-500/20 hover:border-rose-500/50 hover:bg-rose-500/15 transition-all text-left cursor-pointer group"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-rose-500/20 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition-transform">
-                    🎬
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-rose-400 mb-1">
+                    PHIM ẢNH
                   </div>
                   <div className="font-semibold text-sm text-white">Thêm phim mới</div>
                   <div className="text-[11px] text-[#8083a3]">Khởi tạo bom tấn</div>
@@ -655,8 +654,8 @@ export default function DashboardPage() {
                   onClick={() => navigate("/admin/showtimes")}
                   className="p-4 rounded-xl bg-gradient-to-br from-amber-500/10 to-transparent border border-amber-500/20 hover:border-amber-500/50 hover:bg-amber-500/15 transition-all text-left cursor-pointer group"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition-transform">
-                    🕒
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-amber-400 mb-1">
+                    SUẤT CHIẾU
                   </div>
                   <div className="font-semibold text-sm text-white">Xếp suất chiếu</div>
                   <div className="text-[11px] text-[#8083a3]">Tránh trùng lịch phòng</div>
@@ -666,8 +665,8 @@ export default function DashboardPage() {
                   onClick={() => navigate("/admin/rooms")}
                   className="p-4 rounded-xl bg-gradient-to-br from-pink-500/10 to-transparent border border-pink-500/20 hover:border-pink-500/50 hover:bg-pink-500/15 transition-all text-left cursor-pointer group"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-pink-500/20 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition-transform">
-                    🏛️
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-pink-400 mb-1">
+                    PHÒNG RẠP
                   </div>
                   <div className="font-semibold text-sm text-white">Phòng chiếu</div>
                   <div className="text-[11px] text-[#8083a3]">Sơ đồ ghế & loại phòng</div>
@@ -677,8 +676,8 @@ export default function DashboardPage() {
                   onClick={() => navigate("/admin/vouchers")}
                   className="p-4 rounded-xl bg-gradient-to-br from-emerald-500/10 to-transparent border border-emerald-500/20 hover:border-emerald-500/50 hover:bg-emerald-500/15 transition-all text-left cursor-pointer group"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center text-xl mb-2 group-hover:scale-110 transition-transform">
-                    🏷️
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-400 mb-1">
+                    KHUYẾN MÃI
                   </div>
                   <div className="font-semibold text-sm text-white">Tạo Voucher</div>
                   <div className="text-[11px] text-[#8083a3]">Mã giảm giá ưu đãi</div>
