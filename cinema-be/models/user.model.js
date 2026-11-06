@@ -11,6 +11,10 @@ const userSchema = new Schema({
     role: { type: String, enum: ["user", "admin"], default: "user" },
     access_key: { type: String },
     isActive: { type: Boolean, default: true },
+    resetOtpHash: { type: String, select: false },
+    resetOtpExpiresAt: { type: Date, select: false },
+    resetOtpSentAt: { type: Date, select: false },
+    resetOtpAttempts: { type: Number, default: 0, select: false },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
 });

@@ -1,4 +1,5 @@
-import { useState, type FormEvent } from "react";
+import Icon from "./ui/Icon";
+import { useEffect, useState, type FormEvent } from "react";
 import { authApi } from "../services/authService";
 
 interface ForgotPasswordModalProps {
@@ -12,10 +13,36 @@ export default function ForgotPasswordModal({
 }: ForgotPasswordModalProps) {
   const [form, setForm] = useState({
     email: "",
-    phone: "",
+    otp: "",
     newPassword: "",
     confirmPassword: "",
   });
+  const [codeSent, setCodeSent] = useState(false);
+  const [retryAt, setRetryAt] = useState(0);
+  const [secondsLeft, setSecondsLeft] = useState(0);
+  const [notice, setNotice] = useState("");
+  useEffect(() => {
+    const tick = () => setSecondsLeft(Math.max(0, Math.ceil((retryAt - Date.now()) / 1000)));
+    tick();
+    const timer = window.setInterval(tick, 1000);
+    return () => window.clearInterval(timer);
+  }, [retryAt]);
+  const sendCode = async () => {
+    if (loading || Date.now() < retryAt) return;
+    setLoading(true);
+    setError("");
+    try {
+      const { data } = await authApi.forgotPassword({ email: form.email.trim() });
+      setCodeSent(true);
+      setForm(prev => ({ ...prev, otp: "" }));
+      setNotice(data.message);
+      setRetryAt(Date.now() + data.retryAfter * 1000);
+    } catch (err: unknown) {
+      setError((err as { response?: { data?: { message?: string } } })?.response?.data?.message ?? "Không thể gửi OTP. Vui lòng thử lại.");
+    } finally {
+      setLoading(false);
+    }
+  };
   const [error, setError] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
   const [loading, setLoading] = useState(false);
@@ -30,7 +57,11 @@ export default function ForgotPasswordModal({
     setError("");
     setSuccessMsg("");
 
-    if (!form.email.trim() || !form.phone.trim() || !form.newPassword) {
+    if (!codeSent) {
+      await sendCode();
+      return;
+    }
+    if (!form.email.trim() || !/^\d{6}$/.test(form.otp) || !form.newPassword) {
       setError("Vui lòng điền đầy đủ tất cả các trường.");
       return;
     }
@@ -47,9 +78,9 @@ export default function ForgotPasswordModal({
 
     setLoading(true);
     try {
-      const res = await authApi.forgotPassword({
+      const res = await authApi.resetPassword({
         email: form.email.trim(),
-        phone: form.phone.trim(),
+        otp: form.otp,
         newPassword: form.newPassword,
       });
 
@@ -80,18 +111,18 @@ export default function ForgotPasswordModal({
           aria-label="Đóng"
           className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-full bg-white/5 text-[#8888a0] hover:bg-white/10 hover:text-white transition-colors text-sm border-0 cursor-pointer"
         >
-          ✕
+          <Icon name="close" />
         </button>
 
         <h2 className="text-2xl font-bold text-[#f0f0f5] mb-1">Quên mật khẩu</h2>
         <p className="text-sm text-[#8888a0] leading-relaxed mb-6">
-          Xác minh Email và Số điện thoại đã đăng ký để tạo mật khẩu mới cho tài khoản.
+          Nhận mã OTP qua email đã đăng ký. Mã có hiệu lực trong 5 phút.
         </p>
 
         {successMsg ? (
           <div className="flex flex-col items-center py-4 text-center">
             <div className="w-14 h-14 bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 rounded-full flex items-center justify-center text-2xl mb-4">
-              ✓
+              <Icon name="check" />
             </div>
             <h3 className="text-lg font-bold text-white mb-2">Thành công!</h3>
             <p className="text-xs text-gray-300 leading-relaxed mb-6">
@@ -118,26 +149,25 @@ export default function ForgotPasswordModal({
                 placeholder="Nhập địa chỉ email..."
                 value={form.email}
                 onChange={handleChange}
+                disabled={codeSent || loading}
                 required
                 className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-[#f0f0f5] text-sm placeholder-[#555577] outline-none focus:border-[#e8173a]/50 focus:bg-[#e8173a]/[0.04] transition-colors"
               />
             </div>
 
-            {/* Phone */}
+            {codeSent && <>
+            <p role="status" className="text-xs text-gray-300">{notice}</p>
             <div className="flex flex-col gap-1.5">
-              <label htmlFor="forgot-phone" className="text-xs font-medium text-[#8888a8] tracking-wide">
-                Số điện thoại đăng ký (*)
-              </label>
-              <input
-                id="forgot-phone"
-                type="tel"
-                name="phone"
-                placeholder="Nhập số điện thoại đã đăng ký..."
-                value={form.phone}
-                onChange={handleChange}
-                required
-                className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-[#f0f0f5] text-sm placeholder-[#555577] outline-none focus:border-[#e8173a]/50 focus:bg-[#e8173a]/[0.04] transition-colors"
-              />
+              <label htmlFor="forgot-otp" className="text-xs text-[#8888a8]">Mã OTP 6 số</label>
+              <input id="forgot-otp" name="otp" inputMode="numeric" autoComplete="one-time-code"
+                pattern="[0-9]{6}" maxLength={6} required value={form.otp} onChange={handleChange}
+                className="px-4 py-2.5 bg-white/5 border border-white/10 rounded-lg text-white" />
+            </div>
+            <div className="flex justify-between gap-3 text-xs text-[#8888a8]">
+              <button type="button" onClick={sendCode} disabled={loading || secondsLeft > 0} className="disabled:opacity-50">
+                {secondsLeft > 0 ? `Gửi lại sau ${secondsLeft}s` : "Gửi lại mã OTP"}
+              </button>
+              <button type="button" disabled={loading} onClick={() => { setCodeSent(false); setError(""); setForm(prev => ({ ...prev, otp: "", newPassword: "", confirmPassword: "" })); }}>Đổi email</button>
             </div>
 
             {/* New Password */}
@@ -149,6 +179,9 @@ export default function ForgotPasswordModal({
                 id="forgot-new-password"
                 type="password"
                 name="newPassword"
+                minLength={6}
+                maxLength={128}
+                autoComplete="new-password"
                 placeholder="Tối thiểu 6 ký tự..."
                 value={form.newPassword}
                 onChange={handleChange}
@@ -174,6 +207,8 @@ export default function ForgotPasswordModal({
               />
             </div>
 
+            </>}
+
             {/* Error Message */}
             {error && (
               <p role="alert" className="text-xs text-[#f87171] bg-[#f87171]/10 border border-[#f87171]/20 rounded-lg px-3 py-2 mt-1">
@@ -185,13 +220,13 @@ export default function ForgotPasswordModal({
             <button
               id="forgot-submit"
               type="submit"
-              disabled={loading}
+              disabled={loading || (!codeSent && secondsLeft > 0)}
               className="mt-2 w-full py-3 bg-[#e8173a] hover:bg-[#c91131] disabled:opacity-55 disabled:cursor-not-allowed rounded-lg text-white text-sm font-semibold transition-colors flex items-center justify-center min-h-[44px] border-0 cursor-pointer shadow-lg shadow-red-950/40"
             >
               {loading ? (
                 <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
               ) : (
-                "Đặt lại mật khẩu"
+                codeSent ? "Đặt lại mật khẩu" : secondsLeft > 0 ? `Gửi lại sau ${secondsLeft}s` : "Gửi mã OTP"
               )}
             </button>
 

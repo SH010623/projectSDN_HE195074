@@ -12,11 +12,11 @@ const getAllShowtimes = async (req, res) => {
     if (roomId) query.roomId = roomId;
     if (date) query.date = date;
 
-    if (status && status !== "all") {
+    if (req.role !== "admin") {
+      query.status = { $in: ["scheduled", "opened"].filter(value => !status || status === "all" || value === status) };
+      query.startTime = { $gt: new Date() };
+    } else if (status && status !== "all") {
       query.status = status;
-    } else if (!req.role || req.role !== "admin") {
-      // Non-admin users only see non-cancelled showtimes
-      query.status = { $ne: "cancelled" };
     }
 
     const showtimes = await db.Showtime.find(query)

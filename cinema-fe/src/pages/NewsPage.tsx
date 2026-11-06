@@ -1,3 +1,4 @@
+import AppSelect from "../components/AppSelect";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { newsService } from "../services/newsService";
@@ -138,26 +139,12 @@ export default function NewsPage() {
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <div className="flex items-center gap-2">
               <span className="text-xs text-[#8e8ea0] whitespace-nowrap">Sắp xếp:</span>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as any)}
-                className="px-3 py-1.5 bg-[#0d0d14] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none"
-              >
-                <option value="newest">Mới nhất</option>
-                <option value="older">Lưu trữ cũ hơn</option>
-              </select>
+              <AppSelect label="Sắp xếp" value={sortBy} onValueChange={value => setSortBy(value as any)} options={[{"value": "newest", "label": "Mới nhất"}, {"value": "older", "label": "Lưu trữ cũ hơn"}]} />
             </div>
 
             <div className="flex items-center gap-2">
               <span className="text-xs text-[#8e8ea0] whitespace-nowrap">Thời gian:</span>
-              <select
-                value={timeRange}
-                onChange={(e) => setTimeRange(e.target.value as any)}
-                className="px-3 py-1.5 bg-[#0d0d14] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none"
-              >
-                <option value="all">Toàn bộ thời gian</option>
-                <option value="this_month">Trong tháng này</option>
-              </select>
+              <AppSelect label="Thời gian" value={timeRange} onValueChange={value => setTimeRange(value as any)} options={[{"value": "all", "label": "Toàn bộ thời gian"}, {"value": "this_month", "label": "Trong tháng này"}]} />
             </div>
 
             {(selectedCategory !== "Tất cả" || search || timeRange !== "all" || sortBy !== "newest") && (

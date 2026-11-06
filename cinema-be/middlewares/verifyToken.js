@@ -6,7 +6,7 @@ const verifyToken = async (req, res, next) => {
         const token = req.headers['authorization'];
 
         if (!token) return res.status(403).json({
-            message: "No token provided!",
+            message: "Vui lòng đăng nhập để tiếp tục",
             status: 403
         });
 
@@ -16,7 +16,7 @@ const verifyToken = async (req, res, next) => {
         jwt.verify(bearerToken, process.env.JWT_SECRET, (err, decoded) => {
             if (err) {
                 return res.status(401).send({
-                    message: "Unauthorized!",
+                    message: "Phiên đăng nhập không hợp lệ hoặc đã hết hạn. Vui lòng đăng nhập lại.",
                     status: 401
                 });
             }
@@ -33,7 +33,7 @@ const verifyToken = async (req, res, next) => {
 const adminOnly = (req, res, next) => {
     if (req.role !== 'admin') {
         return res.status(403).json({
-            message: "Access denied! Only admins are allowed.",
+            message: "Bạn không có quyền truy cập chức năng này.",
             status: 403,
         });
     }

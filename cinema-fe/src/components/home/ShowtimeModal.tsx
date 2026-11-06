@@ -28,6 +28,7 @@ export default function ShowtimeModal({
   onSelectShowtime,
 }: ShowtimeModalProps) {
   if (!movie) return null;
+  showtimes = showtimes.filter(st => ["scheduled", "opened"].includes(st.status) && new Date(st.startTime).getTime() > Date.now());
 
   // Build dates list: today and next 2 days
   const dateOptions = [0, 1, 2].map((offset) => {

@@ -1,3 +1,5 @@
+import Icon from "../components/ui/Icon";
+import AppSelect from "../components/AppSelect";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { voucherService } from "../services/voucherService";
@@ -213,16 +215,7 @@ export default function VouchersPage() {
           {/* Sorting */}
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <span className="text-xs text-[#8e8ea0] whitespace-nowrap">Sắp xếp ưu đãi:</span>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-3 py-1.5 bg-[#0d0d14] border border-white/10 rounded-xl text-xs sm:text-sm text-white focus:outline-none"
-            >
-              <option value="hot">Ưu đãi Hot nhất</option>
-              <option value="newest">Mới cập nhật</option>
-              <option value="expiring_soon">Sắp hết hạn</option>
-              <option value="min_order_asc">Đơn tối thiểu thấp nhất</option>
-            </select>
+            <AppSelect label="Sắp xếp" value={sortBy} onValueChange={value => setSortBy(value)} options={[{"value": "hot", "label": "Ưu đãi Hot nhất"}, {"value": "newest", "label": "Mới cập nhật"}, {"value": "expiring_soon", "label": "Sắp hết hạn"}, {"value": "min_order_asc", "label": "Đơn tối thiểu thấp nhất"}]} />
 
             {(targetFilter !== "all" || search || sortBy !== "hot") && (
               <button
@@ -255,7 +248,7 @@ export default function VouchersPage() {
         {/* Vouchers Grid */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-white flex items-center gap-2">
-            <span>🎁</span> Danh sách mã voucher khả dụng ({vouchers.length})
+            <span><Icon name="gift" /></span> Danh sách mã voucher khả dụng ({vouchers.length})
           </h2>
         </div>
 

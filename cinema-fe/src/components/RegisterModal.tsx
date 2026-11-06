@@ -30,7 +30,7 @@ export default function RegisterModal({ onClose, onSwitchToLogin }: RegisterModa
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data
-          ?.message ?? "Dang ky that bai. Vui long thu lai.";
+          ?.message ?? "Đăng ký thất bại. Vui lòng thử lại.";
       setError(msg);
     } finally {
       setLoading(false);

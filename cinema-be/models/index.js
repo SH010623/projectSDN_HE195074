@@ -8,6 +8,7 @@ const Voucher = require("./voucher.model");
 const Booking = require("./booking.model");
 
 const db = {};
+db.PaymentTransaction = require("./paymentTransaction.model");
 
 // Define schema
 db.User = User;

@@ -1,3 +1,4 @@
+import Icon from "./ui/Icon";
 import { useState, type FormEvent } from "react";
 import { authApi } from "../services/authService";
 
@@ -36,7 +37,13 @@ export default function LoginModal({
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data
           ?.message ?? "Đăng nhập thất bại. Vui lòng thử lại.";
-      setError(msg);
+      const messages: Record<string, string> = {
+        "Invalid password": "Mật khẩu không chính xác",
+        "User not found": "Không tìm thấy tài khoản với email này",
+        "Email and password are required": "Vui lòng nhập email và mật khẩu",
+        "Unauthorized!": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+      };
+      setError(messages[msg] || msg);
     } finally {
       setLoading(false);
     }
@@ -58,7 +65,7 @@ export default function LoginModal({
           aria-label="Đóng"
           className="absolute top-4 right-4 w-7 h-7 flex items-center justify-center rounded-full bg-white/5 text-[#8888a0] hover:bg-white/10 hover:text-white transition-colors text-sm border-0 cursor-pointer"
         >
-          ✕
+          <Icon name="close" />
         </button>
 
         <h2 className="text-2xl font-bold text-[#f0f0f5] mb-1">Đăng nhập</h2>

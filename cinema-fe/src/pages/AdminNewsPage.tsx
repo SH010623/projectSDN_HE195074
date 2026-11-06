@@ -1,10 +1,9 @@
+import AppSelect from "../components/AppSelect";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { newsService } from "../services/newsService";
 import type { NewsItem, NewsPayload } from "../services/newsService";
 
 export default function AdminNewsPage() {
-  const navigate = useNavigate();
   const [newsList, setNewsList] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -149,12 +148,7 @@ export default function AdminNewsPage() {
             >
               + Thêm Bài Viết
             </button>
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="px-4 py-2.5 bg-[#161626] border border-white/10 hover:border-white/20 text-[#a0a0b0] hover:text-white text-sm font-medium rounded-xl transition-colors cursor-pointer"
-            >
-              ← Bảng điều khiển
-            </button>
+
           </div>
         </div>
 
@@ -191,17 +185,7 @@ export default function AdminNewsPage() {
 
           <div className="flex items-center gap-2">
             <span className="text-xs text-[#a0a0b0] uppercase tracking-wider">Danh mục:</span>
-            <select
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-              className="px-3 py-2 bg-[#0d0d14] border border-white/10 rounded-xl text-white text-sm focus:outline-none"
-            >
-              <option value="Tất cả">Tất cả danh mục</option>
-              <option value="Tin điện ảnh">Tin điện ảnh</option>
-              <option value="Khuyến mãi">Khuyến mãi</option>
-              <option value="Sự kiện">Sự kiện</option>
-              <option value="Thông báo">Thông báo</option>
-            </select>
+            <AppSelect label="Danh mục" value={categoryFilter || ""} onValueChange={value => setCategoryFilter(value)} options={[{"value": "Tất cả", "label": "Tất cả danh mục"}, {"value": "Tin điện ảnh", "label": "Tin điện ảnh"}, {"value": "Khuyến mãi", "label": "Khuyến mãi"}, {"value": "Sự kiện", "label": "Sự kiện"}, {"value": "Thông báo", "label": "Thông báo"}]} />
           </div>
         </div>
 
@@ -329,16 +313,7 @@ export default function AdminNewsPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-medium text-[#a0a0b0] mb-1">Danh mục</label>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                      className="w-full px-3 py-2.5 bg-[#0d0d14] border border-white/10 rounded-xl text-white text-sm focus:outline-none"
-                    >
-                      <option value="Tin điện ảnh">Tin điện ảnh</option>
-                      <option value="Khuyến mãi">Khuyến mãi</option>
-                      <option value="Sự kiện">Sự kiện</option>
-                      <option value="Thông báo">Thông báo</option>
-                    </select>
+                    <AppSelect label="Danh mục" value={formData.category || ""} onValueChange={value => setFormData({ ...formData, category: value as any })} options={[{"value": "Tin điện ảnh", "label": "Tin điện ảnh"}, {"value": "Khuyến mãi", "label": "Khuyến mãi"}, {"value": "Sự kiện", "label": "Sự kiện"}, {"value": "Thông báo", "label": "Thông báo"}]} fullWidth />
                   </div>
 
                   <div>

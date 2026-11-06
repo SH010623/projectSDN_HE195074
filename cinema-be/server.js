@@ -26,8 +26,7 @@ app.use(async (req, res, next) => {
 });
 
 app.use(async (err, req, res, next) => {
-    res.status = err.status || 500,
-        res.send({
+    res.status(err.status || 500).send({
             "error": {
                 "status": err.status || 500,
                 "message": err.message
@@ -37,8 +36,17 @@ app.use(async (err, req, res, next) => {
 
 const PORT = process.env.PORT || 9999;
 
-app.listen(PORT, () => {
-    console.log(`Server running at: http://localhost:${PORT}`);
-    //Connect database 
-    connectDb();
+const { startPaymentJobs } = require("./utils/bookingPayment");
+
+async function start() {
+    await connectDb();
+    // Ensure payment uniqueness and active-seat locks exist before accepting requests.
+    await db.Booking.init();
+    await db.PaymentTransaction.init();
+    startPaymentJobs();
+    app.listen(PORT, () => console.log(`Server running at: http://localhost:${PORT}`));
+}
+start().catch(error => {
+    console.error("Server startup failed", error.message);
+    process.exit(1);
 });

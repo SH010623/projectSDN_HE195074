@@ -43,7 +43,7 @@ export interface DashboardBookingItem {
   totalPrice: number;
   finalPrice: number;
   discountAmount?: number;
-  status: "confirmed" | "cancelled";
+  status: "pending" | "confirmed" | "cancelled" | "expired";
   paymentStatus: string;
   paymentMethod: string;
   createdAt: string;

@@ -1,3 +1,4 @@
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import { useLocation, useNavigate } from "react-router-dom";
 
 interface NavbarProps {
@@ -16,7 +17,6 @@ export default function Navbar({
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
-
   // Dynamically configure nav links and active state based on route
   const isHomePage = currentPath === "/";
   const isNewsPage = currentPath.startsWith("/news");
@@ -33,8 +33,8 @@ export default function Navbar({
     {
       id: "nav-schedule",
       label: "Lịch chiếu",
-      href: isHomePage ? "#schedule" : "/#schedule",
-      active: false,
+      href: "/schedule",
+      active: currentPath === "/schedule",
     },
     {
       id: "nav-news",
@@ -54,18 +54,6 @@ export default function Navbar({
       href: "/tickets",
       active: isTicketsPage,
     },
-    {
-      id: "nav-festival",
-      label: "Liên hoan phim",
-      href: isHomePage ? "#festival" : "/#festival",
-      active: false,
-    },
-    {
-      id: "nav-about",
-      label: "Giới thiệu",
-      href: isHomePage ? "#about" : "/#about",
-      active: false,
-    },
   ];
 
   const handleNavClick = (
@@ -81,7 +69,7 @@ export default function Navbar({
 
   return (
     <header className="fixed top-0 left-0 right-0 z-40 bg-[#0a0a12]/95 backdrop-blur-md border-b border-white/[0.06]">
-      <div className="max-w-[1280px] mx-auto px-6 h-16 flex items-center gap-6">
+      <div className="max-w-[1280px] mx-auto px-6 min-h-16 py-3 flex flex-wrap items-center gap-3">
         {/* Brand Logo */}
         <a
           href="/"
@@ -99,7 +87,7 @@ export default function Navbar({
         </a>
 
         {/* Navigation Links */}
-        <nav className="flex items-center gap-0.5 flex-1">
+        <nav className="flex items-center justify-center gap-2 lg:gap-6 flex-1 overflow-x-auto">
           {navLinks.map((link) => (
             <a
               key={link.id}
@@ -119,34 +107,28 @@ export default function Navbar({
 
         {/* Authentication or User Profile Actions */}
         {currentUser ? (
-          <div className="flex items-center gap-2.5 shrink-0">
-            <span className="text-sm text-[#a0a0c0] hidden md:inline">
-              Xin chào, <strong className="text-white">{currentUser.name || "Khách"}</strong>
-            </span>
-            {currentUser.role === "admin" ? (
-              <button
-                onClick={onGoToDashboard || (() => navigate("/admin/dashboard"))}
-                className="px-3.5 py-1.5 bg-gradient-to-r from-[#e8173a] to-[#ff3b5c] rounded-md text-white text-xs font-bold hover:shadow-lg hover:shadow-[#e8173a]/30 transition-all cursor-pointer border-0 flex items-center"
-              >
-                <span>Trang Quản Trị</span>
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger asChild>
+              <button type="button" className="flex items-center gap-2 rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-sm text-white hover:bg-white/10 focus-visible:ring-2 focus-visible:ring-rose-400 outline-none cursor-pointer">
+                <span><span className="text-[#a0a0c0]">Xin chào, </span><strong>{currentUser.name || "Khách"}</strong></span>
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m6 9 6 6 6-6" /></svg>
               </button>
-            ) : (
-              <>
-                <button
-                  onClick={() => navigate("/my-tickets")}
-                  className="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 border border-white/15 rounded-md text-white text-xs font-semibold transition-colors cursor-pointer"
-                >
-                  Vé của tôi
-                </button>
-                <button
-                  onClick={() => navigate("/profile")}
-                  className="px-3.5 py-1.5 bg-white/10 hover:bg-white/20 border border-white/15 rounded-md text-white text-xs font-semibold transition-colors cursor-pointer"
-                >
-                  Hồ sơ
-                </button>
-              </>
-            )}
-          </div>
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Portal>
+              <DropdownMenu.Content align="end" sideOffset={8} collisionPadding={12} className="z-[60] w-52 rounded-xl border border-white/10 bg-[#161620] p-1.5 text-white shadow-xl">
+                {currentUser.role === "admin" ? (
+                  <DropdownMenu.Item onSelect={() => { if (onGoToDashboard) onGoToDashboard(); else navigate("/admin/dashboard"); }} className="rounded-lg px-3 py-2.5 text-sm outline-none data-[highlighted]:bg-white/10 cursor-pointer">Trang quản trị</DropdownMenu.Item>
+                ) : (
+                  <>
+                    <DropdownMenu.Item onSelect={() => navigate("/my-tickets")} className="rounded-lg px-3 py-2.5 text-sm outline-none data-[highlighted]:bg-white/10 cursor-pointer">Vé của tôi</DropdownMenu.Item>
+                    <DropdownMenu.Item onSelect={() => navigate("/profile")} className="rounded-lg px-3 py-2.5 text-sm outline-none data-[highlighted]:bg-white/10 cursor-pointer">Hồ sơ</DropdownMenu.Item>
+                  </>
+                )}
+                <DropdownMenu.Separator className="my-1 border-t border-white/10" />
+                <DropdownMenu.Item onSelect={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); window.location.assign("/"); }} className="rounded-lg px-3 py-2.5 text-sm font-semibold text-rose-400 outline-none data-[highlighted]:bg-rose-500/10 cursor-pointer">Đăng xuất</DropdownMenu.Item>
+              </DropdownMenu.Content>
+            </DropdownMenu.Portal>
+          </DropdownMenu.Root>
         ) : (
           <div className="flex items-center gap-2.5 shrink-0">
             <button

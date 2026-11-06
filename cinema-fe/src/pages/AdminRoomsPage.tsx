@@ -1,10 +1,9 @@
+import AppSelect from "../components/AppSelect";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { roomService } from "../services/roomService";
 import type { Room, RoomPayload } from "../services/roomService";
 
 export default function AdminRoomsPage() {
-  const navigate = useNavigate();
   const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
   const [typeFilter, setTypeFilter] = useState("all");
@@ -136,20 +135,7 @@ export default function AdminRoomsPage() {
             >
               + Thêm phòng mới
             </button>
-            <button
-              onClick={() => navigate("/dashboard")}
-              style={{
-                padding: "0.6rem 1.2rem",
-                background: "rgba(255,255,255,0.08)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                color: "#fff",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontWeight: 500,
-              }}
-            >
-              ← Về Dashboard
-            </button>
+
           </div>
         </div>
 
@@ -173,46 +159,26 @@ export default function AdminRoomsPage() {
         <div style={{ background: "#161626", borderRadius: "14px", padding: "1rem", marginBottom: "1.5rem", border: "1px solid rgba(255,255,255,0.06)", display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "center" }}>
           <div>
             <label style={{ fontSize: "0.85rem", color: "#9ca3af", marginRight: "0.5rem" }}>Loại phòng:</label>
-            <select
-              value={typeFilter}
-              onChange={(e) => setTypeFilter(e.target.value)}
-              style={{ padding: "0.55rem 0.8rem", background: "#0f0f1a", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "#fff" }}
-            >
-              <option value="all">Tất cả các loại</option>
-              <option value="2D">2D</option>
-              <option value="3D">3D</option>
-              <option value="IMAX">IMAX</option>
-              <option value="4DX">4DX</option>
-              <option value="VIP">VIP</option>
-            </select>
+            <AppSelect label="Định dạng" value={typeFilter || ""} onValueChange={value => setTypeFilter(value)} options={[{"value": "all", "label": "Tất cả các loại"}, {"value": "2D", "label": "2D"}, {"value": "3D", "label": "3D"}, {"value": "IMAX", "label": "IMAX"}, {"value": "4DX", "label": "4DX"}, {"value": "VIP", "label": "VIP"}]} />
           </div>
 
           <div>
             <label style={{ fontSize: "0.85rem", color: "#9ca3af", marginRight: "0.5rem" }}>Trạng thái:</label>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              style={{ padding: "0.55rem 0.8rem", background: "#0f0f1a", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "#fff" }}
-            >
-              <option value="all">Tất cả trạng thái</option>
-              <option value="active">Đang hoạt động (Active)</option>
-              <option value="inactive">Ngừng hoạt động (Inactive)</option>
-              <option value="maintenance">Đang bảo trì (Maintenance)</option>
-            </select>
+            <AppSelect label="Trạng thái" value={statusFilter || ""} onValueChange={value => setStatusFilter(value)} options={[{"value": "all", "label": "Tất cả trạng thái"}, {"value": "active", "label": "Đang hoạt động"}, {"value": "inactive", "label": "Ngừng hoạt động"}, {"value": "maintenance", "label": "Đang bảo trì"}]} />
           </div>
         </div>
 
         {/* Danh sách phòng */}
         <div style={{ background: "#161626", borderRadius: "16px", overflowX: "auto", border: "1px solid rgba(255,255,255,0.06)" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", textAlign: "left", fontSize: "0.92rem" }}>
+          <table style={{ width: "100%", minWidth: "1040px", borderCollapse: "collapse", textAlign: "left", fontSize: "0.92rem" }}>
             <thead>
               <tr style={{ borderBottom: "1px solid rgba(255,255,255,0.1)", background: "rgba(255,255,255,0.02)", color: "#a0a0b0" }}>
-                <th style={{ padding: "1rem" }}>Tên phòng</th>
-                <th style={{ padding: "1rem" }}>Định dạng</th>
-                <th style={{ padding: "1rem" }}>Sức chứa (Ghế)</th>
-                <th style={{ padding: "1rem" }}>Cấu hình</th>
-                <th style={{ padding: "1rem" }}>Trạng thái</th>
-                <th style={{ padding: "1rem", textAlign: "right" }}>Thao tác</th>
+                <th style={{ whiteSpace: "nowrap", padding: "1rem" }}>Tên phòng</th>
+                <th style={{ whiteSpace: "nowrap", padding: "1rem" }}>Định dạng</th>
+                <th style={{ whiteSpace: "nowrap", padding: "1rem" }}>Sức chứa (Ghế)</th>
+                <th style={{ whiteSpace: "nowrap", padding: "1rem" }}>Cấu hình</th>
+                <th style={{ whiteSpace: "nowrap", padding: "1rem" }}>Trạng thái</th>
+                <th style={{ whiteSpace: "nowrap", padding: "1rem", textAlign: "right" }}>Thao tác</th>
               </tr>
             </thead>
             <tbody>
@@ -242,6 +208,8 @@ export default function AdminRoomsPage() {
                       <td style={{ padding: "1rem" }}>
                         <span
                           style={{
+                            display: "inline-flex",
+                            whiteSpace: "nowrap",
                             padding: "0.25rem 0.65rem",
                             borderRadius: "6px",
                             fontSize: "0.8rem",
@@ -254,13 +222,15 @@ export default function AdminRoomsPage() {
                           {r.roomType}
                         </span>
                       </td>
-                      <td style={{ padding: "1rem", color: "#e5e7eb", fontWeight: 600 }}>{r.totalSeats} ghế</td>
-                      <td style={{ padding: "1rem", color: "#9ca3af" }}>
+                      <td style={{ padding: "1rem", whiteSpace: "nowrap", color: "#e5e7eb", fontWeight: 600 }}>{r.totalSeats} ghế</td>
+                      <td style={{ padding: "1rem", whiteSpace: "nowrap", color: "#9ca3af" }}>
                         {r.rows} hàng × {r.seatsPerRow} ghế/hàng
                       </td>
                       <td style={{ padding: "1rem" }}>
                         <span
                           style={{
+                            display: "inline-flex",
+                            whiteSpace: "nowrap",
                             padding: "0.25rem 0.65rem",
                             borderRadius: "6px",
                             fontSize: "0.8rem",
@@ -274,11 +244,12 @@ export default function AdminRoomsPage() {
                         </span>
                       </td>
                       <td style={{ padding: "1rem", textAlign: "right" }}>
+                        <div className="flex items-center justify-end gap-2 whitespace-nowrap">
                         <button
                           onClick={() => handleOpenEdit(r)}
                           style={{
                             padding: "0.4rem 0.8rem",
-                            marginRight: "0.5rem",
+                            flexShrink: 0,
                             background: "rgba(255,255,255,0.06)",
                             border: "1px solid rgba(255,255,255,0.15)",
                             color: "#c4b5fd",
@@ -290,23 +261,8 @@ export default function AdminRoomsPage() {
                           Sửa
                         </button>
 
-                        <select
-                          value={r.status}
-                          onChange={(e) => handleStatusChange(r._id, e.target.value as any)}
-                          style={{
-                            padding: "0.35rem 0.6rem",
-                            background: "#0f0f1a",
-                            border: "1px solid rgba(255,255,255,0.15)",
-                            borderRadius: "6px",
-                            color: "#fff",
-                            fontSize: "0.85rem",
-                            cursor: "pointer",
-                          }}
-                        >
-                          <option value="active">Active (Hoạt động)</option>
-                          <option value="inactive">Inactive (Ngừng)</option>
-                          <option value="maintenance">Maintenance (Bảo trì)</option>
-                        </select>
+                        <AppSelect label="Trạng thái" value={r.status || ""} onValueChange={value => handleStatusChange(r._id, value as any)} options={[{"value": "active", "label": "Hoạt động"}, {"value": "inactive", "label": "Ngừng hoạt động"}, {"value": "maintenance", "label": "Bảo trì"}]} />
+                        </div>
                       </td>
                     </tr>
                   );
@@ -339,17 +295,7 @@ export default function AdminRoomsPage() {
 
                 <div style={{ marginBottom: "1rem" }}>
                   <label style={{ display: "block", fontSize: "0.85rem", color: "#9ca3af", marginBottom: "0.4rem" }}>Định dạng phòng chiếu</label>
-                  <select
-                    value={formData.roomType}
-                    onChange={(e) => setFormData({ ...formData, roomType: e.target.value as any })}
-                    style={{ width: "100%", padding: "0.65rem 0.8rem", background: "#0f0f1a", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "#fff", boxSizing: "border-box" }}
-                  >
-                    <option value="2D">2D (Tiêu chuẩn)</option>
-                    <option value="3D">3D (Không gian 3 chiều)</option>
-                    <option value="IMAX">IMAX (Màn hình lớn siêu nét)</option>
-                    <option value="4DX">4DX (Rung lắc, hiệu ứng chuyển động)</option>
-                    <option value="VIP">VIP (Ghế sofa da cao cấp)</option>
-                  </select>
+                  <AppSelect label="Định dạng" value={formData.roomType || ""} onValueChange={value => setFormData({ ...formData, roomType: value as any })} options={[{"value": "2D", "label": "2D (Tiêu chuẩn)"}, {"value": "3D", "label": "3D (Không gian 3 chiều)"}, {"value": "IMAX", "label": "IMAX (Màn hình lớn siêu nét)"}, {"value": "4DX", "label": "4DX (Rung lắc, hiệu ứng chuyển động)"}, {"value": "VIP", "label": "VIP (Ghế sofa da cao cấp)"}]} fullWidth />
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "1rem" }}>

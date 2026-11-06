@@ -1,18 +1,14 @@
 import { useState, useEffect } from "react";
-import { cinemaDate } from "../utils/cinemaDate";
 import { useNavigate } from "react-router-dom";
 import { movies as initialMockMovies } from "../data/movies";
 import { movieService } from "../services/movieService";
 import type { Movie as ApiMovie } from "../services/movieService";
-import { showtimeService } from "../services/showtimeService";
-import type { Showtime } from "../services/showtimeService";
 
 // Sub-components
 import type { UiMovie } from "../components/home/types";
 import Navbar from "../components/home/Navbar";
 import HeroBanner from "../components/home/HeroBanner";
 import MovieSection from "../components/home/MovieSection";
-import ShowtimeModal from "../components/home/ShowtimeModal";
 import NewsSection from "../components/home/NewsSection";
 import PromotionsSection from "../components/home/PromotionsSection";
 import Footer from "../components/home/Footer";
@@ -22,7 +18,7 @@ import ForgotPasswordModal from "../components/ForgotPasswordModal";
 
 type ModalState = "none" | "login" | "register" | "forgotPassword";
 
-export default function HomePage() {
+export default function HomePage({ scheduleOnly = false }: { scheduleOnly?: boolean }) {
   const navigate = useNavigate();
 
   // Authentication modals state
@@ -33,14 +29,6 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState<"now-showing" | "coming-soon">("now-showing");
   const [movieList, setMovieList] = useState<UiMovie[]>(initialMockMovies);
 
-  // Showtime selection state
-  const todayStr = cinemaDate();
-  const [bookingMovie, setBookingMovie] = useState<UiMovie | null>(null);
-  const [bookingDate, setBookingDate] = useState<string>(todayStr);
-  const [movieShowtimes, setMovieShowtimes] = useState<Showtime[]>([]);
-  const [loadingShowtimes, setLoadingShowtimes] = useState(false);
-  const [showtimesError, setShowtimesError] = useState<string | null>(null);
-
   // Current logged in user info from localStorage
   const rawUser = localStorage.getItem("user");
   const currentUser = rawUser ? JSON.parse(rawUser) : null;
@@ -50,19 +38,12 @@ export default function HomePage() {
     fetchMoviesFromBackend();
   }, []);
 
-  // Fetch showtimes whenever a movie is selected or booking date changes
-  useEffect(() => {
-    if (bookingMovie && typeof bookingMovie.id === "string") {
-      fetchShowtimesForBooking(bookingMovie.id, bookingDate);
-    }
-  }, [bookingMovie, bookingDate]);
-
   // Fetch movies from API with fallback to initial mock data
   const fetchMoviesFromBackend = async () => {
     try {
       const res = await movieService.getMovies({ status: "all" });
       if (res.movies && res.movies.length > 0) {
-        const mapped: UiMovie[] = res.movies.map((m: ApiMovie) => ({
+        const mapped: UiMovie[] = res.movies.filter((m: ApiMovie) => m.status !== "ended").map((m: ApiMovie) => ({
           id: m._id,
           title: m.title,
           titleEn: m.titleEn || "",
@@ -89,36 +70,8 @@ export default function HomePage() {
     }
   };
 
-  // Fetch showtimes for the selected movie and date
-  const fetchShowtimesForBooking = async (movieId: string, date: string) => {
-    try {
-      setLoadingShowtimes(true);
-      setShowtimesError(null);
-      const res = await showtimeService.getShowtimes({ movieId, date });
-      setMovieShowtimes(res.showtimes || []);
-    } catch (err) {
-      setMovieShowtimes([]);
-      setShowtimesError("Không tải được lịch chiếu. Vui lòng kiểm tra backend và thử lại.");
-    } finally {
-      setLoadingShowtimes(false);
-    }
-  };
-
-  // Handle movie card click to open showtime modal
   const handleOpenShowtimes = (movie: UiMovie) => {
-    setBookingMovie(movie);
-  };
-
-  // Handle selecting a specific showtime slot
-  const handleSelectShowtime = (showtime: Showtime) => {
-    if (!currentUser) {
-      alert("Vui lòng đăng nhập để tiến hành chọn ghế và đặt vé!");
-      setModal("login");
-      return;
-    }
-
-    setBookingMovie(null);
-    navigate(`/booking/${showtime._id}`);
+    navigate(`/movies/${movie.id}/showtimes`);
   };
 
   // Handle successful login
@@ -145,16 +98,17 @@ export default function HomePage() {
       />
 
       {/* ── 2. HERO BANNER ── */}
-      <HeroBanner
+      {!scheduleOnly && <HeroBanner
         movieList={movieList}
         activeSlide={activeSlide}
         onSelectSlide={(idx) => setActiveSlide(idx)}
         onPrevSlide={() => setActiveSlide((s) => (s - 1 + movieList.length) % movieList.length)}
         onNextSlide={() => setActiveSlide((s) => (s + 1) % movieList.length)}
         onBookNow={handleOpenShowtimes}
-      />
+      />}
 
       {/* ── 3. MOVIES SECTION ── */}
+      {scheduleOnly && <div className="pt-32 px-6 max-w-[1280px] mx-auto"><h1 className="text-3xl font-bold">Lịch chiếu & Đặt vé</h1><p className="mt-3 text-gray-400">Chọn phim, ngày và suất chiếu để đặt vé.</p></div>}
       <MovieSection
         activeTab={activeTab}
         onTabChange={(tab) => setActiveTab(tab)}
@@ -163,27 +117,13 @@ export default function HomePage() {
       />
 
       {/* ── 4. NEWS SECTION ── */}
-      <NewsSection id="news" />
+      {!scheduleOnly && <NewsSection id="news" />}
 
       {/* ── 5. PROMOTIONS SECTION ── */}
-      <PromotionsSection id="promotions" />
+      {!scheduleOnly && <PromotionsSection id="promotions" />}
 
       {/* ── 6. FOOTER ── */}
       <Footer />
-
-      {/* ── 6. SHOWTIME BOOKING MODAL ── */}
-      {bookingMovie && (
-        <ShowtimeModal
-          movie={bookingMovie}
-          selectedDate={bookingDate}
-          onDateChange={(d) => setBookingDate(d)}
-          showtimes={movieShowtimes}
-          loading={loadingShowtimes}
-          error={showtimesError}
-          onClose={() => setBookingMovie(null)}
-          onSelectShowtime={handleSelectShowtime}
-        />
-      )}
 
       {/* ── 7. AUTH MODALS ── */}
       {modal === "login" && (

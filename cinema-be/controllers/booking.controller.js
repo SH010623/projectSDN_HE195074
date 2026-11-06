@@ -1,11 +1,16 @@
 const db = require("../models");
+const bookingUnavailableReason = require("../utils/bookingAvailability");
 
-// Generate unique booking code e.g. NCC-839214
-const generateBookingCode = () => {
-  const timestampPart = Date.now().toString().slice(-6);
-  const randomPart = Math.floor(10 + Math.random() * 90);
-  return `NCC-${timestampPart}${randomPart}`;
-};
+const mongoose = require("mongoose");
+const crypto = require("node:crypto");
+const { getConfig, paymentDetails } = require("../utils/sepay");
+const { populateBooking, expireBookings, releaseVoucher, sendConfirmation } = require("../utils/bookingPayment");
+const fail = (status, message) => { const error = new Error(message); error.status = status; throw error; };
+const paymentError = (error, res) => res.status(error.code === 11000 ? 409 : error.status || 500).json({
+  message: error.code === 11000 ? "Ghế vừa được đặt hoặc đang chờ thanh toán. Vui lòng chọn ghế khác."
+    : error.code === 20 ? "Thanh toán cần MongoDB Atlas hoặc MongoDB replica set."
+    : error.status ? error.message : "Không thể xử lý đặt vé lúc này. Vui lòng thử lại.",
+});
 
 // GET /bookings/showtime/:showtimeId/seats – Get seat layout and occupied seats for a showtime
 const getOccupiedSeats = async (req, res) => {
@@ -20,9 +25,14 @@ const getOccupiedSeats = async (req, res) => {
       return res.status(404).json({ message: "Không tìm thấy suất chiếu" });
     }
 
-    // Find all confirmed bookings for this showtime
+    const unavailable = bookingUnavailableReason(showtime);
+    if (unavailable) return res.status(400).json({ message: unavailable });
+
+    await expireBookings({ showtimeId });
+
+    // Include active holds as well as paid seats.
     const confirmedBookings = await db.Booking.find(
-      { showtimeId, status: "confirmed" },
+      { showtimeId, $or: [{ status: "confirmed" }, { status: "pending", expiresAt: { $gt: new Date() } }] },
       "seats"
     );
 
@@ -44,166 +54,70 @@ const getOccupiedSeats = async (req, res) => {
   }
 };
 
-// POST /bookings – Create a new ticket booking with simulated mock payment
+// POST /bookings — create a server-priced order and reserve seats for five minutes.
 const createBooking = async (req, res) => {
   try {
-    const userId = req.userId;
-    const { showtimeId, seats, voucherCode, paymentMethod = "momo_mock" } = req.body;
-
-    if (!showtimeId || !Array.isArray(seats) || seats.length === 0) {
-      return res.status(400).json({
-        message: "Vui lòng chọn suất chiếu và ít nhất một ghế ngồi",
-      });
+    getConfig();
+    const { showtimeId, seats, voucherCode, paymentMethod = "sepay" } = req.body;
+    if (!mongoose.isValidObjectId(showtimeId) || !Array.isArray(seats) || !seats.length || seats.length > 8
+      || seats.some(seat => typeof seat !== "string" || !/^[A-Z][1-9]\d*$/.test(seat))
+      || new Set(seats).size !== seats.length || (voucherCode != null && typeof voucherCode !== "string")) {
+      return res.status(400).json({ message: "Vui lòng chọn suất chiếu và từ 1 đến 8 ghế hợp lệ, không trùng nhau." });
     }
-
-    // Verify Showtime existence
-    const showtime = await db.Showtime.findById(showtimeId)
-      .populate("movieId")
-      .populate("roomId");
-
-    if (!showtime) {
-      return res.status(404).json({ message: "Suất chiếu không tồn tại" });
-    }
-
-    if (showtime.status === "cancelled" || showtime.status === "closed") {
-      return res.status(400).json({
-        message: `Suất chiếu hiện đang ở trạng thái "${showtime.status}", không thể đặt vé`,
-      });
-    }
-
-    // Check race condition: Verify none of selected seats are already booked
-    const existingBookings = await db.Booking.find(
-      { showtimeId, status: "confirmed", seats: { $in: seats } },
-      "seats"
-    );
-
-    if (existingBookings.length > 0) {
-      const alreadyTaken = [];
-      existingBookings.forEach((b) => {
-        b.seats.forEach((s) => {
-          if (seats.includes(s) && !alreadyTaken.includes(s)) {
-            alreadyTaken.push(s);
-          }
-        });
-      });
-
-      return res.status(400).json({
-        message: `Rất tiếc! Ghế [${alreadyTaken.join(", ")}] vừa được người khác đặt trước. Vui lòng chọn ghế khác.`,
-      });
-    }
-
-    // Calculate seat prices: determine standard vs VIP seats
-    const basePrice = showtime.price || 85000;
-    const roomRows = showtime.roomId?.rows || 6;
-    
-    // Middle rows are VIP (e.g., C, D, E) with a surcharge of 15,000 VND
-    const vipSurcharge = 15000;
-    const seatDetails = [];
-    let totalPrice = 0;
-
-    seats.forEach((seat) => {
-      const rowChar = seat.charAt(0).toUpperCase();
-      const rowIndex = rowChar.charCodeAt(0) - 65; // A=0, B=1, C=2...
-      
-      // Determine if row is VIP (middle rows of the hall)
-      const isVipRow = roomRows >= 4 && rowIndex >= 2 && rowIndex <= Math.min(roomRows - 2, 5);
-      const seatType = isVipRow ? "vip" : "standard";
-      const seatPrice = isVipRow ? basePrice + vipSurcharge : basePrice;
-
-      seatDetails.push({
-        seatNumber: seat,
-        seatType,
-        price: seatPrice,
-      });
-
-      totalPrice += seatPrice;
-    });
-
-    // Validate and apply Voucher discount if provided
-    let discountAmount = 0;
-    let appliedVoucherCode = "";
-
-    if (voucherCode && voucherCode.trim()) {
-      const cleanCode = voucherCode.trim().toUpperCase();
-      const voucher = await db.Voucher.findOne({
-        code: cleanCode,
-        isActive: true,
-        endDate: { $gte: new Date() },
-      });
-
-      if (voucher) {
-        if (voucher.usageLimit > 0 && voucher.usedCount >= voucher.usageLimit) {
-          return res.status(400).json({ message: "Mã voucher này đã hết lượt sử dụng" });
-        }
-
-        if (totalPrice < (voucher.minOrderValue || 0)) {
-          return res.status(400).json({
-            message: `Đơn hàng tối thiểu để dùng voucher này là ${voucher.minOrderValue.toLocaleString("vi-VN")} đ`,
-          });
-        }
-
-        if (voucher.discountType === "percentage") {
-          discountAmount = (totalPrice * voucher.discountValue) / 100;
-          if (voucher.maxDiscount > 0 && discountAmount > voucher.maxDiscount) {
-            discountAmount = voucher.maxDiscount;
-          }
-        } else {
-          discountAmount = voucher.discountValue;
-        }
-
-        // Cap discount so finalPrice cannot be less than 0
-        discountAmount = Math.min(discountAmount, totalPrice);
-        appliedVoucherCode = cleanCode;
-
-        // Increment voucher used count
-        voucher.usedCount = (voucher.usedCount || 0) + 1;
-        await voucher.save();
-      } else {
-        return res.status(400).json({
-          message: "Mã voucher không hợp lệ hoặc đã hết hạn",
-        });
+    if (paymentMethod !== "sepay") return res.status(400).json({ message: "Vui lòng thanh toán bằng chuyển khoản SePay." });
+    await expireBookings({ showtimeId });
+    let bookingId;
+    await mongoose.connection.transaction(async (session) => {
+      const showtime = await db.Showtime.findById(showtimeId).populate("movieId").populate("roomId").session(session);
+      if (!showtime) fail(404, "Suất chiếu không tồn tại");
+      const unavailable = bookingUnavailableReason(showtime);
+      if (unavailable) fail(400, unavailable);
+      const room = showtime.roomId;
+      if (seats.some(seat => seat.charCodeAt(0) - 65 >= room.rows || Number(seat.slice(1)) > room.seatsPerRow)) {
+        fail(400, "Ghế không tồn tại trong phòng chiếu.");
       }
-    }
-
-    const finalPrice = Math.max(0, totalPrice - discountAmount);
-    const bookingCode = generateBookingCode();
-
-    // Create booking record with simulated mock payment successful
-    const newBooking = new db.Booking({
-      userId,
-      showtimeId,
-      seats,
-      seatDetails,
-      totalPrice,
-      voucherCode: appliedVoucherCode,
-      discountAmount,
-      finalPrice,
-      bookingCode,
-      paymentMethod,
-      paymentStatus: "paid", // Mock payment instant approval
-      status: "confirmed",
-      bookingDate: new Date(),
-    });
-
-    const savedBooking = await newBooking.save();
-
-    const populatedBooking = await db.Booking.findById(savedBooking._id)
-      .populate("userId", "name email phone")
-      .populate({
-        path: "showtimeId",
-        populate: [
-          { path: "movieId", select: "title titleEn poster rating duration" },
-          { path: "roomId", select: "name roomType" },
-        ],
+      // Also protects seats sold before the active-seat index was introduced.
+      const taken = await db.Booking.exists({ showtimeId, seats: { $in: seats },
+        $or: [{ status: "confirmed" }, { status: "pending", expiresAt: { $gt: new Date() } }],
+      }).session(session);
+      if (taken) fail(409, "Ghế đã bán hoặc đang được giữ chỗ. Vui lòng chọn ghế khác.");
+      const seatDetails = seats.map(seat => {
+        const row = seat.charCodeAt(0) - 65;
+        const vip = room.rows >= 4 && row >= 2 && row <= Math.min(room.rows - 2, 5);
+        return { seatNumber: seat, seatType: vip ? "vip" : "standard", price: showtime.price + (vip ? 15000 : 0) };
       });
-
-    return res.status(201).json({
-      message: "Đặt vé và thanh toán thành công!",
-      booking: populatedBooking,
+      const totalPrice = seatDetails.reduce((sum, seat) => sum + seat.price, 0);
+      let discountAmount = 0;
+      let appliedVoucherCode = "";
+      if (voucherCode?.trim()) {
+        const voucher = await db.Voucher.findOneAndUpdate({ code: voucherCode.trim().toUpperCase(), isActive: true,
+          startDate: { $lte: new Date() }, endDate: { $gte: new Date() }, minOrderValue: { $lte: totalPrice },
+          $expr: { $or: [{ $lte: ["$usageLimit", 0] }, { $lt: ["$usedCount", "$usageLimit"] }] },
+        }, { $inc: { usedCount: 1 } }, { new: true, session });
+        if (!voucher) fail(400, "Voucher không hợp lệ, hết lượt hoặc đơn chưa đạt giá trị tối thiểu.");
+        discountAmount = voucher.discountType === "percentage" ? Math.floor(totalPrice * voucher.discountValue / 100) : voucher.discountValue;
+        if (voucher.discountType === "percentage" && voucher.maxDiscount > 0) discountAmount = Math.min(discountAmount, voucher.maxDiscount);
+        discountAmount = Math.min(discountAmount, totalPrice);
+        appliedVoucherCode = voucher.code;
+      }
+      const finalPrice = totalPrice - discountAmount;
+      const expiresAt = new Date(Math.min(Date.now() + 5 * 60 * 1000, new Date(showtime.startTime).getTime()));
+      const [booking] = await db.Booking.create([{
+        userId: req.userId, showtimeId, seats, seatDetails, totalPrice, discountAmount, finalPrice,
+        voucherCode: appliedVoucherCode, voucherReserved: Boolean(appliedVoucherCode),
+        bookingCode: `NCC${crypto.randomBytes(8).toString("hex").toUpperCase()}`,
+        paymentMethod: "sepay", seatLock: true, expiresAt,
+        status: finalPrice === 0 ? "confirmed" : "pending",
+        paymentStatus: finalPrice === 0 ? "paid" : "pending",
+        ...(finalPrice === 0 ? { paidAt: new Date(), confirmationEmailStatus: "pending" } : {}),
+      }], { session });
+      bookingId = booking._id;
     });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
+    const booking = await populateBooking(db.Booking.findById(bookingId));
+    if (booking.status === "confirmed") void sendConfirmation(bookingId).catch(() => {});
+    return res.status(201).json({ message: booking.status === "confirmed" ? "Đặt vé thành công!" : "Đã giữ ghế. Vui lòng chuyển khoản trong thời hạn hiển thị.",
+      booking, payment: paymentDetails(booking) });
+  } catch (error) { return paymentError(error, res); }
 };
 
 // GET /bookings/my-tickets – Get user's booked tickets
@@ -211,6 +125,7 @@ const getMyBookings = async (req, res) => {
   try {
     const userId = req.userId;
 
+    await expireBookings({ userId });
     const bookings = await db.Booking.find({ userId })
       .populate({
         path: "showtimeId",
@@ -234,6 +149,7 @@ const getMyBookings = async (req, res) => {
 // GET /bookings/:id – Get details of a single booking
 const getBookingById = async (req, res) => {
   try {
+    await expireBookings({ _id: req.params.id, ...(req.role === "admin" ? {} : { userId: req.userId }) });
     const booking = await db.Booking.findById(req.params.id)
       .populate("userId", "name email phone")
       .populate({
@@ -256,59 +172,38 @@ const getBookingById = async (req, res) => {
     return res.status(200).json({
       message: "Lấy chi tiết vé thành công",
       booking,
+      payment: paymentDetails(booking),
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
 };
 
-// PATCH /bookings/:id/cancel – Cancel a booking (User or Admin)
+// Pending orders can be cancelled. Real transfers need a separate, manual refund process.
 const cancelBooking = async (req, res) => {
   try {
-    const booking = await db.Booking.findById(req.params.id).populate("showtimeId");
-
-    if (!booking) {
-      return res.status(404).json({ message: "Không tìm thấy vé cần huỷ" });
-    }
-
-    if (booking.userId.toString() !== req.userId && req.role !== "admin") {
-      return res.status(403).json({ message: "Bạn không có quyền huỷ vé này" });
-    }
-
-    if (booking.status === "cancelled") {
-      return res.status(400).json({ message: "Vé này đã được huỷ trước đó" });
-    }
-
-    // Check if showtime start time is at least 60 minutes away
-    if (booking.showtimeId?.startTime) {
-      const showtimeStart = new Date(booking.showtimeId.startTime).getTime();
-      const now = Date.now();
-      if (showtimeStart - now < 60 * 60 * 1000) {
-        return res.status(400).json({
-          message: "Không thể huỷ vé trước giờ chiếu dưới 60 phút theo quy định của rạp",
-        });
+    await mongoose.connection.transaction(async (session) => {
+      const booking = await db.Booking.findById(req.params.id).populate("showtimeId").session(session);
+      if (!booking) fail(404, "Không tìm thấy vé cần huỷ");
+      if (String(booking.userId) !== req.userId && req.role !== "admin") fail(403, "Bạn không có quyền huỷ vé này");
+      if (["cancelled", "expired"].includes(booking.status)) fail(400, "Đơn đã huỷ hoặc hết hạn.");
+      if (booking.paymentMethod === "sepay" && booking.paymentStatus !== "pending") {
+        fail(400, "Giao dịch đã nhận tiền hoặc cần đối soát. Vui lòng liên hệ rạp để xử lý huỷ/hoàn tiền.");
       }
-    }
-
-    booking.status = "cancelled";
-    booking.paymentStatus = "refunded";
-    await booking.save();
-
-    // Revert voucher usage count if applicable
-    if (booking.voucherCode) {
-      await db.Voucher.findOneAndUpdate(
-        { code: booking.voucherCode, usedCount: { $gt: 0 } },
-        { $inc: { usedCount: -1 } }
-      );
-    }
-
-    return res.status(200).json({
-      message: "Huỷ vé thành công! Tiền sẽ được hoàn lại theo phương thức đã chọn.",
-      booking,
+      if (booking.status === "confirmed" && new Date(booking.showtimeId.startTime).getTime() - Date.now() < 60 * 60 * 1000) {
+        fail(400, "Không thể huỷ vé trước giờ chiếu dưới 60 phút.");
+      }
+      // Legacy mock tickets predate voucherReserved.
+      if (booking.paymentMethod !== "sepay") booking.voucherReserved = Boolean(booking.voucherCode);
+      await releaseVoucher(booking, session);
+      booking.voucherReserved = false;
+      booking.status = "cancelled";
+      booking.seatLock = false;
+      if (booking.paymentStatus === "paid") booking.paymentStatus = "refunded";
+      await booking.save({ session });
     });
-  } catch (error) {
-    return res.status(500).json({ message: error.message });
-  }
+    return res.json({ message: "Đã huỷ đơn và giải phóng ghế.", booking: await db.Booking.findById(req.params.id) });
+  } catch (error) { return paymentError(error, res); }
 };
 
 // GET /bookings/admin/all – Admin get all bookings with search and filters

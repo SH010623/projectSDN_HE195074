@@ -1,5 +1,6 @@
+import Icon from "../components/ui/Icon";
+import AppSelect from "../components/AppSelect";
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { movieService } from "../services/movieService";
 import type { Movie, MoviePayload } from "../services/movieService";
 
@@ -17,7 +18,6 @@ const POPULAR_GENRES = [
 ];
 
 export default function AdminMoviesPage() {
-  const navigate = useNavigate();
   const [movies, setMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
@@ -233,7 +233,7 @@ export default function AdminMoviesPage() {
   return (
     <div style={{ minHeight: "100vh", background: "#0d0d14", color: "#f0f0f5", fontFamily: "'Inter', sans-serif", padding: "2rem 1.5rem" }}>
       <div style={{ maxWidth: "1200px", margin: "0 auto" }}>
-        
+
         {/* Header */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem", flexWrap: "wrap", gap: "1rem" }}>
           <div>
@@ -260,21 +260,7 @@ export default function AdminMoviesPage() {
               + Thêm phim mới
             </button>
 
-            <button
-              onClick={() => navigate("/dashboard")}
-              style={{
-                padding: "0.65rem 1rem",
-                background: "rgba(255,255,255,0.06)",
-                border: "1px solid rgba(255,255,255,0.15)",
-                color: "#e2e8f0",
-                borderRadius: "10px",
-                cursor: "pointer",
-                fontWeight: 500,
-                fontSize: "0.85rem",
-              }}
-            >
-              ← Về Dashboard
-            </button>
+
           </div>
         </div>
 
@@ -314,12 +300,12 @@ export default function AdminMoviesPage() {
             display: "flex",
             gap: "1rem",
             flexWrap: "wrap",
-            alignItems: "center",
+            alignItems: "flex-end",
             justifyContent: "space-between",
           }}
         >
           {/* Search box */}
-          <form onSubmit={handleSearch} style={{ display: "flex", gap: "0.5rem", flex: "1 1 300px" }}>
+          <form onSubmit={handleSearch} style={{ display: "flex", gap: "0.5rem", flex: "1 1 300px", minWidth: 0, alignItems: "stretch" }}>
             <input
               type="text"
               placeholder="Tìm theo tên phim, đạo diễn..."
@@ -327,6 +313,8 @@ export default function AdminMoviesPage() {
               onChange={(e) => setSearchTerm(e.target.value)}
               style={{
                 flex: 1,
+                minWidth: 0,
+                height: "44px",
                 padding: "0.6rem 0.9rem",
                 background: "#0a0a12",
                 border: "1px solid rgba(255,255,255,0.12)",
@@ -338,6 +326,8 @@ export default function AdminMoviesPage() {
             <button
               type="submit"
               style={{
+                height: "44px",
+                whiteSpace: "nowrap",
                 padding: "0.6rem 1.1rem",
                 background: "#2563eb",
                 border: "none",
@@ -353,47 +343,15 @@ export default function AdminMoviesPage() {
           </form>
 
           {/* Filters */}
-          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap", alignItems: "flex-end" }}>
             <div>
-              <label style={{ fontSize: "0.85rem", color: "#9ca3af", marginRight: "0.5rem" }}>Trạng thái:</label>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                style={{
-                  padding: "0.6rem 0.8rem",
-                  background: "#0a0a12",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  borderRadius: "8px",
-                  color: "#fff",
-                  fontSize: "0.85rem",
-                }}
-              >
-                <option value="all">Tất cả trạng thái</option>
-                <option value="now_showing">Đang chiếu (Now Showing)</option>
-                <option value="coming_soon">Sắp chiếu (Coming Soon)</option>
-                <option value="ended">Đã dừng chiếu (Ended)</option>
-              </select>
+              <label style={{ display: "block", fontSize: "0.85rem", color: "#9ca3af", marginBottom: "0.4rem" }}>Trạng thái:</label>
+              <AppSelect label="Trạng thái" value={statusFilter || ""} onValueChange={value => setStatusFilter(value)} options={[{"value": "all", "label": "Tất cả trạng thái"}, {"value": "now_showing", "label": "Đang chiếu"}, {"value": "coming_soon", "label": "Sắp chiếu"}, {"value": "ended", "label": "Đã dừng chiếu"}]} />
             </div>
 
             <div>
-              <label style={{ fontSize: "0.85rem", color: "#9ca3af", marginRight: "0.5rem" }}>Thể loại:</label>
-              <select
-                value={genreFilter}
-                onChange={(e) => setGenreFilter(e.target.value)}
-                style={{
-                  padding: "0.6rem 0.8rem",
-                  background: "#0a0a12",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  borderRadius: "8px",
-                  color: "#fff",
-                  fontSize: "0.85rem",
-                }}
-              >
-                <option value="all">Tất cả thể loại</option>
-                {POPULAR_GENRES.map((g) => (
-                  <option key={g} value={g}>{g}</option>
-                ))}
-              </select>
+              <label style={{ display: "block", fontSize: "0.85rem", color: "#9ca3af", marginBottom: "0.4rem" }}>Thể loại:</label>
+              <AppSelect label="Thể loại" value={genreFilter || ""} onValueChange={value => setGenreFilter(value)} options={[{"value": "all", "label": "Tất cả thể loại"}, ...POPULAR_GENRES.map(g => ({ value: g, label: g }))]} />
             </div>
           </div>
         </div>
@@ -535,22 +493,7 @@ export default function AdminMoviesPage() {
                   {/* Actions Bar */}
                   <div style={{ marginTop: "auto", paddingTop: "1rem", borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                     {/* Quick status dropdown */}
-                    <select
-                      value={movie.status}
-                      onChange={(e) => handleStatusChange(movie._id, e.target.value as any)}
-                      style={{
-                        padding: "0.35rem 0.6rem",
-                        background: "#0d0d14",
-                        border: "1px solid rgba(255,255,255,0.15)",
-                        borderRadius: "6px",
-                        color: "#d1d5db",
-                        fontSize: "0.75rem",
-                      }}
-                    >
-                      <option value="now_showing">Đang chiếu</option>
-                      <option value="coming_soon">Sắp chiếu</option>
-                      <option value="ended">Dừng chiếu</option>
-                    </select>
+                    <AppSelect label="Trạng thái" value={movie.status || ""} onValueChange={value => handleStatusChange(movie._id, value as any)} options={[{"value": "now_showing", "label": "Đang chiếu"}, {"value": "coming_soon", "label": "Sắp chiếu"}, {"value": "ended", "label": "Dừng chiếu"}]} />
 
                     <div style={{ display: "flex", gap: "0.5rem" }}>
                       <button
@@ -636,7 +579,7 @@ export default function AdminMoviesPage() {
 
               <form onSubmit={handleSubmit}>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.2rem", marginBottom: "1.2rem" }}>
-                  
+
                   {/* Tên phim tiếng Việt */}
                   <div>
                     <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem", color: "#d1d5db" }}>
@@ -686,18 +629,7 @@ export default function AdminMoviesPage() {
                     <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem", color: "#d1d5db" }}>
                       Phân loại độ tuổi *
                     </label>
-                    <select
-                      value={formData.rating}
-                      onChange={(e) => setFormData({ ...formData, rating: e.target.value as any })}
-                      style={{ width: "100%", padding: "0.65rem", background: "#0a0a12", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "#fff", boxSizing: "border-box" }}
-                    >
-                      <option value="P">P - Phổ biến cho mọi đối tượng</option>
-                      <option value="K">K - Dưới 13 tuổi có người bảo hộ</option>
-                      <option value="T13">T13 - Khán giả từ 13 tuổi trở lên</option>
-                      <option value="T16">T16 - Khán giả từ 16 tuổi trở lên</option>
-                      <option value="T18">T18 - Khán giả từ 18 tuổi trở lên</option>
-                      <option value="C">C - Cấm phổ biến</option>
-                    </select>
+                    <AppSelect label="Lựa chọn" value={formData.rating || ""} onValueChange={value => setFormData({ ...formData, rating: value as any })} options={[{"value": "P", "label": "P - Phổ biến cho mọi đối tượng"}, {"value": "K", "label": "K - Dưới 13 tuổi có người bảo hộ"}, {"value": "T13", "label": "T13 - Khán giả từ 13 tuổi trở lên"}, {"value": "T16", "label": "T16 - Khán giả từ 16 tuổi trở lên"}, {"value": "T18", "label": "T18 - Khán giả từ 18 tuổi trở lên"}, {"value": "C", "label": "C - Cấm phổ biến"}]} fullWidth />
                   </div>
 
                   {/* Ngày khởi chiếu */}
@@ -719,15 +651,7 @@ export default function AdminMoviesPage() {
                     <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 600, marginBottom: "0.4rem", color: "#d1d5db" }}>
                       Trạng thái chiếu
                     </label>
-                    <select
-                      value={formData.status}
-                      onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                      style={{ width: "100%", padding: "0.65rem", background: "#0a0a12", border: "1px solid rgba(255,255,255,0.15)", borderRadius: "8px", color: "#fff", boxSizing: "border-box" }}
-                    >
-                      <option value="now_showing">Đang chiếu (Now Showing)</option>
-                      <option value="coming_soon">Sắp chiếu (Coming Soon)</option>
-                      <option value="ended">Đã dừng chiếu (Ended)</option>
-                    </select>
+                    <AppSelect label="Trạng thái" value={formData.status || ""} onValueChange={value => setFormData({ ...formData, status: value as any })} options={[{"value": "now_showing", "label": "Đang chiếu"}, {"value": "coming_soon", "label": "Sắp chiếu"}, {"value": "ended", "label": "Đã dừng chiếu"}]} fullWidth />
                   </div>
 
                   {/* Đạo diễn */}
@@ -783,7 +707,7 @@ export default function AdminMoviesPage() {
                             fontWeight: selected ? 600 : 400,
                           }}
                         >
-                          {selected ? "✓ " : "+ "}{g}
+                          {selected ? <Icon name="check" className="mr-1" /> : "+ "}{g}
                         </button>
                       );
                     })}
@@ -896,7 +820,7 @@ export default function AdminMoviesPage() {
                   onClick={() => setActiveTrailerUrl(null)}
                   style={{ background: "transparent", border: "none", color: "#fff", fontSize: "1.2rem", cursor: "pointer" }}
                 >
-                  ✕
+                  <Icon name="close" />
                 </button>
               </div>
               <div style={{ padding: "1.5rem", textAlign: "center" }}>

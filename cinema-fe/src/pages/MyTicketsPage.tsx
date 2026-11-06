@@ -1,3 +1,4 @@
+import SePayPayment from "../components/SePayPayment";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { bookingService, type Booking } from "../services/bookingService";
@@ -8,6 +9,7 @@ export default function MyTicketsPage() {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [filterStatus, setFilterStatus] = useState<"all" | "confirmed" | "cancelled">("all");
+  const [paymentBookingId, setPaymentBookingId] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<Booking | null>(null);
   const [cancellingId, setCancellingId] = useState<string | null>(null);
   const [cancelModalOpen, setCancelModalOpen] = useState<boolean>(false);
@@ -80,15 +82,9 @@ export default function MyTicketsPage() {
   return (
     <div className="min-h-screen bg-[#0d0d14] text-[#f0f0f5] font-inter pb-20">
       {/* Top Header */}
-      <header className="sticky top-0 z-30 bg-[#0a0a12]/95 backdrop-blur-md border-b border-white/[0.06] px-6 py-4">
+      <header className="sticky top-32 lg:top-16 z-30 bg-[#0a0a12]/95 backdrop-blur-md border-b border-white/[0.06] px-6 py-4">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="px-3.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-sm font-medium text-white/80 transition-colors flex items-center gap-2 cursor-pointer border border-white/10"
-            >
-              <span>←</span> Bảng điều khiển
-            </button>
             <div>
               <h1 className="text-xl font-black text-white">
                 Vé Của Tôi
@@ -98,7 +94,7 @@ export default function MyTicketsPage() {
           </div>
 
           <button
-            onClick={() => navigate("/")}
+            onClick={() => navigate("/schedule")}
             className="px-4 py-2 bg-[#e8173a] hover:bg-[#c91131] rounded-lg text-xs font-bold text-white uppercase tracking-wider transition-colors cursor-pointer border-0"
           >
             + Đặt vé mới
@@ -181,7 +177,7 @@ export default function MyTicketsPage() {
                   }.`}
             </p>
             <button
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/schedule")}
               className="px-6 py-3 bg-[#e8173a] hover:bg-[#c91131] rounded-xl text-sm font-bold text-white transition-all cursor-pointer shadow-lg shadow-[#e8173a]/30"
             >
               Khám phá phim đang chiếu ngay
@@ -227,7 +223,7 @@ export default function MyTicketsPage() {
                             : "bg-rose-500/15 text-rose-400 border border-rose-500/30"
                         }`}
                       >
-                        {isConfirmed ? "Đã thanh toán (Mock)" : "Đã hủy"}
+                        {ticket.paymentStatus === "review" ? "Cần đối soát" : isConfirmed ? "Đã thanh toán" : ticket.status === "pending" ? "Chờ thanh toán" : ticket.status === "expired" ? "Hết hạn" : "Đã hủy"}
                       </span>
                     </div>
                   </div>
@@ -353,14 +349,20 @@ export default function MyTicketsPage() {
                     <div className="flex items-center gap-2 w-full sm:w-auto">
                       {/* View QR Code Button */}
                       <button
+                        disabled={!isConfirmed}
                         onClick={() => setSelectedTicket(ticket)}
                         className="flex-1 sm:flex-initial px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-all cursor-pointer border border-white/15 flex items-center justify-center gap-1.5"
                       >
                         Xem mã vé
                       </button>
 
+                      {ticket.status === "pending" && ticket.paymentStatus === "pending" && (
+                        <button onClick={() => setPaymentBookingId(ticket._id)} className="px-3 py-2 rounded-xl bg-[#e8173a] text-xs font-bold">Tiếp tục thanh toán</button>
+                      )}
+                      {ticket.paymentStatus === "review" && <p className="text-xs text-amber-300">Liên hệ rạp kèm mã đơn để đối soát/hoàn tiền. Không chuyển thêm tiền.</p>}
+                      {isConfirmed && ticket.paymentMethod === "sepay" && <p className="text-xs text-gray-400">Liên hệ rạp nếu cần huỷ/hoàn tiền.</p>}
                       {/* Cancel Ticket Button (only if confirmed and not past) */}
-                      {isConfirmed && !isPast && (
+                      {isConfirmed && !isPast && ticket.paymentMethod !== "sepay" && (
                         <button
                           onClick={() => {
                             setCancelTarget(ticket);
@@ -379,6 +381,12 @@ export default function MyTicketsPage() {
           </div>
         )}
       </main>
+
+      {paymentBookingId && <div role="dialog" aria-modal="true" aria-label="Thanh toán vé" className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
+        <div className="w-full max-w-[460px] max-h-[90vh] overflow-y-auto rounded-2xl bg-[#161626] p-6 border border-white/15">
+          <SePayPayment bookingId={paymentBookingId} onClose={() => { setPaymentBookingId(null); void fetchMyTickets(); }} />
+        </div>
+      </div>}
 
       {/* QR Code & Barcode Modal */}
       {selectedTicket && (
